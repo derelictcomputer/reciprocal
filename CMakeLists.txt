@@ -29,3 +29,5 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         EXCLUDE_FROM_ALL)
 
 add_subdirectory(reciprocal)
+
+include(CTest)
