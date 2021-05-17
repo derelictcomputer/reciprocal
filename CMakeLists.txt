@@ -3,10 +3,6 @@ project(reciprocal)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# main library
-add_library(reciprocal SHARED src/reciprocal.cpp api/reciprocal.h)
-
-# tests
 # Download and unpack googletest at configure time
 configure_file(download_gtest.cmake googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -32,6 +28,4 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
         EXCLUDE_FROM_ALL)
 
-add_executable(reciprocal_tests test/test_reciprocal.cpp)
-target_link_libraries(reciprocal_tests gtest_main reciprocal)
-add_test(NAME reciprocal_test COMMAND reciprocal_tests)
+add_subdirectory(reciprocal)
