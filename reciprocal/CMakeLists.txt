@@ -10,7 +10,7 @@ add_test(NAME reciprocal_test COMMAND reciprocal_tests)
 
 # automatic discovery of unit tests
 include(GoogleTest)
-gtest_discover_tests(unit_tests
+gtest_discover_tests(reciprocal_tests
     PROPERTIES
     LABELS "unit"
     DISCOVERY_TIMEOUT  # how long to wait (in seconds) before crashing
