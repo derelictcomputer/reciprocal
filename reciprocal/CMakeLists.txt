@@ -5,17 +5,6 @@ add_library(reciprocal SHARED ${src})
 # enable testing (for automation)
 enable_testing()
 
-# get gtest
-include(FetchContent)
-FetchContent_Declare(gtest
-        QUIET
-        URL https://github.com/google/googletest/archive/release-1.10.0.tar.gz
-        )
-# configure build of googletest
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(gtest)
-
 # tests
 file(GLOB test_src test/*.cpp)
 add_executable(reciprocal_tests ${test_src})
