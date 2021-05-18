@@ -3,7 +3,7 @@ file(GLOB src *.h *.cpp)
 add_library(reciprocal SHARED ${src})
 
 # enable testing (for automation)
-include(CTest)
+enable_testing()
 
 # get gtest
 include(FetchContent)
