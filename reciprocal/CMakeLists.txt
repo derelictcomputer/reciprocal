@@ -2,6 +2,16 @@
 file(GLOB src *.h *.cpp)
 add_library(reciprocal SHARED ${src})
 
+# get gtest
+include(FetchContent)
+FetchContent_Declare(
+    gtest
+    URL https://github.com/google/googletest/archive/release-1.10.0.tar.gz
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(gtest)
+
 # tests
 file(GLOB test_src test/*.cpp)
 add_executable(reciprocal_tests ${test_src})
