@@ -2,9 +2,6 @@
 file(GLOB src *.h *.cpp)
 add_library(reciprocal SHARED ${src})
 
-# enable testing (for automation)
-enable_testing()
-
 # tests
 file(GLOB test_src test/*.cpp)
 add_executable(reciprocal_tests ${test_src})
