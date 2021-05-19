@@ -7,11 +7,8 @@ class Param {
 public:
   Param(float min, float max, float def, float step);
 
-  static float snap(float value, float step);
-  static float clamp(float value, float min, float max);
-
   Status set(float value);
-  Status get(float& value);
+  Status get(float& value) const;
 
   const float min;
   const float max;

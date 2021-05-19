@@ -26,6 +26,24 @@ TEST(Param, Basics) {
   }
 
   // check out-of-range param set/get
+  {
+    ASSERT_EQ(p.set(min - 1), Status::Ok);
+    float v;
+    ASSERT_EQ(p.get(v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, min);
+    ASSERT_EQ(p.set(max + 1), Status::Ok);
+    ASSERT_EQ(p.get(v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, max);
+  }
 
   // check step quantize
+  {
+    ASSERT_EQ(p.set(min + step * 0.4f), Status::Ok);
+    float v;
+    ASSERT_EQ(p.get(v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, min);
+    ASSERT_EQ(p.set(min + step * 0.6f), Status::Ok);
+    ASSERT_EQ(p.get(v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, min + step);
+  }
 }

@@ -7,27 +7,15 @@ dc::Param::Param(float min, float max, float def, float step) : min(min), max(ma
 }
 
 dc::Status dc::Param::set(float value) {
-  _val = snap(clamp(value, min, max), step);
+  // clamp
+  _val = max > min ? std::min(max, std::max(min, value)) : std::max(max, std::min(min, value));
+  // snap
+  const float delta = _val - min;
+  _val = min + step * std::floor(delta / step + 0.5f);
   return dc::Status::Ok;
 }
 
-dc::Status dc::Param::get(float &value) {
+dc::Status dc::Param::get(float &value) const {
   value = _val;
   return dc::Status::Ok;
-}
-
-float dc::Param::snap(float value, float step) {
-  if (step > 0.0f)
-  {
-    return step * std::floor(value / step + 0.5f);
-  }
-  return value;
-}
-
-float dc::Param::clamp(float value, float min, float max) {
-  if (max > min)
-  {
-    return std::min(max, std::max(min, value));
-  }
-  return std::max(max, std::min(min, value));
 }
