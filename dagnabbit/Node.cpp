@@ -11,7 +11,7 @@ Status Node::process() {
   if (_cfg.processFn == nullptr) {
     return Status::Fail;
   }
-  return _cfg.processFn({_cfg.params, _cfg.ports, _cfg.userData});
+  return _cfg.processFn(*this);
 }
 
 Status Node::setParam(size_t paramIdx, float value) {

@@ -8,21 +8,14 @@
 namespace dc {
 class Node {
 public:
-  struct ProcessCtx {
-    std::vector<Param> params;
-    std::vector<Port> ports;
-    void* userData{nullptr};
-  };
+  using ProcessFn = std::function<Status(Node& node)>;
 
-  using ProcessFn = std::function<Status(ProcessCtx)>;
-
-  static Status passthroughProcessFn(ProcessCtx ctx) { return Status::Ok; }
+  static Status passthroughProcessFn(Node& node) { return Status::Ok; }
 
   struct Config {
     std::vector<Param> params;
     std::vector<Port> ports;
     ProcessFn processFn{passthroughProcessFn};
-    void* userData{nullptr};
   };
 
   explicit Node(Config cfg);

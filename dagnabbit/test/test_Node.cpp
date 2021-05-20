@@ -6,16 +6,10 @@ using namespace dc;
 
 TEST(Node, Proc) {
   size_t numProcessCalls{0};
-  bool userDataValue = true;
   Node::Config cfg;
-  cfg.userData = &userDataValue;
-  cfg.processFn = [&numProcessCalls](Node::ProcessCtx ctx) -> Status {
+  cfg.processFn = [&numProcessCalls](Node& node) -> Status {
     ++numProcessCalls;
-    if (ctx.userData == nullptr){
-      return Status::Fail;
-    }
-    bool udv = *static_cast<bool*>(ctx.userData);
-    return udv ? Status::Ok : Status::Fail;
+    return Status::Ok;
   };
   Node node(cfg);
   ASSERT_EQ(node.process(), Status::Ok);
@@ -23,9 +17,9 @@ TEST(Node, Proc) {
 }
 
 TEST(Node, Params) {
-  const uint16_t numParams = 5;
+  const size_t numParams = 5;
   Node::Config cfg;
-  for (uint16_t i = 0; i < numParams; ++i) {
+  for (size_t i = 0; i < numParams; ++i) {
     const float min = i;
     const float max = i + 10.0f;
     const float def = (max - min) / 2.0f;
@@ -35,4 +29,26 @@ TEST(Node, Params) {
 
   Node node(cfg);
   ASSERT_EQ(node.numParams(), numParams);
+
+  for (size_t i = 0; i < numParams; ++i) {
+    const float min = i;
+    const float max = i + 10.0f;
+    const float def = (max - min) / 2.0f;
+    const float step = 10.0f / (i + 1);
+    // check default
+    float v;
+    ASSERT_EQ(node.getParam(i, v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, def);
+    // check clamp
+    ASSERT_EQ(node.setParam(i, min - step), Status::Ok);
+    ASSERT_EQ(node.getParam(i, v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, min);
+    ASSERT_EQ(node.setParam(i, max + step), Status::Ok);
+    ASSERT_EQ(node.getParam(i, v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, max);
+    // check snap
+    ASSERT_EQ(node.setParam(i, min + step * 0.4f), Status::Ok);
+    ASSERT_EQ(node.getParam(i, v), Status::Ok);
+    EXPECT_FLOAT_EQ(v, min);
+  }
 }
