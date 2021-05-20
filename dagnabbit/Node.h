@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <vector>
 #include "Param.h"
 #include "Port.h"
 #include "Status.h"
@@ -8,10 +9,8 @@ namespace dc {
 class Node {
 public:
   struct ProcessCtx {
-    Param* params{nullptr};
-    uint16_t numParams{0};
-    Port* ports{nullptr};
-    uint16_t numPorts{0};
+    std::vector<Param> params;
+    std::vector<Port> ports;
     void* userData{nullptr};
   };
 
@@ -20,10 +19,8 @@ public:
   static Status passthroughProcessFn(ProcessCtx ctx) { return Status::Ok; }
 
   struct Config {
-    Param* params{nullptr};
-    uint16_t numParams{0};
-    Port* ports{nullptr};
-    uint16_t numPorts{0};
+    std::vector<Param> params;
+    std::vector<Port> ports;
     ProcessFn processFn{passthroughProcessFn};
     void* userData{nullptr};
   };
@@ -32,6 +29,10 @@ public:
   ~Node() = default;
 
   Status process();
+
+  Status setParam(size_t paramIdx, float value);
+  Status getParam(size_t paramIdx, float& value) const;
+  size_t numParams() const { return _cfg.params.size(); }
 
 protected:
   Config _cfg;
