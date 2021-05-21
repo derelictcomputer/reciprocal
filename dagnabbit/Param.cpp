@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cmath>
 
-dc::Param::Param(float min, float max, float def, float step) : min(min), max(max), def(def), step(step) {
+dc::Param::Param(Config cfg) : min(cfg.min), max(cfg.max), def(cfg.def), step(cfg.step) {
   _val = def;
 }
 

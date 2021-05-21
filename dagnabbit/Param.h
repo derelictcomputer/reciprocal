@@ -5,7 +5,14 @@
 namespace dc {
 class Param {
 public:
-  Param(float min, float max, float def, float step);
+  struct Config {
+    float min{0};
+    float max{0};
+    float def{0};
+    float step{0};
+  };
+
+  explicit Param(Config cfg);
 
   Status set(float value);
   Status get(float& value) const;
