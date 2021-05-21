@@ -24,7 +24,7 @@ TEST(Node, Params) {
     const float max = i + 10.0f;
     const float def = (max - min) / 2.0f;
     const float step = 10.0f / (i + 1);
-    cfg.params.emplace_back(min, max, def, step);
+    cfg.params.push_back(Param({min, max, def, step}));
   }
 
   Node node(cfg);

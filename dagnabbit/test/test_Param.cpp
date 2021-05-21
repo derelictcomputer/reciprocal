@@ -9,7 +9,7 @@ TEST(Param, Basics) {
   const float def = 2.9f;
   const float step = 0.4f;
 
-  Param p(min, max, def, step);
+  Param p({min, max, def, step});
 
   // check init values
   ASSERT_FLOAT_EQ(p.min, min);
