@@ -7,7 +7,7 @@ using namespace dc;
 TEST(Node, Proc) {
   size_t numProcessCalls{0};
   Node::Config cfg;
-  cfg.processFn = [&numProcessCalls](Node &node) -> Status {
+  cfg.processFn = [&numProcessCalls](Node&) -> Status {
     ++numProcessCalls;
     return Status::Ok;
   };
@@ -58,7 +58,7 @@ TEST(Node, Ports) {
   // make some different-sized ports, but make the inputs and outputs match
   const size_t numPorts = 10;
   std::vector<std::unique_ptr<float[]>> buffers;
-  for (auto i = 0; i < numPorts; ++i) {
+  for (size_t i = 0; i < numPorts; ++i) {
     const size_t numSamples = i * 2 + 64;
     const size_t numChannels = i + 1;
     buffers.push_back(std::make_unique<float[]>(numSamples * numChannels));
@@ -73,7 +73,7 @@ TEST(Node, Ports) {
   size_t nodeNumPorts;
   ASSERT_EQ(node.getNumPorts(Node::PortType::Input, nodeNumPorts), Status::Ok);
   ASSERT_EQ(nodeNumPorts, numPorts);
-  for (auto i = 0; i < numPorts; ++i) {
+  for (size_t i = 0; i < numPorts; ++i) {
     Port *inPort{nullptr};
     ASSERT_EQ(node.getPort(i, Node::PortType::Input, inPort), Status::Ok);
     ASSERT_NE(inPort, nullptr);
@@ -90,7 +90,7 @@ TEST(Node, PortsMismatched) {
   // make some mismatched ports
   const size_t numPorts = 10;
   std::vector<std::unique_ptr<float[]>> buffers;
-  for (auto i = 0; i < numPorts; ++i) {
+  for (size_t i = 0; i < numPorts; ++i) {
     const size_t numSamples = i * 2 + 64;
     const size_t numChannels = i + 1;
     buffers.push_back(std::make_unique<float[]>(numSamples * numChannels));
@@ -157,7 +157,7 @@ TEST(Node, PortCustomProcess) {
 
   // assign the input buffer to the input port, then process.
   const auto inBuffer = std::make_unique<float[]>(numSamples * numChannels);
-  for (auto i = 0; i < numSamples * numChannels; ++i) {
+  for (size_t i = 0; i < numSamples * numChannels; ++i) {
     inBuffer[i] = 1.0f;
   }
   Port* in{nullptr};
@@ -175,7 +175,7 @@ TEST(Node, PortCustomProcess) {
   ASSERT_NE(out2, nullptr);
   ASSERT_NE(out1, out2);
   ASSERT_NE(out1->data, out2->data);
-  for (auto i = 0; i < numSamples * numChannels; ++i) {
+  for (size_t i = 0; i < numSamples * numChannels; ++i) {
     ASSERT_EQ(in->data[i], out1->data[i]);
     ASSERT_EQ(in->data[i], out2->data[i]);
   }

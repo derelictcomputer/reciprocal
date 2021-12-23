@@ -10,7 +10,7 @@ Status Node::passthroughProcessFn(Node &node) {
   }
 
   // pass each input through to the corresponding output
-  for (auto i = 0; i < node._cfg.inputPorts.size(); ++i) {
+  for (size_t i = 0; i < node._cfg.inputPorts.size(); ++i) {
     auto& inPort = node._cfg.inputPorts[i];
     auto& outPort = node._cfg.outputPorts[i];
 
