@@ -3,6 +3,9 @@ project(reciprocal)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# use sanitizers if appropriate
+include(cmake/sanitizers.cmake)
+
 # get gtest
 include(FetchContent)
 FetchContent_Declare(
