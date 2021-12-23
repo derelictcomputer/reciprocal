@@ -1,6 +1,7 @@
 # lib
 file(GLOB src *.h *.cpp)
 add_library(dagnabbit SHARED ${src})
+set_target_properties(dagnabbit PROPERTIES LINKER_LANGUAGE CXX)
 
 if (MSVC)
     target_compile_options(dagnabbit PUBLIC /W4 /WX)

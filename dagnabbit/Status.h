@@ -1,14 +1,31 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 namespace dc {
-enum class Status : uint8_t {
-  Ok = 0,
-  Fail,
-  OutOfRange,
-  Mismatch,
-  NotFound,
-  Uninitialized,
-  SIZE
+// add status types here so we get the nice conversion functions
+#define status_names  \
+X(Ok)                 \
+X(Fail)
+
+enum class Status {
+#define X(name) name,
+  status_names
+#undef X
+  COUNT // for iterating if needed
 };
+
+inline std::string to_string(Status status) {
+  switch (status) {
+#define X(name) case Status::name: return #name;
+    status_names
+#undef X
+    case Status::COUNT:
+      return "COUNT";
+    default:
+      return "<invalid status>";
+  }
+}
+
+#undef status_names
 }
