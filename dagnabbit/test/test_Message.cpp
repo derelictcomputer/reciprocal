@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "../Message.h"
-#include "../Status.h"
+#include "../../core/Status.h"
 
 using namespace dc;
 

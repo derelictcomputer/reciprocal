@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cmath>
-#include "Status.h"
+#include "../core/Status.h"
 
 namespace dc {
 /// Atomic configuration value for a thing that needs configuring.

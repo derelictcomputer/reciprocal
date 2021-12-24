@@ -15,7 +15,7 @@ struct Message {
   /// Some helpers are included here for types we use within the library.
   MessageTypeId typeId{InvalidMessageTypeId};
 
-  /// The data. Fill this with an array of any size. No need to clean up after yourself.
+  /// The data. Its meaning is user-defined.
   DataType data[DataSize];
 
   /// The number of blocks, in case for some reason we don't already know it.

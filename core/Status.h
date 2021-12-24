@@ -5,7 +5,9 @@ namespace dc {
 // add status types here so we get the nice conversion functions
 #define status_names  \
 X(Ok)                 \
-X(Fail)
+X(Fail)               \
+X(Full)               \
+X(Empty)
 
 enum class Status {
 #define X(name) name,
