@@ -10,7 +10,7 @@ else()
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(tremolo_adsr_core PUBLIC -fconcepts)
+    target_compile_options(dagnabbit PUBLIC -fconcepts)
 endif()
 
 # tests
