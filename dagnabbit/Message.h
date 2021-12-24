@@ -3,7 +3,6 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
-#include <type_traits>
 
 namespace dc {
 using MessageTypeId = uint16_t;
