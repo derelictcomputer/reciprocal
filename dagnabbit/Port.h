@@ -11,7 +11,7 @@ const PortTypeId InvalidPortType = -1;
 /// The mechanism by which messages travel between nodes.
 struct Port {
   /// The type of port, which will determine what can connect to it.
-  const PortTypeId typeId{InvalidPortType};
+  PortTypeId typeId{InvalidPortType};
 
   /// The display name for the port.
   std::string prettyName;
