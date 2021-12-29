@@ -45,7 +45,7 @@ public:
     return Status::Ok;
   }
 
-  using Reader = std::function<Status(const T&)>;
+  using Reader = std::function<Status(T&)>;
 
   /// Remove an item from the queue.
   /// @param reader The function to read the item in the queue.

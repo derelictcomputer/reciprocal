@@ -7,7 +7,9 @@ namespace dc {
 X(Ok)                 \
 X(Fail)               \
 X(Full)               \
-X(Empty)
+X(Empty)              \
+X(TypeMismatch)       \
+X(NotFound)
 
 enum class Status {
 #define X(name) name,
