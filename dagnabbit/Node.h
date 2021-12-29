@@ -1,15 +1,11 @@
 #pragma once
 
-#include "Message.h"
-#include "../core/Status.h"
+#include "Port.h"
 
 namespace dc {
-template<MessageSpecialization MessageType>
+template<class TimeType>
 class Node {
 public:
-  MessageType makeMessage() {
-    MessageType msg;
-    return msg;
-  }
+  virtual Status process(TimeType now, TimeType deltaTime) = 0;
 };
 }

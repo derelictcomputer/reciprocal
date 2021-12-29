@@ -6,8 +6,8 @@ using namespace dc;
 
 template<class DataType, size_t DataSize, class TimeType>
 void basicTest() {
-  Message<DataType, DataSize, TimeType> msg;
-  ASSERT_EQ(msg.typeId, InvalidMessageTypeId);
+  using MessageType = Message<DataType, DataSize, TimeType>;
+  MessageType msg;
   ASSERT_EQ(msg.dataSize, DataSize);
   for (size_t i = 0; i < DataSize; ++i) {
     msg.data[i] = DataType(i);
