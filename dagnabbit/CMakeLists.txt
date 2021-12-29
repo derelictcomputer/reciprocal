@@ -9,6 +9,10 @@ else()
     target_compile_options(dagnabbit PUBLIC -Wall -Wextra -pedantic -Werror)
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(dagnabbit PUBLIC -fconcepts)
+endif()
+
 # tests
 file(GLOB test_src test/*.cpp)
 add_executable(dagnabbit_tests ${test_src})

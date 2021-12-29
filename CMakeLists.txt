@@ -18,4 +18,5 @@ FetchContent_MakeAvailable(gtest)
 
 enable_testing()
 
+add_subdirectory(core)
 add_subdirectory(dagnabbit)
