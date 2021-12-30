@@ -21,6 +21,8 @@ public:
 
   explicit Port(const Config& cfg);
 
+  ~Port();
+
   /// The type of port, which will determine what can connect to it.
   const PortTypeId typeId;
 

@@ -10,8 +10,15 @@ maxConnections(cfg.maxConnections),
 _connections(cfg.maxConnections),
 _destroyMessageQueueFn(cfg.destroyMessageQueueFn) {
   if (cfg.createMessageQueueFn != nullptr) {
-    assert(cfg.destroyMessageQueueFn != nullptr);
+    assert(_destroyMessageQueueFn != nullptr);
     _messageQueue = cfg.createMessageQueueFn();
+  }
+}
+
+Port::~Port() {
+  if (_messageQueue != nullptr) {
+    assert(_destroyMessageQueueFn != nullptr);
+    _destroyMessageQueueFn(_messageQueue);
   }
 }
 
