@@ -9,5 +9,6 @@ class Node {
 public:
   virtual Status process(TimeType now, TimeType deltaTime) = 0;
 
+
 };
 }

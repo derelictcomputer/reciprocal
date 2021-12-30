@@ -8,20 +8,15 @@ TEST(RTList, Add) {
   RTList<int> list(size);
 
   // check initial size
-  size_t actualSize{0};
-  auto status = list.size(actualSize);
-  ASSERT_EQ(status, Status::Ok);
-  ASSERT_EQ(actualSize, 0);
+  ASSERT_EQ(list.size(), 0);
 
   // fill up the list and expect the size to increase
   for (size_t i = 0; i < size; ++i) {
-    status = list.add([i](int& val) {
+    const auto status = list.add([i](int& val) {
       val = static_cast<int>(i);
     });
     ASSERT_EQ(status, Status::Ok);
-    status = list.size(actualSize);
-    ASSERT_EQ(status, Status::Ok);
-    ASSERT_EQ(actualSize, i + 1);
+    ASSERT_EQ(list.size(), i + 1);
   }
 }
 
@@ -35,10 +30,7 @@ TEST(RTList, Iterate) {
       val = static_cast<int>(i);
     });
     ASSERT_EQ(status, Status::Ok);
-    size_t actualSize{0};
-    status = list.size(actualSize);
-    ASSERT_EQ(status, Status::Ok);
-    ASSERT_EQ(actualSize, i + 1);
+    ASSERT_EQ(list.size(), i + 1);
   }
 
   // check the values, expect them to be increasing from zero
@@ -92,10 +84,7 @@ TEST(RTList, Remove) {
   ASSERT_EQ(status, Status::Ok);
   ASSERT_TRUE(removed);
 
-  size_t actualSize{0};
-  status = list.size(actualSize);
-  ASSERT_EQ(status, Status::Ok);
-  ASSERT_EQ(actualSize, 0);
+  ASSERT_EQ(list.size(), 0);
 }
 
 TEST(RTList, RemoveAll) {
@@ -108,10 +97,7 @@ TEST(RTList, RemoveAll) {
       val = static_cast<int>(i);
     });
     ASSERT_EQ(status, Status::Ok);
-    size_t actualSize{0};
-    status = list.size(actualSize);
-    ASSERT_EQ(status, Status::Ok);
-    ASSERT_EQ(actualSize, i + 1);
+    ASSERT_EQ(list.size(), i + 1);
   }
 
   // remove all the odd numbered items
@@ -126,10 +112,7 @@ TEST(RTList, RemoveAll) {
       });
   ASSERT_EQ(status, Status::Ok);
   ASSERT_EQ(actualRemoved, expectedRemoved);
-  size_t actualSize{0};
-  status = list.size(actualSize);
-  ASSERT_EQ(status, Status::Ok);
-  ASSERT_EQ(actualSize, size - expectedRemoved);
+  ASSERT_EQ(list.size(), size - expectedRemoved);
 }
 
 TEST(RTList, Clear) {
@@ -142,17 +125,11 @@ TEST(RTList, Clear) {
       val = static_cast<int>(i);
     });
     ASSERT_EQ(status, Status::Ok);
-    size_t actualSize{0};
-    status = list.size(actualSize);
-    ASSERT_EQ(status, Status::Ok);
-    ASSERT_EQ(actualSize, i + 1);
+    ASSERT_EQ(list.size(), i + 1);
   }
 
   // clear, expect empty
   auto status = list.clear([](int&) {});
   ASSERT_EQ(status, Status::Ok);
-  size_t actualSize{0};
-  status = list.size(actualSize);
-  ASSERT_EQ(status, Status::Ok);
-  ASSERT_EQ(actualSize, 0);
+  ASSERT_EQ(list.size(), 0);
 }
