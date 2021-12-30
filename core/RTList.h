@@ -39,11 +39,9 @@ public:
   }
 
   /// Get the current size of the list.
-  /// @param size The size of the list
-  /// @returns Status::Ok or appropriate error.
-  Status size(size_t& size) {
-    size = _size;
-    return Status::Ok;
+  /// @returns The size of the list
+  [[nodiscard]] size_t size() const {
+    return _size;
   }
 
   /// Add an item to the list.
