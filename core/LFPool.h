@@ -14,8 +14,6 @@ namespace dc {
 template<class T>
 class LFPool {
 public:
-  using InitFn = std::function<void(T&)>;
-
   template<class... Args>
   explicit LFPool(size_t capacity, Args&&... args) : _q(capacity) {
     for (size_t i = 0; i < capacity; ++i) {
@@ -25,10 +23,12 @@ public:
   }
 
   ~LFPool() {
-    T* item{nullptr};
-    while (_q.try_pop(item)) {
+    while (!_q.empty()) {
+      T* item{nullptr};
+      [[maybe_unused]] const auto success = _q.try_pop(item);
+      assert(success);
+      assert(item != nullptr);
       delete item;
-      item = nullptr;
     }
   }
 

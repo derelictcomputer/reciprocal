@@ -31,10 +31,11 @@ TEST(LFPool, AcquireRelease) {
   }
 
   // acquire all the stuff
-  std::vector<Stuff*> acquiredStuff(poolSize);
+  std::vector<Stuff*> acquiredStuff;
   for (size_t i = 0; i < poolSize; ++i) {
     Stuff* stuffPtr{nullptr};
     ASSERT_EQ(pool.acquire(stuffPtr), Status::Ok);
+    ASSERT_NE(stuffPtr, nullptr);
     ASSERT_EQ(stuffPtr->numThings, numThings);
     for (size_t j = 0; j < numThings; ++j) {
       ASSERT_FLOAT_EQ(stuffPtr->things[j], initialValue);
@@ -51,6 +52,7 @@ TEST(LFPool, AcquireRelease) {
 
   // put the stuff back, we don't want more stuff anyway
   for (size_t i = 0; i < poolSize; ++i) {
+    ASSERT_NE(acquiredStuff[i], nullptr);
     ASSERT_EQ(pool.release(acquiredStuff[i]), Status::Ok);
   }
 }
