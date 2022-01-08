@@ -71,7 +71,7 @@ TEST(Port, Basic) {
 }
 
 TEST(Port, MessageQueueBasic) {
-  using MessageType = Message<float, 1, float>;
+  using MessageType = Message<float, float>;
   using QueueType = SPSCQ<MessageType>;
 
   Port::Config cfg;
@@ -89,10 +89,10 @@ TEST(Port, MessageQueueBasic) {
 
   auto q = static_cast<QueueType*>(qPtr);
   ASSERT_EQ(q->push([](MessageType& msg) {
-    msg.data[0] = 123.4f;
+    msg.data = 123.4f;
     return Status::Ok;
   }), Status::Ok);
   ASSERT_EQ(q->pop([](MessageType& msg) {
-    return msg.data[0] == 123.4f ? Status::Ok : Status::Fail;
+    return msg.data == 123.4f ? Status::Ok : Status::Fail;
   }), Status::Ok);
 }
