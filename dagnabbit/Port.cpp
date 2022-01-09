@@ -1,4 +1,3 @@
-#include <cassert>
 #include "Port.h"
 
 using namespace dc;

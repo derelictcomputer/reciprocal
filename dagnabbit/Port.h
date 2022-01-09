@@ -2,7 +2,7 @@
 
 #include <atomic>
 #include <cstdint>
-#include <functional>
+#include <memory>
 #include <string>
 #include "../core/Status.h"
 #include "../third_party/rigtorp/MPMCQueue.h"
