@@ -15,14 +15,12 @@ _destroyMessageQueueFn(cfg.destroyMessageQueueFn) {
   }
 
   if (cfg.createMessageQueueFn != nullptr) {
-    assert(_destroyMessageQueueFn != nullptr);
     _messageQueue = cfg.createMessageQueueFn();
   }
 }
 
 Port::~Port() {
-  if (_messageQueue != nullptr) {
-    assert(_destroyMessageQueueFn != nullptr);
+  if (_destroyMessageQueueFn != nullptr) {
     _destroyMessageQueueFn(_messageQueue);
   }
 }
@@ -117,5 +115,19 @@ Status Port::getMessageQueue(void*& messageQueue) {
     return Status::NotFound;
   }
   messageQueue = _messageQueue;
+  return Status::Ok;
+}
+
+Status Port::frobConnections(Port::Frobber&& frobber) {
+  for (auto& c : _connections) {
+    auto other = c.load();
+    if (other != nullptr) {
+      const auto status = frobber(other);
+      if (status != Status::Ok) {
+        return status;
+      }
+    }
+  }
+
   return Status::Ok;
 }

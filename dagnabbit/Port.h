@@ -62,6 +62,13 @@ public:
   /// @returns Status::Ok if there is a message queue to get, Status::NotFound otherwise.
   Status getMessageQueue(void*& messageQueue);
 
+  using Frobber = std::function<Status(Port*)>;
+
+  /// Do something to all the connections.
+  /// @param frobber Function to frobnicate the other ports.
+  /// @returns Status::Ok or appropriate error. The user can force an error within their Frobber.
+  Status frobConnections(Frobber&& frobber);
+
 protected:
   std::vector<std::atomic<Port*>> _connections;
 
