@@ -4,18 +4,16 @@
 
 using namespace dc;
 
-template<class DataType, size_t DataSize, class TimeType>
+template<class DataType, class TimeType>
 void basicTest() {
-  using MessageType = Message<DataType, DataSize, TimeType>;
+  using MessageType = Message<DataType, TimeType>;
   MessageType msg;
-  ASSERT_EQ(msg.dataSize, DataSize);
-  for (size_t i = 0; i < DataSize; ++i) {
-    msg.data[i] = DataType(i);
-  }
+  msg.time = TimeType();
+  msg.data = DataType();
 }
 
 TEST(Message, Basic) {
-  basicTest<float, 3, size_t>();
-  basicTest<double, 9, float>();
-  basicTest<uint64_t, 2, double>();
+  basicTest<float, size_t>();
+  basicTest<double, float>();
+  basicTest<uint64_t, double>();
 }

@@ -3,106 +3,98 @@
 
 using namespace dc;
 
-Port::Port(const Port::Config& cfg) :
+IPort::IPort(const IPort::Config& cfg) :
 typeId(cfg.typeId),
 prettyName(cfg.prettyName),
 maxConnections(cfg.maxConnections),
-_connections(cfg.maxConnections),
-_destroyMessageQueueFn(cfg.destroyMessageQueueFn) {
-  if (cfg.createMessageQueueFn != nullptr) {
-    assert(_destroyMessageQueueFn != nullptr);
-    _messageQueue = cfg.createMessageQueueFn();
+_connections(cfg.maxConnections) {
+  assert(_connections.size() == maxConnections);
+  for (auto& c : _connections) {
+    c = nullptr;
   }
 }
 
-Port::~Port() {
-  if (_messageQueue != nullptr) {
-    assert(_destroyMessageQueueFn != nullptr);
-    _destroyMessageQueueFn(_messageQueue);
+size_t IPort::getNumConnections() const {
+  size_t count{0};
+  for (const auto& c : _connections) {
+    if (c != nullptr) {
+      ++count;
+    }
   }
+  return count;
 }
 
-size_t Port::getNumConnections() const {
-  return _connections.size();
+bool IPort::isConnectedTo(IPort* other) {
+  if (other == nullptr) {
+    return false;
+  }
+
+  for (auto& c : _connections) {
+    if (c == other) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
-bool Port::isConnectedTo(Port* other) {
-  return _connections.find(
-      [other](Port* const& p) {
-        return p == other;
-      },
-      [](Port*&) {}) == Status::Ok;
-}
-
-Status Port::connect(Port* other) {
+Status IPort::connect(IPort* other) {
+  // Wrong port type
   if (other->typeId != typeId) {
     return Status::TypeMismatch;
   }
 
-  auto status = other->_connections.add([this](Port*& p) {
-    p = this;
-  });
-  if (status != Status::Ok) {
-    return status;
+  // Already connected. Pretend it succeeded.
+  if (isConnectedTo(other)) {
+    return Status::Ok;
   }
 
-  status = _connections.add([other](Port*& p) {
-    p = other;
-  });
-  if (status != Status::Ok) {
-    [[maybe_unused]] const auto s = other->_connections.remove(
-        [this](Port* const& p) {
-          return p == this;
-        },
-        [](Port*& p) {
-          p = nullptr;
-        });
-    assert(s == Status::Ok);
-    return status;
+  for (auto& c : _connections) {
+    auto current = c.load();
+    if (current == nullptr && c.compare_exchange_strong(current, other)) {
+      const auto status = other->connect(this);
+      // Something went wrong, disconnect.
+      if (status != Status::Ok) {
+        c = nullptr;
+      }
+      return status;
+    }
   }
 
-  return Status::Ok;
+  return Status::Full;
 }
 
-Status Port::disconnect(Port* other) {
-  auto status = _connections.remove(
-      [other](Port* const& p) {
-        return p == other;
-      },
-      [](Port*& p) {
-        p = nullptr;
-      });
-  if (status != Status::Ok) {
-    return status;
+Status IPort::disconnect(IPort* other) {
+  for (auto& c : _connections) {
+    auto current = c.load();
+    if (current == other && c.compare_exchange_strong(current, nullptr)) {
+      for (auto& oc : other->_connections) {
+        current = oc.load();
+        if (current == this) {
+          return oc.compare_exchange_strong(current, nullptr) ? Status::Ok : Status::Fail;
+        }
+      }
+    }
   }
 
-  return other->_connections.remove(
-      [this](Port* const& p) {
-        return p == this;
-      },
-      [](Port*& p) {
-        p = nullptr;
-      });
+  return Status::NotFound;
 }
 
-Status Port::disconnectAll() {
-  return _connections.clear([this](Port*& other) {
-    [[maybe_unused]] const auto status = other->_connections.remove(
-        [this](Port* const& p) {
-          return p == this;
-        },
-        [](Port*& p) {
-          p = nullptr;
-        });
-    assert(status == Status::Ok);
-    other = nullptr;
-  });
-}
-
-Status Port::getMessageQueue(void*& messageQueue) {
-  if (_messageQueue == nullptr) {
-    return Status::NotFound;
+Status IPort::disconnectAll() {
+  for (auto& c : _connections) {
+    auto other = c.load();
+    c = nullptr;
+    if (other != nullptr) {
+      for (auto& oc : other->_connections) {
+        auto maybeThis = oc.load();
+        if (maybeThis == this) {
+          if (!oc.compare_exchange_strong(maybeThis, nullptr)) {
+            return Status::Fail;
+          }
+        }
+      }
+    }
   }
-  messageQueue = _messageQueue;
+
   return Status::Ok;
 }

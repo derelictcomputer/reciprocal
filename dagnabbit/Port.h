@@ -1,27 +1,29 @@
 #pragma once
 
+#include <atomic>
 #include <cstdint>
+#include <functional>
 #include <string>
-#include "../core/RTList.h"
+#include <vector>
+#include "../core/Status.h"
+#include "../third_party/rigtorp/MPMCQueue.h"
 
 namespace dc {
 using PortTypeId = uint16_t;
 const PortTypeId InvalidPortType = -1;
 
 /// The mechanism by which messages travel between nodes.
-class Port {
+class IPort {
 public:
   struct Config {
     PortTypeId typeId{InvalidPortType};
     std::string prettyName;
     size_t maxConnections{1};
-    std::function<void*()> createMessageQueueFn{nullptr};
-    std::function<void(void*)> destroyMessageQueueFn{nullptr};
   };
 
-  explicit Port(const Config& cfg);
+  explicit IPort(const Config& cfg);
 
-  ~Port();
+  virtual ~IPort() = default;
 
   /// The type of port, which will determine what can connect to it.
   const PortTypeId typeId;
@@ -34,37 +36,66 @@ public:
 
   /// The current number of other ports connected to this port
   /// @returns The number of connected ports.
-  size_t getNumConnections() const;
+  [[nodiscard]] size_t getNumConnections() const;
 
   /// Check whether this port is connected to the given port.
   /// @returns true if connected, otherwise false
-  bool isConnectedTo(Port* other);
+  bool isConnectedTo(IPort* other);
 
   /// Try to connect this port to another port.
   /// @param other The other port
   /// @returns Status::Ok or appropriate error.
-  Status connect(Port* other);
+  Status connect(IPort* other);
 
   /// Try to disconnect this port from another port.
   /// @param other The other port
   /// @returns Status::Ok on successful disconnect. Status::NotFound if not connected.
-  Status disconnect(Port* other);
+  Status disconnect(IPort* other);
 
   /// Disconnect all the connected ports.
   /// @returns Status::Ok or appropriate error
   Status disconnectAll();
 
-  /// Get the message queue for this port if there is one.
-  /// @param messageQueue A pointer to the message queue. It's up to the user to know what to cast it to.
-  /// @returns Status::Ok if there is a message queue to get, Status::NotFound otherwise.
-  Status getMessageQueue(void*& messageQueue);
-
 protected:
-  RTList<Port*> _connections;
+  std::vector<std::atomic<IPort*>> _connections;
+};
+
+template<class MessageType>
+class InputPort : public IPort {
+public:
+  using QueueType = rigtorp::MPMCQueue<MessageType>;
+
+  explicit InputPort(const IPort::Config& cfg, size_t queueSize) : IPort(cfg), _q(queueSize) {}
+
+  Status pushMessage(const MessageType& msg) {
+    return _q.try_push(msg) ? Status::Ok : Status::Full;
+  }
+
+  Status popMessage(MessageType& msg) {
+    return _q.try_pop(msg) ? Status::Ok : Status::Empty;
+  }
 
 private:
-  std::function<void(void*)> _destroyMessageQueueFn;
+  QueueType _q;
+};
 
-  void* _messageQueue{nullptr};
+template<class MessageType>
+class OutputPort : public IPort {
+public:
+  explicit OutputPort(const IPort::Config& cfg) : IPort(cfg) {}
+
+  Status pushToConnections(const MessageType& msg) {
+    for (auto& c: _connections) {
+      auto other = dynamic_cast<InputPort<MessageType>*>(c.load());
+      if (other != nullptr) {
+        const auto status = other->pushMessage(msg);
+        if (status != Status::Ok) {
+          return status;
+        }
+      }
+    }
+
+    return Status::Ok;
+  }
 };
 }
