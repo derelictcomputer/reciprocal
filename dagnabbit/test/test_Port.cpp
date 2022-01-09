@@ -8,27 +8,27 @@ using namespace dc;
 
 
 TEST(Port, Basic) {
-  Port::Config cfg;
+  IPort::Config cfg;
   cfg.typeId = 5;
   cfg.prettyName = "Hiiiii";
   cfg.maxConnections = 8;
-  Port port(cfg);
+  IPort port(cfg);
   ASSERT_EQ(port.typeId, cfg.typeId);
   ASSERT_EQ(port.prettyName, cfg.prettyName);
   ASSERT_EQ(port.maxConnections, cfg.maxConnections);
 
   // try to connect a port with the wrong type
   {
-    Port::Config wrongCfg;
+    IPort::Config wrongCfg;
     wrongCfg.typeId = 8;
-    Port wrongPort(wrongCfg);
+    IPort wrongPort(wrongCfg);
     ASSERT_EQ(port.connect(&wrongPort), Status::TypeMismatch);
   }
 
-  std::vector<std::unique_ptr<Port>> otherPorts;
+  std::vector<std::unique_ptr<IPort>> otherPorts;
   // connect a bunch of ports
   for (size_t i = 0; i < cfg.maxConnections; ++i) {
-    otherPorts.push_back(std::make_unique<Port>(cfg));
+    otherPorts.push_back(std::make_unique<IPort>(cfg));
     const auto status = port.connect(otherPorts[i].get());
     ASSERT_EQ(status, Status::Ok);
   }
@@ -46,7 +46,7 @@ TEST(Port, Basic) {
     ASSERT_EQ(status, Status::NotFound);
 
     // try to disconnect a port that was never connected
-    Port notConnectedPort(cfg);
+    IPort notConnectedPort(cfg);
     status = port.disconnect(&notConnectedPort);
     ASSERT_EQ(status, Status::NotFound);
   }
@@ -65,27 +65,17 @@ TEST(Port, Basic) {
 
 TEST(Port, MessageQueueBasic) {
   using MessageType = Message<float, float>;
-  using QueueType = SPSCQ<MessageType>;
 
-  Port::Config cfg;
-  cfg.createMessageQueueFn = []() {
-    return new QueueType(16);
-  };
-  cfg.destroyMessageQueueFn = [](void* ptr) {
-    auto q = static_cast<QueueType*>(ptr);
-    delete q;
-  };
-  Port port(cfg);
+  IPort::Config cfg;
+  InputPort<MessageType> port(cfg, 32);
 
-  void* qPtr;
-  ASSERT_EQ(port.getMessageQueue(qPtr), Status::Ok);
+  MessageType msgIn;
+  msgIn.data = 123.4f;
+  msgIn.time = 432.1f;
+  ASSERT_EQ(port.pushMessage(msgIn), Status::Ok);
 
-  auto q = static_cast<QueueType*>(qPtr);
-  ASSERT_EQ(q->push([](MessageType& msg) {
-    msg.data = 123.4f;
-    return Status::Ok;
-  }), Status::Ok);
-  ASSERT_EQ(q->pop([](MessageType& msg) {
-    return msg.data == 123.4f ? Status::Ok : Status::Fail;
-  }), Status::Ok);
+  MessageType msgOut;
+  ASSERT_EQ(port.popMessage(msgOut), Status::Ok);
+  ASSERT_FLOAT_EQ(msgIn.data, msgOut.data);
+  ASSERT_FLOAT_EQ(msgIn.time, msgOut.time);
 }

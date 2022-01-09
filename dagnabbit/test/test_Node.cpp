@@ -8,40 +8,31 @@ using namespace dc;
 class PassthroughNode : public Node<float> {
 public:
   using MessageType = Message<float, float>;
-  using QueueType = rigtorp::MPMCQueue<MessageType>;
+  using InputPortType = InputPort<MessageType>;
+  using OutputPortType = OutputPort<MessageType>;
 
-  PassthroughNode() : _inputQueue(16) {
+  PassthroughNode() {
     // input
     {
-      Port::Config cfg;
+      IPort::Config cfg;
       cfg.typeId = 1;
       cfg.maxConnections = 1;
-      cfg.createMessageQueueFn = [this]() {
-        return &_inputQueue;
-      };
-      this->_inputs.emplace_back(std::make_unique<Port>(cfg));
+      this->_inputs.emplace_back(std::make_unique<InputPortType>(cfg, 16));
     }
     // output
     {
-      Port::Config cfg;
+      IPort::Config cfg;
       cfg.typeId = 1;
       cfg.maxConnections = 4;
-      this->_outputs.emplace_back(std::make_unique<Port>(cfg));
+      this->_outputs.emplace_back(std::make_unique<OutputPortType>(cfg));
     }
   }
 
   Status process(const float&, const float&) override {
     MessageType msg;
-    while (_inputQueue.try_pop(msg)) {
-      const auto status = _outputs[0]->frobConnections([&msg](Port* other) {
-        void* qP;
-        auto status = other->getMessageQueue(qP);
-        if (status != Status::Ok) {
-          return status;
-        }
-        auto q = static_cast<QueueType*>(qP);
-        return q->try_push(msg) ? Status::Ok : Status::Full;
-      });
+    while (popMessage(msg) == Status::Ok) {
+      auto output = dynamic_cast<OutputPortType*>(_outputs[0].get());
+      const auto status = output->pushToConnections(msg);
       if (status != Status::Ok) {
         return status;
       }
@@ -50,15 +41,20 @@ public:
   }
 
   Status pushMessage(const MessageType& msg) {
-    return _inputQueue.try_push(msg) ? Status::Ok : Status::Full;
+    auto input = dynamic_cast<InputPortType*>(_inputs[0].get());
+    if (input != nullptr) {
+      return input->pushMessage(msg);
+    }
+    return Status::Fail;
   }
 
   Status popMessage(MessageType& msg) {
-    return _inputQueue.try_pop(msg) ? Status::Ok : Status::Empty;
+    auto input = dynamic_cast<InputPortType*>(_inputs[0].get());
+    if (input != nullptr) {
+      return input->popMessage(msg);
+    }
+    return Status::Fail;
   }
-
-private:
-  QueueType _inputQueue;
 };
 
 TEST(Node, PassthroughNode) {

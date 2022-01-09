@@ -3,29 +3,18 @@
 
 using namespace dc;
 
-Port::Port(const Port::Config& cfg) :
+IPort::IPort(const IPort::Config& cfg) :
 typeId(cfg.typeId),
 prettyName(cfg.prettyName),
 maxConnections(cfg.maxConnections),
-_connections(cfg.maxConnections),
-_destroyMessageQueueFn(cfg.destroyMessageQueueFn) {
+_connections(cfg.maxConnections) {
   assert(_connections.size() == maxConnections);
   for (auto& c : _connections) {
     c = nullptr;
   }
-
-  if (cfg.createMessageQueueFn != nullptr) {
-    _messageQueue = cfg.createMessageQueueFn();
-  }
 }
 
-Port::~Port() {
-  if (_destroyMessageQueueFn != nullptr) {
-    _destroyMessageQueueFn(_messageQueue);
-  }
-}
-
-size_t Port::getNumConnections() const {
+size_t IPort::getNumConnections() const {
   size_t count{0};
   for (const auto& c : _connections) {
     if (c != nullptr) {
@@ -35,7 +24,7 @@ size_t Port::getNumConnections() const {
   return count;
 }
 
-bool Port::isConnectedTo(Port* other) {
+bool IPort::isConnectedTo(IPort* other) {
   if (other == nullptr) {
     return false;
   }
@@ -49,7 +38,7 @@ bool Port::isConnectedTo(Port* other) {
   return false;
 }
 
-Status Port::connect(Port* other) {
+Status IPort::connect(IPort* other) {
   // Wrong port type
   if (other->typeId != typeId) {
     return Status::TypeMismatch;
@@ -75,7 +64,7 @@ Status Port::connect(Port* other) {
   return Status::Full;
 }
 
-Status Port::disconnect(Port* other) {
+Status IPort::disconnect(IPort* other) {
   for (auto& c : _connections) {
     auto current = c.load();
     if (current == other && c.compare_exchange_strong(current, nullptr)) {
@@ -91,7 +80,7 @@ Status Port::disconnect(Port* other) {
   return Status::NotFound;
 }
 
-Status Port::disconnectAll() {
+Status IPort::disconnectAll() {
   for (auto& c : _connections) {
     auto other = c.load();
     c = nullptr;
@@ -103,28 +92,6 @@ Status Port::disconnectAll() {
             return Status::Fail;
           }
         }
-      }
-    }
-  }
-
-  return Status::Ok;
-}
-
-Status Port::getMessageQueue(void*& messageQueue) {
-  if (_messageQueue == nullptr) {
-    return Status::NotFound;
-  }
-  messageQueue = _messageQueue;
-  return Status::Ok;
-}
-
-Status Port::frobConnections(Port::Frobber&& frobber) {
-  for (auto& c : _connections) {
-    auto other = c.load();
-    if (other != nullptr) {
-      const auto status = frobber(other);
-      if (status != Status::Ok) {
-        return status;
       }
     }
   }

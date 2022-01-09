@@ -28,20 +28,9 @@ public:
     return outputPort->connect(inputPort);
   }
 
-  Status connectOutput(Node<TimeType>& inputNode, size_t inputIndex, size_t outputIndex) {
-    if (inputIndex >= inputNode.getNumInputs() || outputIndex >= getNumOutputs()) {
-      return Status::OutOfRange;
-    }
-
-    auto outputPort = _outputs[outputIndex].get();
-    auto inputPort = inputNode._inputs[inputIndex].get();
-
-    return outputPort->connect(inputPort);
-  }
-
 protected:
   // IMPORTANT: Initialize ports in your Node's constructor and don't reconfigure after that.
-  std::vector<std::unique_ptr<Port>> _inputs;
-  std::vector<std::unique_ptr<Port>> _outputs;
+  std::vector<std::unique_ptr<IPort>> _inputs;
+  std::vector<std::unique_ptr<IPort>> _outputs;
 };
 }
