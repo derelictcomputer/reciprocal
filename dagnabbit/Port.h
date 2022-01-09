@@ -2,9 +2,8 @@
 
 #include <atomic>
 #include <cstdint>
-#include <functional>
+#include <memory>
 #include <string>
-#include <vector>
 #include "../core/Status.h"
 #include "../third_party/rigtorp/MPMCQueue.h"
 
@@ -57,7 +56,7 @@ public:
   Status disconnectAll();
 
 protected:
-  std::vector<std::atomic<IPort*>> _connections;
+  std::unique_ptr<std::atomic<IPort*>[]> _connections;
 };
 
 template<class MessageType>
@@ -85,7 +84,8 @@ public:
   explicit OutputPort(const IPort::Config& cfg) : IPort(cfg) {}
 
   Status pushToConnections(const MessageType& msg) {
-    for (auto& c: _connections) {
+    for (size_t i = 0; i < maxConnections; ++i) {
+      auto& c = _connections[i];
       auto other = dynamic_cast<InputPort<MessageType>*>(c.load());
       if (other != nullptr) {
         const auto status = other->pushMessage(msg);
