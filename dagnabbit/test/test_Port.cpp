@@ -1,5 +1,6 @@
 #include <memory>
 #include <gtest/gtest.h>
+#include "../../core/SPSCQ.h"
 #include "../Message.h"
 #include "../Port.h"
 
@@ -24,14 +25,11 @@ TEST(Port, Basic) {
     ASSERT_EQ(port.connect(&wrongPort), Status::TypeMismatch);
   }
 
-  RTList<std::unique_ptr<Port>> otherPorts(cfg.maxConnections);
+  std::vector<std::unique_ptr<Port>> otherPorts;
   // connect a bunch of ports
   for (size_t i = 0; i < cfg.maxConnections; ++i) {
-    Port* newPort = new Port(cfg);
-    otherPorts.add([newPort](std::unique_ptr<Port>& p) {
-      p.reset(newPort);
-    });
-    const auto status = port.connect(newPort);
+    otherPorts.push_back(std::make_unique<Port>(cfg));
+    const auto status = port.connect(otherPorts[i].get());
     ASSERT_EQ(status, Status::Ok);
   }
   ASSERT_EQ(port.getNumConnections(), cfg.maxConnections);
@@ -39,17 +37,12 @@ TEST(Port, Basic) {
   // check disconnect
   {
     // disconnect a port that's connected
-    Port* connectedPort;
-    auto status = otherPorts.find(
-        [](const std::unique_ptr<Port>&) { return true; },
-        [&connectedPort](std::unique_ptr<Port>& p) { connectedPort = p.get(); });
-    ASSERT_EQ(status, Status::Ok);
-    status = port.disconnect(connectedPort);
-    ASSERT_EQ(status, Status::Ok);
+    auto status = port.disconnect(otherPorts[0].get());
+    ASSERT_EQ(status, Status::Ok) << to_string(status);
     ASSERT_EQ(port.getNumConnections(), cfg.maxConnections - 1);
 
     // try to disconnect the disconnected port from this one, should fail
-    status = connectedPort->disconnect(&port);
+    status = otherPorts[0]->disconnect(&port);
     ASSERT_EQ(status, Status::NotFound);
 
     // try to disconnect a port that was never connected
@@ -64,10 +57,10 @@ TEST(Port, Basic) {
   ASSERT_EQ(port.getNumConnections(), 0);
 
   // check that all the previously connected ports are disconnected from this one
-  otherPorts.iterate([&port](std::unique_ptr<Port>& p) {
-    ASSERT_FALSE(p->isConnectedTo(&port));
-    ASSERT_FALSE(port.isConnectedTo(p.get()));
-  });
+  for (size_t i = 1; i < otherPorts.size(); ++i) {
+    ASSERT_FALSE(otherPorts[i]->isConnectedTo(&port));
+    ASSERT_FALSE(port.isConnectedTo(otherPorts[i].get()));
+  }
 }
 
 TEST(Port, MessageQueueBasic) {

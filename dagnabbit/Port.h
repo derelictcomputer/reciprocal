@@ -1,8 +1,10 @@
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <string>
-#include "../core/RTList.h"
+#include <vector>
+#include "../core/Status.h"
 
 namespace dc {
 using PortTypeId = uint16_t;
@@ -34,7 +36,7 @@ public:
 
   /// The current number of other ports connected to this port
   /// @returns The number of connected ports.
-  size_t getNumConnections() const;
+  [[nodiscard]] size_t getNumConnections() const;
 
   /// Check whether this port is connected to the given port.
   /// @returns true if connected, otherwise false
@@ -60,7 +62,7 @@ public:
   Status getMessageQueue(void*& messageQueue);
 
 protected:
-  RTList<Port*> _connections;
+  std::vector<std::atomic<Port*>> _connections;
 
 private:
   std::function<void(void*)> _destroyMessageQueueFn;

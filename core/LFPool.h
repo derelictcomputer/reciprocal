@@ -2,8 +2,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <functional>
-#include <memory>
 #include "../third_party/rigtorp/MPMCQueue.h"
 #include "Status.h"
 
