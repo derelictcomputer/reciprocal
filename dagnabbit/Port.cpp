@@ -6,8 +6,8 @@ using namespace dc;
 IPort::IPort(const IPort::Config& cfg) :
 typeId(cfg.typeId),
 prettyName(cfg.prettyName),
-maxConnections(cfg.maxConnections) {
-  _connections = new std::atomic<IPort*>[maxConnections];
+maxConnections(cfg.maxConnections),
+_connections(new std::atomic<IPort*>[maxConnections]) {
   for (size_t i = 0; i < maxConnections; ++i) {
     _connections[i] = nullptr;
   }

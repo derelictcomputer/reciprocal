@@ -56,7 +56,7 @@ public:
   Status disconnectAll();
 
 protected:
-  std::atomic<IPort*>* _connections;
+  std::unique_ptr<std::atomic<IPort*>[]> _connections;
 };
 
 template<class MessageType>
