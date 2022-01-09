@@ -1,4 +1,5 @@
 #include <memory>
+#include <thread>
 #include <gtest/gtest.h>
 #include "../../core/SPSCQ.h"
 #include "../Message.h"
@@ -78,4 +79,34 @@ TEST(Port, MessageQueueBasic) {
   ASSERT_EQ(port.popMessage(msgOut), Status::Ok);
   ASSERT_FLOAT_EQ(msgIn.data, msgOut.data);
   ASSERT_FLOAT_EQ(msgIn.time, msgOut.time);
+}
+
+TEST(Port, MTConnections) {
+  using MessageType = Message<int, size_t>;
+
+  IPort::Config cfg;
+  cfg.typeId = 5;
+  cfg.maxConnections = 1;
+
+  InputPort<MessageType> inPort(cfg, 16);
+  OutputPort<MessageType> outPort(cfg);
+
+  // one thread connects and disconnects while the other pushes messages to the output node's connections
+  std::atomic<bool> run{true};
+  std::thread connectThread([&run, &inPort, &outPort]() {
+    while (run.load()) {
+      ASSERT_EQ(outPort.connect(&inPort), Status::Ok);
+      std::this_thread::yield();
+      ASSERT_EQ(inPort.disconnect(&outPort), Status::Ok);
+      std::this_thread::yield();
+    }
+  });
+  for (size_t i = 0; i < 1000; ++i) {
+    MessageType msg;
+    ASSERT_EQ(outPort.pushToConnections(msg), Status::Ok);
+    std::this_thread::yield();
+    inPort.popMessage(msg); // this can fail if the nodes weren't connected, and that's ok.
+  }
+  run = false;
+  connectThread.join();
 }
