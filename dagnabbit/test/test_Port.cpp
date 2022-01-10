@@ -16,6 +16,12 @@ TEST(Port, Basic) {
   ASSERT_EQ(port.prettyName, prettyName);
   ASSERT_EQ(port.maxConnections, maxConnections);
 
+  // Try to connect a port of the wrong type
+  {
+    InputPort<Message<char, double>> wrongPort("wrooonnnng", 2);
+    ASSERT_EQ(port.connect(&wrongPort), Status::TypeMismatch);
+  }
+
   std::vector<std::unique_ptr<InputPort<MessageType>>> otherPorts;
   // connect a bunch of ports
   for (size_t i = 0; i < maxConnections; ++i) {

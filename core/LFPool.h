@@ -30,10 +30,16 @@ public:
     }
   }
 
+  /// Get an item from the pool.
+  /// @param item The item, if there was one in the pool.
+  /// @returns Status::Ok if there was an item in the pool, Status::Empty otherwise.
   Status acquire(T*& item) {
     return _q.try_pop(item) ? Status::Ok : Status::Empty;
   }
 
+  /// Put an item back in the pool.
+  /// @param item The item to put back.
+  /// @returns Status::Ok if the item was put in the pool, Status::Full otherwise.
   Status release(T* item) {
     return _q.try_push(item) ? Status::Ok : Status::Full;
   }
