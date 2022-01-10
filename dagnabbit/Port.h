@@ -64,7 +64,7 @@ public:
   using QueueType = rigtorp::MPMCQueue<MessageType>;
 
   explicit InputPort(const std::string& prettyName, size_t queueSize) :
-      IPort(prettyName, 
+      IPort(prettyName,
             1,
             typeid(InputPort<MessageType>).hash_code(),
             typeid(OutputPort<MessageType>).hash_code()),

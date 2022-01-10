@@ -20,6 +20,8 @@ TEST(Port, Basic) {
   {
     InputPort<Message<char, double>> wrongPort("wrooonnnng", 2);
     ASSERT_EQ(port.connect(&wrongPort), Status::TypeMismatch);
+    OutputPort<MessageType> anotherOutput("also wrong", 8);
+    ASSERT_EQ(port.connect(&anotherOutput), Status::TypeMismatch);
   }
 
   std::vector<std::unique_ptr<InputPort<MessageType>>> otherPorts;
