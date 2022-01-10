@@ -20,14 +20,14 @@ TEST(SPSCQ, PushPopCount) {
   // push a bunch of items
   std::atomic<size_t> numPushed{0};
   std::thread pushThread([&q, &numPushed, &expectedThing]() {
-    while (numPushed < capacity) {
-      const auto status = q.push([&expectedThing](Thing& item) {
+    Status status;
+    do {
+      std::this_thread::yield();
+      status = q.push([&expectedThing](Thing& item) {
         item = expectedThing;
         return Status::Ok;
       });
-      ASSERT_EQ(status, Status::Ok);
-      std::this_thread::yield();
-    }
+    } while (status == Status::Ok && numPushed.fetch_add(1) < capacity);
   });
 
   // wait until we've pushed all we're going to push
@@ -39,7 +39,6 @@ TEST(SPSCQ, PushPopCount) {
       return Status::Fail;
     });
     ASSERT_TRUE(status == Status::Ok || status == Status::Empty);
-    ++numPushed;
     std::this_thread::yield();
   }
   pushThread.join();

@@ -22,15 +22,16 @@ public:
       return Status::OutOfRange;
     }
 
-    auto outputPort = outputNode._outputs[outputIndex].get();
-    auto inputPort = _inputs[inputIndex].get();
+    auto outputPort = outputNode._outputs[outputIndex];
+    auto inputPort = _inputs[inputIndex];
 
     return outputPort->connect(inputPort);
   }
 
 protected:
   // IMPORTANT: Initialize ports in your Node's constructor and don't reconfigure after that.
-  std::vector<std::unique_ptr<IPort>> _inputs;
-  std::vector<std::unique_ptr<IPort>> _outputs;
+  // The base class does not clean up ports, in case it makes things simpler for you, so they're your responsibility.
+  std::vector<IPort*> _inputs;
+  std::vector<IPort*> _outputs;
 };
 }

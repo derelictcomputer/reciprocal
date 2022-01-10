@@ -9,46 +9,36 @@ using namespace dc;
 
 
 TEST(Port, Basic) {
-  IPort::Config cfg;
-  cfg.typeId = 5;
-  cfg.prettyName = "Hiiiii";
-  cfg.maxConnections = 8;
-  IPort port(cfg);
-  ASSERT_EQ(port.typeId, cfg.typeId);
-  ASSERT_EQ(port.prettyName, cfg.prettyName);
-  ASSERT_EQ(port.maxConnections, cfg.maxConnections);
+  using MessageType = Message<size_t, double>;
+  const std::string prettyName = "Hiiiiii";
+  const size_t maxConnections = 8;
+  OutputPort<MessageType> port(prettyName, maxConnections);
+  ASSERT_EQ(port.prettyName, prettyName);
+  ASSERT_EQ(port.maxConnections, maxConnections);
 
-  // try to connect a port with the wrong type
-  {
-    IPort::Config wrongCfg;
-    wrongCfg.typeId = 8;
-    IPort wrongPort(wrongCfg);
-    ASSERT_EQ(port.connect(&wrongPort), Status::TypeMismatch);
-  }
-
-  std::vector<std::unique_ptr<IPort>> otherPorts;
+  std::vector<std::unique_ptr<InputPort<MessageType>>> otherPorts;
   // connect a bunch of ports
-  for (size_t i = 0; i < cfg.maxConnections; ++i) {
-    otherPorts.push_back(std::make_unique<IPort>(cfg));
-    const auto status = port.connect(otherPorts[i].get());
+  for (size_t i = 0; i < maxConnections; ++i) {
+    otherPorts.push_back(std::make_unique<InputPort<MessageType>>("asdf", 16));
+    const auto status = otherPorts[i]->connect(&port);
     ASSERT_EQ(status, Status::Ok);
   }
-  ASSERT_EQ(port.getNumConnections(), cfg.maxConnections);
+  ASSERT_EQ(port.getNumConnections(), maxConnections);
 
   // check disconnect
   {
     // disconnect a port that's connected
-    auto status = port.disconnect(otherPorts[0].get());
+    auto status = otherPorts[0]->disconnect(&port);
     ASSERT_EQ(status, Status::Ok) << to_string(status);
-    ASSERT_EQ(port.getNumConnections(), cfg.maxConnections - 1);
+    ASSERT_EQ(port.getNumConnections(), maxConnections - 1);
 
-    // try to disconnect the disconnected port from this one, should fail
+    // try to disconnect again, should fail
     status = otherPorts[0]->disconnect(&port);
     ASSERT_EQ(status, Status::NotFound);
 
     // try to disconnect a port that was never connected
-    IPort notConnectedPort(cfg);
-    status = port.disconnect(&notConnectedPort);
+    InputPort<MessageType> notConnectedPort("asdffadsfasd", 12);
+    status = notConnectedPort.disconnect(&port);
     ASSERT_EQ(status, Status::NotFound);
   }
 
@@ -67,8 +57,7 @@ TEST(Port, Basic) {
 TEST(Port, MessageQueueBasic) {
   using MessageType = Message<float, float>;
 
-  IPort::Config cfg;
-  InputPort<MessageType> port(cfg, 32);
+  InputPort<MessageType> port("qwerqwer", 32);
 
   MessageType msgIn;
   msgIn.data = 123.4f;
@@ -84,12 +73,8 @@ TEST(Port, MessageQueueBasic) {
 TEST(Port, MTConnections) {
   using MessageType = Message<int, size_t>;
 
-  IPort::Config cfg;
-  cfg.typeId = 5;
-  cfg.maxConnections = 1;
-
-  InputPort<MessageType> inPort(cfg, 16);
-  OutputPort<MessageType> outPort(cfg);
+  InputPort<MessageType> inPort("In", 16);
+  OutputPort<MessageType> outPort("Out", 1);
 
   // one thread connects and disconnects while the other pushes messages to the output node's connections
   std::atomic<bool> run{true};

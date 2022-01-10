@@ -11,28 +11,17 @@ public:
   using InputPortType = InputPort<MessageType>;
   using OutputPortType = OutputPort<MessageType>;
 
-  PassthroughNode() {
+  PassthroughNode() : _input("in", 16), _output("out", 4) {
     // input
-    {
-      IPort::Config cfg;
-      cfg.typeId = 1;
-      cfg.maxConnections = 1;
-      this->_inputs.emplace_back(std::make_unique<InputPortType>(cfg, 16));
-    }
+    this->_inputs.push_back(&_input);
     // output
-    {
-      IPort::Config cfg;
-      cfg.typeId = 1;
-      cfg.maxConnections = 4;
-      this->_outputs.emplace_back(std::make_unique<OutputPortType>(cfg));
-    }
+    this->_outputs.push_back(&_output);
   }
 
   Status process(const float&, const float&) override {
     MessageType msg;
     while (popMessage(msg) == Status::Ok) {
-      auto output = dynamic_cast<OutputPortType*>(_outputs[0].get());
-      const auto status = output->pushToConnections(msg);
+      const auto status = _output.pushToConnections(msg);
       if (status != Status::Ok) {
         return status;
       }
@@ -41,20 +30,16 @@ public:
   }
 
   Status pushMessage(const MessageType& msg) {
-    auto input = dynamic_cast<InputPortType*>(_inputs[0].get());
-    if (input != nullptr) {
-      return input->pushMessage(msg);
-    }
-    return Status::Fail;
+    return _input.pushMessage(msg);
   }
 
   Status popMessage(MessageType& msg) {
-    auto input = dynamic_cast<InputPortType*>(_inputs[0].get());
-    if (input != nullptr) {
-      return input->popMessage(msg);
-    }
-    return Status::Fail;
+    return _input.popMessage(msg);
   }
+
+private:
+  InputPortType _input;
+  OutputPortType _output;
 };
 
 TEST(Node, PassthroughNode) {
