@@ -1,16 +1,20 @@
+#include <utility>
 #include "Port.h"
 
 using namespace dc;
 
-IPort::IPort(const IPort::Config& cfg) :
-typeId(cfg.typeId),
-prettyName(cfg.prettyName),
-maxConnections(cfg.maxConnections),
+IPort::IPort(std::string  prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId) :
+typeId(typeId),
+canConnectToTypeId(canConnectToTypeId),
+prettyName(std::move(prettyName)),
+maxConnections(maxConnections),
 _connections(new std::atomic<IPort*>[maxConnections]) {
   for (size_t i = 0; i < maxConnections; ++i) {
     _connections[i] = nullptr;
   }
 }
+
+IPort::~IPort() {} // NOLINT(modernize-use-equals-default)
 
 size_t IPort::getNumConnections() const {
   size_t count{0};
@@ -37,8 +41,7 @@ bool IPort::isConnectedTo(IPort* other) {
 }
 
 Status IPort::connect(IPort* other) {
-  // Wrong port type
-  if (other->typeId != typeId) {
+  if (canConnectToTypeId != other->typeId) {
     return Status::TypeMismatch;
   }
 

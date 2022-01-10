@@ -8,24 +8,19 @@
 #include "../third_party/rigtorp/MPMCQueue.h"
 
 namespace dc {
-using PortTypeId = uint16_t;
-const PortTypeId InvalidPortType = -1;
-
 /// The mechanism by which messages travel between nodes.
 class IPort {
 public:
-  struct Config {
-    PortTypeId typeId{InvalidPortType};
-    std::string prettyName;
-    size_t maxConnections{1};
-  };
+  explicit IPort(std::string prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId);
 
-  explicit IPort(const Config& cfg);
+  // This is just here to make it so no one can instantiate this interface
+  virtual ~IPort() = 0;
 
-  virtual ~IPort() = default;
+  /// Unique id for this port's type.
+  const size_t typeId;
 
-  /// The type of port, which will determine what can connect to it.
-  const PortTypeId typeId;
+  /// Unique id for the type of port that can connect to this one.
+  const size_t canConnectToTypeId;
 
   /// The display name for the port.
   const std::string prettyName;
@@ -60,11 +55,16 @@ protected:
 };
 
 template<class MessageType>
+class OutputPort;
+
+template<class MessageType>
 class InputPort : public IPort {
 public:
   using QueueType = rigtorp::MPMCQueue<MessageType>;
 
-  explicit InputPort(const IPort::Config& cfg, size_t queueSize) : IPort(cfg), _q(queueSize) {}
+  explicit InputPort(const std::string& prettyName, size_t queueSize) :
+      IPort(prettyName, 1, typeid(InputPort<MessageType>).hash_code(), typeid(OutputPort<MessageType>).hash_code()),
+      _q(queueSize) {}
 
   Status pushMessage(const MessageType& msg) {
     return _q.try_push(msg) ? Status::Ok : Status::Full;
@@ -81,7 +81,9 @@ private:
 template<class MessageType>
 class OutputPort : public IPort {
 public:
-  explicit OutputPort(const IPort::Config& cfg) : IPort(cfg) {}
+  explicit OutputPort(const std::string& prettyName, size_t maxConnections) :
+      IPort(prettyName, maxConnections, typeid(OutputPort<MessageType>).hash_code(),
+            typeid(InputPort<MessageType>).hash_code()) {}
 
   Status pushToConnections(const MessageType& msg) {
     for (size_t i = 0; i < maxConnections; ++i) {
