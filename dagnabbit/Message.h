@@ -4,7 +4,6 @@
 
 namespace dc {
 /// A container for some data to send around.
-/// Users of the library can extend this by adding new typeIds and codecs.
 template<class DataType, class TimeType>
 struct Message {
   /// The data. Its meaning is user-defined.

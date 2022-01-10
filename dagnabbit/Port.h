@@ -57,19 +57,30 @@ protected:
 template<class MessageType>
 class OutputPort;
 
+/// An input into a node. Restricted to 1 connection and has a queue to manage messages.
 template<class MessageType>
 class InputPort : public IPort {
 public:
   using QueueType = rigtorp::MPMCQueue<MessageType>;
 
   explicit InputPort(const std::string& prettyName, size_t queueSize) :
-      IPort(prettyName, 1, typeid(InputPort<MessageType>).hash_code(), typeid(OutputPort<MessageType>).hash_code()),
-      _q(queueSize) {}
+      IPort(prettyName,
+            1,
+            typeid(InputPort<MessageType>).hash_code(),
+            typeid(OutputPort<MessageType>).hash_code()),
+      _q(queueSize) {
+  }
 
+  /// Add a message to the queue.
+  /// @param msg The message
+  /// @returns Status::Ok on success, Status::Full if the queue was full
   Status pushMessage(const MessageType& msg) {
     return _q.try_push(msg) ? Status::Ok : Status::Full;
   }
 
+  /// Get a message from the queue.
+  /// @param msg The message, if there was one in the queue.
+  /// @returns Status::Ok on success, Status::Empty if the queue was empty
   Status popMessage(MessageType& msg) {
     return _q.try_pop(msg) ? Status::Ok : Status::Empty;
   }
@@ -78,13 +89,20 @@ private:
   QueueType _q;
 };
 
+/// An output from a node. Can have more than one connection if desired.
 template<class MessageType>
 class OutputPort : public IPort {
 public:
   explicit OutputPort(const std::string& prettyName, size_t maxConnections) :
-      IPort(prettyName, maxConnections, typeid(OutputPort<MessageType>).hash_code(),
-            typeid(InputPort<MessageType>).hash_code()) {}
+      IPort(prettyName,
+            maxConnections,
+            typeid(OutputPort<MessageType>).hash_code(),
+            typeid(InputPort<MessageType>).hash_code()) {
+  }
 
+  /// Add a message to the queue for all input nodes connected to this one.
+  /// @param msg The message
+  /// @returns Status::Ok or appropriate error.
   Status pushToConnections(const MessageType& msg) {
     for (size_t i = 0; i < maxConnections; ++i) {
       auto& c = _connections[i];
