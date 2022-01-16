@@ -6,8 +6,7 @@
 #include "Status.h"
 
 namespace dc {
-// Single producer, single consumer, bounded, lock-free, wait-free queue.
-// Does not allocate/deallocate aside from constructor/destructor.
+// Single producer, single consumer, bounded, realtime-safe, lock-free, wait-free queue.
 template<class T>
 class SPSCQ {
 public:
@@ -18,7 +17,7 @@ public:
 
   /// The current number of items in the queue.
   size_t size() const {
-    return _size;
+    return _size.load();
   }
 
   using Writer = std::function<Status(T&)>;

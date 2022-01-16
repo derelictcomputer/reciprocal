@@ -78,28 +78,45 @@ TEST(Port, MessageQueueBasic) {
   ASSERT_FLOAT_EQ(msgIn.time, msgOut.time);
 }
 
-TEST(Port, MTConnections) {
+TEST(Port, PushToConnections) {
   using MessageType = Message<int, size_t>;
 
-  InputPort<MessageType> inPort("In", 16);
-  OutputPort<MessageType> outPort("Out", 1);
-
-  // one thread connects and disconnects while the other pushes messages to the output node's connections
-  std::atomic<bool> run{true};
-  std::thread connectThread([&run, &inPort, &outPort]() {
-    while (run.load()) {
-      ASSERT_EQ(outPort.connect(&inPort), Status::Ok);
-      std::this_thread::yield();
-      ASSERT_EQ(inPort.disconnect(&outPort), Status::Ok);
-      std::this_thread::yield();
-    }
-  });
-  for (size_t i = 0; i < 1000; ++i) {
-    MessageType msg;
-    ASSERT_EQ(outPort.pushToConnections(msg), Status::Ok);
-    std::this_thread::yield();
-    inPort.popMessage(msg); // this can fail if the nodes weren't connected, and that's ok.
+  const size_t numInputPorts = 16;
+  OutputPort<MessageType> outPort("Out", numInputPorts);
+  // connect a bunch of input ports
+  const size_t queueSize = 8;
+  std::vector<std::unique_ptr<InputPort<MessageType>>> inputPorts;
+  for (size_t i = 0; i < numInputPorts; ++i) {
+    inputPorts.emplace_back(std::make_unique<InputPort<MessageType>>("in", queueSize));
+    ASSERT_EQ(inputPorts[i]->connect(&outPort), Status::Ok);
   }
-  run = false;
-  connectThread.join();
+
+  // push some messages and expect to get them out the other end
+  for (size_t i = 0; i < queueSize; ++i) {
+    MessageType msg;
+    msg.data = static_cast<int>(i);
+    msg.time = i * 2;
+    ASSERT_EQ(outPort.pushToConnections(msg), Status::Ok);
+    for (auto& inPort : inputPorts) {
+      MessageType msgOut;
+      ASSERT_EQ(inPort->popMessage(msgOut), Status::Ok);
+      ASSERT_EQ(msgOut.time, msg.time);
+      ASSERT_EQ(msgOut.data, msg.data);
+    }
+  }
+
+  // disconnect
+  ASSERT_EQ(outPort.disconnectAll(), Status::Ok);
+
+  // push some messages and expect nothing
+  for (size_t i = 0; i < queueSize; ++i) {
+    MessageType msg;
+    msg.data = static_cast<int>(i);
+    msg.time = i * 2;
+    ASSERT_EQ(outPort.pushToConnections(msg), Status::Ok);
+    for (auto& inPort : inputPorts) {
+      MessageType msgOut;
+      ASSERT_NE(inPort->popMessage(msgOut), Status::Ok);
+    }
+  }
 }
