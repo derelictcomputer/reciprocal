@@ -33,6 +33,10 @@ bool IPort::isConnectedTo(IPort* other) {
 }
 
 Status IPort::connect(IPort* other) {
+  if (other == nullptr) {
+    return Status::InvalidArgument;
+  }
+
   if (canConnectToTypeId != other->typeId) {
     return Status::TypeMismatch;
   }

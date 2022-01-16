@@ -11,7 +11,8 @@ X(Empty)              \
 X(TypeMismatch)       \
 X(NotFound)           \
 X(OutOfRange)         \
-X(NotImplemented)
+X(NotImplemented)     \
+X(InvalidArgument)
 
 enum class Status {
 #define X(name) name,
