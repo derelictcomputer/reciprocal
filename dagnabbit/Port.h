@@ -1,14 +1,12 @@
 #pragma once
 
-#include <atomic>
-#include <cstdint>
-#include <memory>
 #include <string>
-#include "../core/Status.h"
-#include "../third_party/rigtorp/MPMCQueue.h"
+#include <vector>
+#include "../core/SPSCQ.h"
 
 namespace dc {
 /// The mechanism by which messages travel between nodes.
+/// NOTE: Operations are not thread-safe.
 class IPort {
 public:
   explicit IPort(std::string prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId);
@@ -51,38 +49,44 @@ public:
   Status disconnectAll();
 
 protected:
-  std::unique_ptr<std::atomic<IPort*>[]> _connections;
+  std::vector<IPort*> _connections;
 };
 
 template<class MessageType>
 class OutputPort;
 
 /// An input into a node. Restricted to 1 connection and has a queue to manage messages.
+/// NOTE: Operations are not thread-safe.
 template<class MessageType>
 class InputPort : public IPort {
 public:
-  using QueueType = rigtorp::MPMCQueue<MessageType>;
+  using QueueType = SPSCQ<MessageType>;
 
   explicit InputPort(const std::string& prettyName, size_t queueSize) :
       IPort(prettyName,
             1,
             typeid(InputPort<MessageType>).hash_code(),
             typeid(OutputPort<MessageType>).hash_code()),
-      _q(queueSize) {
-  }
+      _q(queueSize) {}
 
   /// Add a message to the queue.
   /// @param msg The message
   /// @returns Status::Ok on success, Status::Full if the queue was full
   Status pushMessage(const MessageType& msg) {
-    return _q.try_push(msg) ? Status::Ok : Status::Full;
+    return _q.push([&msg](MessageType& m) {
+      m = msg;
+      return Status::Ok;
+    });
   }
 
   /// Get a message from the queue.
   /// @param msg The message, if there was one in the queue.
   /// @returns Status::Ok on success, Status::Empty if the queue was empty
   Status popMessage(MessageType& msg) {
-    return _q.try_pop(msg) ? Status::Ok : Status::Empty;
+    return _q.pop([&msg](MessageType& m) {
+      msg = m;
+      return Status::Ok;
+    });
   }
 
 private:
@@ -90,6 +94,7 @@ private:
 };
 
 /// An output from a node. Can have more than one connection if desired.
+/// NOTE: Operations are not thread-safe.
 template<class MessageType>
 class OutputPort : public IPort {
 public:
@@ -104,14 +109,15 @@ public:
   /// @param msg The message
   /// @returns Status::Ok or appropriate error.
   Status pushToConnections(const MessageType& msg) {
-    for (size_t i = 0; i < maxConnections; ++i) {
-      auto& c = _connections[i];
-      auto other = dynamic_cast<InputPort<MessageType>*>(c.load());
-      if (other != nullptr) {
-        const auto status = other->pushMessage(msg);
-        if (status != Status::Ok) {
-          return status;
-        }
+    for (auto c: _connections) {
+      auto inPort = dynamic_cast<InputPort<MessageType>*>(c);
+      if (inPort == nullptr) {
+        return Status::Fail;
+      }
+
+      const auto status = inPort->pushMessage(msg);
+      if (status != Status::Ok) {
+        return status;
       }
     }
 

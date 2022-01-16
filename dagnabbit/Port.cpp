@@ -1,3 +1,4 @@
+#include <cassert>
 #include <utility>
 #include "Port.h"
 
@@ -7,23 +8,14 @@ IPort::IPort(std::string  prettyName, size_t maxConnections, size_t typeId, size
 typeId(typeId),
 canConnectToTypeId(canConnectToTypeId),
 prettyName(std::move(prettyName)),
-maxConnections(maxConnections),
-_connections(new std::atomic<IPort*>[maxConnections]) {
-  for (size_t i = 0; i < maxConnections; ++i) {
-    _connections[i] = nullptr;
-  }
+maxConnections(maxConnections) {
+  _connections.reserve(maxConnections);
 }
 
 IPort::~IPort() {} // NOLINT(modernize-use-equals-default)
 
 size_t IPort::getNumConnections() const {
-  size_t count{0};
-  for (size_t i = 0; i < maxConnections; ++i) {
-    if (_connections[i] != nullptr) {
-      ++count;
-    }
-  }
-  return count;
+  return _connections.size();
 }
 
 bool IPort::isConnectedTo(IPort* other) {
@@ -31,8 +23,8 @@ bool IPort::isConnectedTo(IPort* other) {
     return false;
   }
 
-  for (size_t i = 0; i < maxConnections; ++i) {
-    if (_connections[i] == other) {
+  for (auto c: _connections) {
+    if (c == other) {
       return true;
     }
   }
@@ -41,40 +33,44 @@ bool IPort::isConnectedTo(IPort* other) {
 }
 
 Status IPort::connect(IPort* other) {
+  if (other == nullptr) {
+    return Status::InvalidArgument;
+  }
+
   if (canConnectToTypeId != other->typeId) {
     return Status::TypeMismatch;
   }
 
+  // Too many connections.
+  if (getNumConnections() >= maxConnections || other->getNumConnections() >= other->maxConnections) {
+    return Status::Full;
+  }
+
   // Already connected. Pretend it succeeded.
   if (isConnectedTo(other)) {
+    assert(other->isConnectedTo(this));
     return Status::Ok;
   }
 
-  for (size_t i = 0; i < maxConnections; ++i) {
-    auto current = _connections[i].load();
-    if (current == nullptr && _connections[i].compare_exchange_strong(current, other)) {
-      const auto status = other->connect(this);
-      // Something went wrong, disconnect.
-      if (status != Status::Ok) {
-        _connections[i] = nullptr;
-      }
-      return status;
-    }
-  }
-
-  return Status::Full;
+  _connections.push_back(other);
+  other->_connections.push_back(this);
+  return Status::Ok;
 }
 
 Status IPort::disconnect(IPort* other) {
-  for (size_t i = 0; i < maxConnections; ++i) {
-    auto current = _connections[i].load();
-    if (current == other && _connections[i].compare_exchange_strong(current, nullptr)) {
-      for (size_t j = 0; j < other->maxConnections; ++j) {
-        current = other->_connections[j].load();
-        if (current == this) {
-          return other->_connections[j].compare_exchange_strong(current, nullptr) ? Status::Ok : Status::Fail;
+  for (auto it = _connections.begin(); it != _connections.end(); ++it) {
+    if (*it == other) {
+      _connections.erase(it);
+
+      for (it = other->_connections.begin(); it != other->_connections.end(); ++it) {
+        if (*it == this) {
+          other->_connections.erase(it);
+          return Status::Ok;
         }
       }
+
+      // If we get here, there was asymmetry in connections. Bad news.
+      return Status::Fail;
     }
   }
 
@@ -82,22 +78,25 @@ Status IPort::disconnect(IPort* other) {
 }
 
 Status IPort::disconnectAll() {
-  for (size_t i = 0; i < maxConnections; ++i) {
-    auto& c = _connections[i];
-    auto other = c.load();
-    c = nullptr;
-    if (other != nullptr) {
-      for (size_t j = 0; j < other->maxConnections; ++j) {
-        auto& oc = other->_connections[j];
-        auto maybeThis = oc.load();
-        if (maybeThis == this) {
-          if (!oc.compare_exchange_strong(maybeThis, nullptr)) {
-            return Status::Fail;
-          }
-        }
+  for (auto c : _connections) {
+    assert(c != nullptr);
+    bool foundMe = false;
+
+    for (auto it = c->_connections.begin(); it != c->_connections.end(); ++it) {
+      if (*it == this) {
+        c->_connections.erase(it);
+        foundMe = true;
+        break;
       }
     }
+
+    // The other port did not have this one in their connection list. Bad news.
+    if (!foundMe) {
+      return Status::Fail;
+    }
   }
+
+  _connections.clear();
 
   return Status::Ok;
 }
