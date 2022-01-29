@@ -18,5 +18,14 @@ FetchContent_MakeAvailable(gtest)
 
 enable_testing()
 
+# get google benchmark
+FetchContent_Declare(
+        gbenchmark
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG v1.6.1
+)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+FetchContent_MakeAvailable(gbenchmark)
+
 add_subdirectory(core)
 add_subdirectory(dagnabbit)
