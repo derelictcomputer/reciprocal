@@ -30,8 +30,8 @@ public:
 
   using AddNodeCb = std::function<void(Status, NodeId)>;
 
-  Status addNode(NodeType* node, AddNodeCb&& addNodeCb) {
-    const auto async = [this, node, &addNodeCb]() {
+  Status addNode(NodeType* node, const AddNodeCb& addNodeCb) {
+    const auto async = [this, node, addNodeCb]() {
       if (_nodes.size() >= capacity) {
         addNodeCb(Status::Full, InvalidNodeId);
         return;
