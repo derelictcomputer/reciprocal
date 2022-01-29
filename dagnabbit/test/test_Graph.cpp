@@ -54,14 +54,16 @@ TEST(Graph, AddRemove) {
   ASSERT_EQ(graph.capacity, maxNodes);
   ASSERT_EQ(graph.size(), 0);
 
-  auto node = new PassthroughNode<int, TimeType>(1, 1);
-
   std::atomic<bool> gotCb{false};
-  ASSERT_EQ(graph.addNode(node, [&gotCb](Status status, NodeId nodeId) {
-    gotCb = true;
-    ASSERT_EQ(status, Status::Ok);
-    ASSERT_NE(nodeId, InvalidNodeId);
-  }), Status::Ok);
+  ASSERT_EQ(graph.addNode(
+      []() {
+        return new PassthroughNode<int, TimeType>(1, 1);
+      },
+      [&gotCb](Status status, NodeId nodeId) {
+        gotCb = true;
+        ASSERT_EQ(status, Status::Ok);
+        ASSERT_NE(nodeId, InvalidNodeId);
+      }), Status::Ok);
 
   ASSERT_FALSE(gotCb);
   ASSERT_EQ(graph.size(), 0);
