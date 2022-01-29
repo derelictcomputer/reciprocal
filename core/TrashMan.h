@@ -62,8 +62,8 @@ public:
 private:
   SPSCQ<T*> _trashCan;
   std::atomic<bool> _run{true};
-  std::thread _trashThread;
   std::condition_variable _dump;
   std::mutex _mutex;
+  std::thread _trashThread;
 };
 }
