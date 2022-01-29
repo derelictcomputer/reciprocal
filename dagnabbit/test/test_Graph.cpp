@@ -1,3 +1,4 @@
+#include <chrono>
 #include <gtest/gtest.h>
 #include "../Graph.h"
 #include "../Message.h"
@@ -95,4 +96,70 @@ TEST(Graph, AddRemove) {
     ASSERT_TRUE(gotCb);
     ASSERT_EQ(graph.size(), 0);
   }
+}
+
+TEST(Graph, AddRemoveMT) {
+  using TimeType = int32_t;
+  const size_t asyncQueueSize = 512;
+  const size_t maxNodes = 64;
+
+  Graph<TimeType> graph(asyncQueueSize, maxNodes);
+
+  std::atomic<bool> runProcessThread{true};
+  std::thread processThread([&runProcessThread, &graph]() {
+    while (runProcessThread) {
+      graph.process();
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  });
+
+  // run a few threads to add nodes and wait for them to get added
+  const size_t numAddRemoveThreads = 16;
+  std::vector<std::thread> addRemoveThreads;
+  for (size_t i = 0; i < numAddRemoveThreads; ++i) {
+    addRemoveThreads.emplace_back([&graph]() {
+      std::atomic<NodeId> nodeId{InvalidNodeId};
+
+      // add the node
+      ASSERT_EQ(graph.addNode(
+          []() {
+            return new PassthroughNode<double, TimeType>(1, 1);
+          },
+          [&nodeId](Status status, NodeId id) {
+            ASSERT_EQ(status, Status::Ok);
+            ASSERT_NE(id, InvalidNodeId);
+            nodeId = id;
+          }), Status::Ok);
+
+      // wait for the node to be added
+      while (nodeId == InvalidNodeId) {
+        std::this_thread::yield();
+      }
+
+      // remove the node
+      ASSERT_EQ(graph.removeNode(nodeId, [&nodeId](Status status, NodeId id) {
+        ASSERT_EQ(status, Status::Ok);
+        ASSERT_EQ(id, nodeId.load());
+        nodeId = InvalidNodeId;
+      }), Status::Ok);
+
+      // wait for the node to be removed
+      while (nodeId != InvalidNodeId) {
+        std::this_thread::yield();
+      }
+    });
+  }
+
+  for (auto& thread: addRemoveThreads) {
+    thread.join();
+  }
+
+  while (graph.size() > 0) {
+    std::this_thread::yield();
+  }
+  
+  runProcessThread = false;
+  processThread.join();
+
+  ASSERT_EQ(graph.size(), 0);
 }
