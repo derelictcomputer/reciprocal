@@ -53,34 +53,43 @@ public:
   /// @param addNodeCb A callback, which will let you know the node's id if the add was successful.
   /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
   Status addNode(const CreateNodeFn& createNodeFn, const AddNodeCb& addNodeCb) {
+    // Custom deleter, so whenever the shared pointer's ref count goes to zero,
+    // the TrashMan thread takes care of deleting instead of possibly the process thread.
     const auto deleter = [this](NodeType* ptr) {
       if (ptr != nullptr) {
         [[maybe_unused]] const auto status = _trashMan.trash(ptr);
         assert(status == Status::Ok && ptr == nullptr);
       }
     };
+    // Make a shared pointer here, so if enqueuing the add request fails, the node gets cleaned up.
     std::shared_ptr<NodeType> node(createNodeFn(), deleter);
     assert(node != nullptr);
 
+    // When we capture the shared pointer by value here, it creates a copy and increases the ref count.
     const auto async = [this, node, addNodeCb]() {
       if (_nodes.size() >= capacity) {
         addNodeCb(Status::Full, InvalidNodeId);
         return;
       }
 
+      // get a node id for the new node
       const auto nodeId = getAvailableNodeId();
       if (nodeId == InvalidNodeId) {
         addNodeCb(Status::Fail, InvalidNodeId);
         return;
       }
 
-      const auto success = _nodes.emplace(nodeId, node).second;
+      // When we move/emplace here it should avoid another copy
+      const auto success = _nodes.emplace(nodeId, std::move(node)).second;
 
       if (success) {
+        // we store the size separately so it can be accessed from any thread
+        // it'll only update once process is called
         _size = _nodes.size();
         addNodeCb(Status::Ok, nodeId);
       }
       else {
+        returnNodeId(nodeId);
         addNodeCb(Status::Fail, InvalidNodeId);
       }
     };
@@ -88,6 +97,7 @@ public:
     return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
   }
 
+  /// Update the graph's state and process its nodes
   Status process() {
     // perform the async operations
     {
@@ -118,6 +128,13 @@ private:
     const auto endId = _availableNodeIds[_availableNodeIds.size() - 1];
     _availableNodeIds.pop_back();
     return endId;
+  }
+
+  void returnNodeId(NodeId id) {
+    if (id == InvalidNodeId || _availableNodeIds.size() == _availableNodeIds.capacity()) {
+      return;
+    }
+    _availableNodeIds.push_back(id);
   }
 };
 }
