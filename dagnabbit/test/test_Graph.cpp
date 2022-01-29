@@ -54,22 +54,45 @@ TEST(Graph, AddRemove) {
   ASSERT_EQ(graph.capacity, maxNodes);
   ASSERT_EQ(graph.size(), 0);
 
-  std::atomic<bool> gotCb{false};
-  ASSERT_EQ(graph.addNode(
-      []() {
-        return new PassthroughNode<int, TimeType>(1, 1);
-      },
-      [&gotCb](Status status, NodeId nodeId) {
-        gotCb = true;
-        ASSERT_EQ(status, Status::Ok);
-        ASSERT_NE(nodeId, InvalidNodeId);
-      }), Status::Ok);
+  // add a valid node and expect that to work
+  std::atomic<NodeId> validNodeId = InvalidNodeId;
+  {
+    std::atomic<bool> gotCb{false};
+    ASSERT_EQ(graph.addNode(
+        []() {
+          return new PassthroughNode<int, TimeType>(1, 1);
+        },
+        [&gotCb, &validNodeId](Status status, NodeId nodeId) {
+          gotCb = true;
+          ASSERT_EQ(status, Status::Ok);
+          ASSERT_NE(nodeId, InvalidNodeId);
+          validNodeId = nodeId;
+        }), Status::Ok);
 
-  ASSERT_FALSE(gotCb);
-  ASSERT_EQ(graph.size(), 0);
+    ASSERT_FALSE(gotCb);
+    ASSERT_EQ(graph.size(), 0);
 
-  ASSERT_EQ(graph.process(), Status::Ok);
+    ASSERT_EQ(graph.process(), Status::Ok);
 
-  ASSERT_TRUE(gotCb);
-  ASSERT_EQ(graph.size(), 1);
+    ASSERT_TRUE(gotCb);
+    ASSERT_EQ(graph.size(), 1);
+  }
+
+  // remove that node and expect it to succeed
+  {
+    std::atomic<bool> gotCb{false};
+    ASSERT_EQ(graph.removeNode(validNodeId, [&validNodeId, &gotCb](Status status, NodeId nodeId) {
+      gotCb = true;
+      ASSERT_EQ(status, Status::Ok);
+      ASSERT_EQ(nodeId, validNodeId.load());
+    }), Status::Ok);
+
+    ASSERT_FALSE(gotCb);
+    ASSERT_EQ(graph.size(), 1);
+
+    ASSERT_EQ(graph.process(), Status::Ok);
+
+    ASSERT_TRUE(gotCb);
+    ASSERT_EQ(graph.size(), 0);
+  }
 }

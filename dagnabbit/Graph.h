@@ -97,6 +97,24 @@ public:
     return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
   }
 
+  using RemoveNodeCb = std::function<void(Status, NodeId)>;
+
+  /// Request to remove a node from the graph
+  /// @param nodeId The id of the node to remove
+  /// @param removeNodeCb A callback to let you know if the removal was successful.
+  /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
+  Status removeNode(NodeId nodeId, const RemoveNodeCb& removeNodeCb) {
+    const auto async = [this, nodeId, removeNodeCb]() {
+      // NB: we can just call erase here because we store a shared pointer
+      // with a deleter that offloads the actual deletion of the node to a cleanup thread.
+      const auto erased = _nodes.erase(nodeId);
+      _size = _nodes.size();
+      removeNodeCb(erased == 1 ? Status::Ok : Status::NotFound, nodeId);
+    };
+
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+  }
+
   /// Update the graph's state and process its nodes
   Status process() {
     // perform the async operations
