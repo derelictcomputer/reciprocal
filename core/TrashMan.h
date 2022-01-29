@@ -20,6 +20,8 @@ public:
       // dump the trash
       while (_trashCan.pop([](T*& trash) {
         delete trash;
+        trash = nullptr;
+        return Status::Ok;
       }) == Status::Ok);
     }
   }) {}
@@ -47,6 +49,7 @@ public:
   Status trash(T*& thing) {
     const auto status = _trashCan.push([thing](T*& item) {
       item = thing;
+      return Status::Ok;
     });
     if (status != Status::Ok) {
       return status;
