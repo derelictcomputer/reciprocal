@@ -18,7 +18,7 @@ public:
       _dump.wait(lock);
 
       // dump the trash
-      while (_trashCan.pop([](T* trash) {
+      while (_trashCan.pop([](T*& trash) {
         delete trash;
       }) == Status::Ok);
     }
@@ -45,7 +45,7 @@ public:
   /// @param thing The thing to trash. Will be set to nullptr if successful.
   /// @returns Status::Ok on success, Status::Full if the trash is full.
   Status trash(T*& thing) {
-    const auto status = _trashCan.push([thing](T* item) {
+    const auto status = _trashCan.push([thing](T*& item) {
       item = thing;
     });
     if (status != Status::Ok) {
