@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643581102847,
+  "lastUpdate": 1643581327729,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -216,6 +216,54 @@ window.BENCHMARK_DATA = {
             "value": 179514.1026597061,
             "unit": "ns/iter",
             "extra": "iterations: 4023\ncpu: 172958.09097688293 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f44d284e2901dcc9d2aa4287bacc445be18b41cf",
+          "message": "make InvalidNodeId const. Thanks @thomasjwebb ! (#27)",
+          "timestamp": "2022-01-30T17:21:09-05:00",
+          "tree_id": "a9accab10a46bcbc7aed29339a8605a977884fcb",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/f44d284e2901dcc9d2aa4287bacc445be18b41cf"
+        },
+        "date": 1643581326462,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 112453.53442779658,
+            "unit": "ns/iter",
+            "extra": "iterations: 6274\ncpu: 112434.50749123366 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 15653.29308510625,
+            "unit": "ns/iter",
+            "extra": "iterations: 45120\ncpu: 15650.977393617024 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24601.504586510957,
+            "unit": "ns/iter",
+            "extra": "iterations: 28453\ncpu: 24599.75749481601 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 174446.6049324173,
+            "unit": "ns/iter",
+            "extra": "iterations: 4217\ncpu: 167745.34028930514 ns\nthreads: 1"
           }
         ]
       }
