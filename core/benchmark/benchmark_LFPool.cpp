@@ -12,7 +12,7 @@ static void LFPool_AcquireReleaseAll(benchmark::State& state) {
   acquired.reserve(poolSize);
 
   for (auto _ : state) {
-    int* iPtr;
+    int* iPtr{nullptr};
     for (size_t i = 0; i < poolSize; ++i) {
       pool.acquire(iPtr);
       acquired.push_back(iPtr);
