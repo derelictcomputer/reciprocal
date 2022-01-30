@@ -10,7 +10,7 @@
 namespace dc {
 /// A locally-unique id for a node in a graph.
 using NodeId = size_t;
-NodeId InvalidNodeId = 0;
+const NodeId InvalidNodeId = 0;
 
 /// A collection of nodes to be processed.
 /// @tparam TimeType The type used to represent time in the graph.
