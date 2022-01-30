@@ -42,8 +42,8 @@ TEST(TrashMan, FillEmpty) {
       ASSERT_EQ(trashMan.trash(p), Status::Ok);
       ASSERT_EQ(p, nullptr);
     }
-    trashMan.dump();
     while (trashMan.size() > 0) {
+      trashMan.dump();
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }
