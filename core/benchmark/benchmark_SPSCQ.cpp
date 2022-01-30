@@ -29,6 +29,8 @@ static void SPSCQ_FillDrain(benchmark::State& state) {
   for (auto _: state) {
     while (q.push([](T&) { return Status::Ok; }) == Status::Ok);
     while (q.pop([](T&) { return Status::Ok; }) == Status::Ok);
+    while (q.push([](T&) { return Status::Ok; }) == Status::Ok);
+    while (q.pop([](T&) { return Status::Ok; }) == Status::Ok);
   }
 }
 
