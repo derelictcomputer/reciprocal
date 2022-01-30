@@ -18,11 +18,14 @@ public:
       _dump.wait(lock);
 
       // dump the trash
+      std::cout << "Dumping " << _trashCan.size() << " items...\n";
       while (_trashCan.pop([](T*& trash) {
         delete trash;
         trash = nullptr;
         return Status::Ok;
-      }) == Status::Ok);
+      }) == Status::Ok) {}
+
+      std::cout << "Done dumping\n";
     }
   }) {}
 
