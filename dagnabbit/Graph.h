@@ -62,7 +62,8 @@ public:
     const auto deleter = [this](NodeType* ptr) {
       if (ptr != nullptr) {
         [[maybe_unused]] const auto status = _trashMan.trash(ptr);
-        assert(status == Status::Ok && ptr == nullptr);
+        assert(status == Status::Ok);
+        assert(ptr == nullptr);
       }
     };
     // Make a shared pointer here, so if enqueuing the add request fails, the node gets cleaned up.
