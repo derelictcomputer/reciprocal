@@ -45,8 +45,12 @@ public:
 
   /// Put something in the trash.
   /// @param thing The thing to trash. Will be set to nullptr if successful.
-  /// @returns Status::Ok on success, Status::Full if the trash is full.
+  /// @returns Status::Ok on success or appropriate error.
   Status trash(T*& thing) {
+    if (thing == nullptr) {
+      return Status::InvalidArgument;
+    }
+
     const auto status = _trashCan.push([thing](T*& item) {
       item = thing;
       return Status::Ok;

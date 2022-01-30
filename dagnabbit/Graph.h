@@ -53,6 +53,10 @@ public:
   /// @param addNodeCb A callback, which will let you know the node's id if the add was successful.
   /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
   Status addNode(const CreateNodeFn& createNodeFn, const AddNodeCb& addNodeCb) {
+    if (createNodeFn == nullptr || addNodeCb == nullptr) {
+      return Status::InvalidArgument;
+    }
+
     // Custom deleter, so whenever the shared pointer's ref count goes to zero,
     // the TrashMan thread takes care of deleting instead of possibly the process thread.
     const auto deleter = [this](NodeType* ptr) {
@@ -63,7 +67,9 @@ public:
     };
     // Make a shared pointer here, so if enqueuing the add request fails, the node gets cleaned up.
     std::shared_ptr<NodeType> node(createNodeFn(), deleter);
-    assert(node != nullptr);
+    if (node == nullptr) {
+      return Status::InvalidArgument;
+    }
 
     // When we capture the shared pointer by value here, it creates a copy and increases the ref count.
     const auto async = [this, node, addNodeCb]() {

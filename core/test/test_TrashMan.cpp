@@ -24,3 +24,10 @@ TEST(TrashMan, Simple) {
     ASSERT_EQ(thing, nullptr);
   }
 }
+
+TEST(TrashMan, TrashNothing) {
+  const size_t capacity = 2;
+  TrashMan<TestThing> trashMan(capacity);
+  TestThing* nothing = nullptr;
+  ASSERT_EQ(trashMan.trash(nothing), Status::InvalidArgument);
+}

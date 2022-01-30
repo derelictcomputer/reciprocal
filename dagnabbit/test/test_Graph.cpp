@@ -96,6 +96,14 @@ TEST(Graph, AddRemove) {
     ASSERT_TRUE(gotCb);
     ASSERT_EQ(graph.size(), 0);
   }
+
+  // try to add an invalid node, expect that to fail
+  {
+    ASSERT_EQ(graph.addNode([]() { return nullptr; }, [](Status, NodeId) {}), Status::InvalidArgument);
+    ASSERT_EQ(graph.size(), 0);
+    ASSERT_EQ(graph.process(), Status::Ok);
+    ASSERT_EQ(graph.size(), 0);
+  }
 }
 
 TEST(Graph, AddRemoveMT) {
@@ -109,7 +117,7 @@ TEST(Graph, AddRemoveMT) {
   std::thread processThread([&runProcessThread, &graph]() {
     while (runProcessThread) {
       graph.process();
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   });
 
