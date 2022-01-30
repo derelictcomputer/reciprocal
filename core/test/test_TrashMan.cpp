@@ -44,7 +44,7 @@ TEST(TrashMan, FillEmpty) {
     }
     trashMan.dump();
     while (trashMan.size() > 0) {
-      std::this_thread::yield();
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }
 }
