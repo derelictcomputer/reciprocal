@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643578871062,
+  "lastUpdate": 1643581099895,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -66,6 +66,42 @@ window.BENCHMARK_DATA = {
             "value": 411.3827237922957,
             "unit": "ns/iter",
             "extra": "iterations: 1742732\ncpu: 402.7968729557957 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0049fbaa0702c777eab587c55ab9ba12677c8b5",
+          "message": "add benchmark for TrashMan (#26)",
+          "timestamp": "2022-01-30T17:17:26-05:00",
+          "tree_id": "214057743b13e07464e559202addf9d10b7c97be",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/e0049fbaa0702c777eab587c55ab9ba12677c8b5"
+        },
+        "date": 1643581098803,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemoveAll<int32_t, 64>",
+            "value": 188303.74238426573,
+            "unit": "ns/iter",
+            "extra": "iterations: 4169\ncpu: 134702.08683137444 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double, 16>",
+            "value": 348.2738168153936,
+            "unit": "ns/iter",
+            "extra": "iterations: 1970635\ncpu: 348.25287280495894 ns\nthreads: 1"
           }
         ]
       }
