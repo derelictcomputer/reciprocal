@@ -6,14 +6,13 @@ using namespace dc;
 
 template<class TimeType, size_t MaxNodes>
 static void Graph_AddRemoveAll(benchmark::State& state) {
-  Graph<TimeType> graph(MaxNodes, MaxNodes);
-
   const auto createFn = []() { return new PassthroughNode<float, TimeType>(1, 1); };
 
   std::vector<NodeId> nodeIds;
   nodeIds.reserve(MaxNodes);
 
   for (auto _ : state) {
+    Graph<TimeType> graph(MaxNodes, MaxNodes);
     nodeIds.clear();
     {
       std::atomic<size_t> cbCount{0};
