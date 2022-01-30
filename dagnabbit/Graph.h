@@ -62,7 +62,10 @@ public:
     const auto deleter = [this](NodeType* ptr) {
       if (ptr != nullptr) {
         [[maybe_unused]] const auto status = _trashMan.trash(ptr);
-        assert(status == Status::Ok);
+        if (status != Status::Ok) {
+          std::cerr << "disposing of a node failed with status " << to_string(status) << ", ptr " << ptr << std::endl;
+          assert(false);
+        }
         assert(ptr == nullptr);
       }
     };
