@@ -154,3 +154,44 @@ TEST(Graph, AddRemoveMT) {
 
   ASSERT_EQ(graph.size(), 0);
 }
+
+TEST(Graph, FillEmpty) {
+  using TimeType = uint16_t;
+  const size_t asyncQueueSize = 64;
+  const size_t maxNodes = 64;
+
+  Graph<TimeType> graph(asyncQueueSize, maxNodes);
+
+  for (size_t round = 0; round < 4; ++round) {
+    // fill the graph
+    std::vector<NodeId> nodeIds;
+    nodeIds.reserve(maxNodes);
+    const auto addCb = [&nodeIds](Status status, NodeId nodeId) {
+      ASSERT_EQ(status, Status::Ok);
+      ASSERT_NE(nodeId, InvalidNodeId);
+      nodeIds.push_back(nodeId);
+    };
+    for (size_t i = 0; i < maxNodes; ++i) {
+      ASSERT_EQ(graph.addNode(
+          []() { return new PassthroughNode<int, TimeType>(1, 1); },
+          addCb), Status::Ok);
+    }
+
+    // process
+    ASSERT_EQ(graph.process(), Status::Ok);
+    ASSERT_EQ(graph.size(), maxNodes);
+
+    // empty the graph
+    const auto removeCb = [](Status status, NodeId nodeId) {
+      ASSERT_EQ(status, Status::Ok);
+      ASSERT_NE(nodeId, InvalidNodeId);
+    };
+    for (auto id: nodeIds) {
+      ASSERT_EQ(graph.removeNode(id, removeCb), Status::Ok);
+    }
+
+    // process
+    ASSERT_EQ(graph.process(), Status::Ok);
+    ASSERT_EQ(graph.size(), 0);
+  }
+}

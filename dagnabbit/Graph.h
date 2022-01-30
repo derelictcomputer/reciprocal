@@ -118,7 +118,10 @@ public:
       // NB: we can just call erase here because we store a shared pointer
       // with a deleter that offloads the actual deletion of the node to a cleanup thread.
       const auto erased = _nodes.erase(nodeId);
-      _size = _nodes.size();
+      if (erased) {
+        returnNodeId(nodeId);
+        _size = _nodes.size();
+      }
       removeNodeCb(erased == 1 ? Status::Ok : Status::NotFound, nodeId);
     };
 
