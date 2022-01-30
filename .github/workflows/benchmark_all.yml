@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: write
-  deployments: write
 
 jobs:
   build_and_benchmark:
