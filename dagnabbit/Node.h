@@ -7,6 +7,8 @@ namespace dc {
 template<class TimeType>
 class Node {
 public:
+  virtual ~Node() = default;
+
   /// Advance the node, using input and passing output as applicable.
   /// @param now The absolute time based on the owning graph.
   /// @returns Status::Ok on success or appropriate error.
