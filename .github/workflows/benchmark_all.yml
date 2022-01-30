@@ -36,7 +36,7 @@ jobs:
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: ${{subdir}} benchmark
+          name: ${{matrix.subdir}} benchmark
           tool: 'googlecpp'
           output-file-path: ${{matrix.subdir}}/benchmark_result.json
           alert-threshold: '200%'
