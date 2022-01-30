@@ -18,4 +18,4 @@ add_test(NAME core_test COMMAND core_tests)
 # benchmarks
 file(GLOB benchmark_src benchmark/*.cpp)
 add_executable(core_benchmarks ${benchmark_src})
-target_link_libraries(core_benchmarks benchmark::benchmark core)
+target_link_libraries(core_benchmarks benchmark::benchmark_main core)
