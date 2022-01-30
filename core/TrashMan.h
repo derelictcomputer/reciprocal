@@ -1,6 +1,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <iostream>
 #include <thread>
 #include "SPSCQ.h"
 
@@ -64,6 +65,11 @@ public:
     thing = nullptr;
     _dump.notify_one();
     return Status::Ok;
+  }
+
+  /// Force a dump of the trash. This is really just here for tests.
+  void dump() {
+    _dump.notify_one();
   }
 
 private:

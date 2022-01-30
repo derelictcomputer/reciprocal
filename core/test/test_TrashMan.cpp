@@ -40,7 +40,9 @@ TEST(TrashMan, FillEmpty) {
     for (size_t j = 0; j < capacity; ++j) {
       int* p = new int(43);
       ASSERT_EQ(trashMan.trash(p), Status::Ok);
+      ASSERT_EQ(p, nullptr);
     }
+    trashMan.dump();
     while (trashMan.size() > 0) {
       std::this_thread::yield();
     }
