@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643552548670,
+  "lastUpdate": 1643552720192,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -156,6 +156,84 @@ window.BENCHMARK_DATA = {
             "value": 6153.321596987636,
             "unit": "ns/iter",
             "extra": "iterations: 113664\ncpu: 6152.323514921161 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "distinct": true,
+          "id": "2fcb1bd21e58d020715c42e2595ab8de88a7aea2",
+          "message": "now put the benchmark back",
+          "timestamp": "2022-01-30T09:24:10-05:00",
+          "tree_id": "82fa6cf5e3c02a0b105d67171db7366befe765d9",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/2fcb1bd21e58d020715c42e2595ab8de88a7aea2"
+        },
+        "date": 1643552719095,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "SPSCQ_PushPop<int, 64>",
+            "value": 31.824024717196725,
+            "unit": "ns/iter",
+            "extra": "iterations: 22012205\ncpu: 31.820787603967894 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_PushPop<double, 512>",
+            "value": 31.957158130180733,
+            "unit": "ns/iter",
+            "extra": "iterations: 22012648\ncpu: 31.857857355462194 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_PushPop<float, 128>",
+            "value": 31.803645896428907,
+            "unit": "ns/iter",
+            "extra": "iterations: 22007098\ncpu: 31.801535122895334 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<int, 64>",
+            "value": 2077.1910957035648,
+            "unit": "ns/iter",
+            "extra": "iterations: 337208\ncpu: 2077.0818011435076 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 16358.913818895755,
+            "unit": "ns/iter",
+            "extra": "iterations: 42782\ncpu: 16358.064139123944 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<float, 128>",
+            "value": 4111.123574110949,
+            "unit": "ns/iter",
+            "extra": "iterations: 170157\ncpu: 4110.936958220939 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<int, 64>",
+            "value": 3092.601046158188,
+            "unit": "ns/iter",
+            "extra": "iterations: 226352\ncpu: 3092.348201032018 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24592.272826316068,
+            "unit": "ns/iter",
+            "extra": "iterations: 28454\ncpu: 24590.619947986244 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<float, 128>",
+            "value": 6156.089444761887,
+            "unit": "ns/iter",
+            "extra": "iterations: 113735\ncpu: 6155.786697146866 ns\nthreads: 1"
           }
         ]
       }
