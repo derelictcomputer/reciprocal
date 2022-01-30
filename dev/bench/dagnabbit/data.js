@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643582022936,
+  "lastUpdate": 1643584422266,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -174,6 +174,42 @@ window.BENCHMARK_DATA = {
             "value": 425.44530778768535,
             "unit": "ns/iter",
             "extra": "iterations: 1644640\ncpu: 425.3327779939683 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f72d63a23818917d6678f87ad92e594a961e7f50",
+          "message": "remove debug prints (#28)",
+          "timestamp": "2022-01-30T18:12:44-05:00",
+          "tree_id": "5d4bc23f8bdb1739c7d6845a91a1d6cc39bd7c20",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/f72d63a23818917d6678f87ad92e594a961e7f50"
+        },
+        "date": 1643584420713,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemoveAll<int32_t, 64>",
+            "value": 234779.52241440176,
+            "unit": "ns/iter",
+            "extra": "iterations: 8499\ncpu: 133298.10565948937 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double, 16>",
+            "value": 359.3102239415113,
+            "unit": "ns/iter",
+            "extra": "iterations: 1938274\ncpu: 359.27717133903656 ns\nthreads: 1"
           }
         ]
       }
