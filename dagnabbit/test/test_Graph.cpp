@@ -163,6 +163,7 @@ TEST(Graph, FillEmpty) {
   Graph<TimeType> graph(asyncQueueSize, maxNodes);
 
   for (size_t round = 0; round < 4; ++round) {
+    std::cout << "Starting round " << round << std::endl;
     // fill the graph
     std::vector<NodeId> nodeIds;
     nodeIds.reserve(maxNodes);
@@ -171,6 +172,7 @@ TEST(Graph, FillEmpty) {
       ASSERT_NE(nodeId, InvalidNodeId);
       nodeIds.push_back(nodeId);
     };
+    std::cout << "Adding nodes\n";
     for (size_t i = 0; i < maxNodes; ++i) {
       ASSERT_EQ(graph.addNode(
           []() { return new PassthroughNode<int, TimeType>(1, 1); },
@@ -178,6 +180,7 @@ TEST(Graph, FillEmpty) {
     }
 
     // process
+    std::cout << "Processing\n";
     ASSERT_EQ(graph.process(), Status::Ok);
     ASSERT_EQ(graph.size(), maxNodes);
 
@@ -186,11 +189,13 @@ TEST(Graph, FillEmpty) {
       ASSERT_EQ(status, Status::Ok);
       ASSERT_NE(nodeId, InvalidNodeId);
     };
+    std::cout << "Removing nodes\n";
     for (auto id: nodeIds) {
       ASSERT_EQ(graph.removeNode(id, removeCb), Status::Ok);
     }
 
     // process
+    std::cout << "Processing\n";
     ASSERT_EQ(graph.process(), Status::Ok);
     ASSERT_EQ(graph.size(), 0);
 
