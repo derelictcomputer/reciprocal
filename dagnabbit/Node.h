@@ -30,6 +30,10 @@ public:
   /// @param inputIndex The index of the input port from this node
   /// @returns Status::Ok or appropriate error.
   Status connectInput(Node<TimeType>& outputNode, size_t outputIndex, size_t inputIndex) {
+    if (&outputNode == this) {
+      return Status::InvalidArgument;
+    }
+
     if (outputIndex >= outputNode.getNumOutputs() || inputIndex >= getNumInputs()) {
       return Status::OutOfRange;
     }
@@ -38,6 +42,22 @@ public:
     auto inputPort = _inputs[inputIndex];
 
     return outputPort->connect(inputPort);
+  }
+
+  /// Disconnect another node's output from an input on this one.
+  /// @param outputNode The other node
+  /// @param outputIndex The index of the output port from the other node
+  /// @param inputIndex The index of the input port from this node
+  /// @returns Status::Ok or appropriate error.
+  Status disconnectInput(Node<TimeType>& outputNode, size_t outputIndex, size_t inputIndex) {
+    if (outputIndex >= outputNode.getNumOutputs() || inputIndex >= getNumInputs()) {
+      return Status::OutOfRange;
+    }
+
+    auto outputPort = outputNode._outputs[outputIndex];
+    auto inputPort = _inputs[inputIndex];
+
+    return outputPort->disconnect(inputPort);
   }
 
 protected:

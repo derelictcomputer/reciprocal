@@ -1,63 +1,26 @@
 #include <gtest/gtest.h>
 #include "../../third_party/rigtorp/MPMCQueue.h"
-#include "../Message.h"
-#include "../Node.h"
+#include "../dev_helpers/PassthroughNode.h"
 
 using namespace dc;
 
-class PassthroughNode : public Node<float> {
-public:
-  using MessageType = Message<float, float>;
-  using InputPortType = InputPort<MessageType>;
-  using OutputPortType = OutputPort<MessageType>;
-
-  PassthroughNode() : _input("in", 16), _output("out", 4) {
-    // input
-    this->_inputs.push_back(&_input);
-    // output
-    this->_outputs.push_back(&_output);
-  }
-
-  Status process(const float&, const float&) override {
-    MessageType msg;
-    while (popMessage(msg) == Status::Ok) {
-      const auto status = _output.pushToConnections(msg);
-      if (status != Status::Ok) {
-        return status;
-      }
-    }
-    return Status::Ok;
-  }
-
-  Status pushMessage(const MessageType& msg) {
-    return _input.pushMessage(msg);
-  }
-
-  Status popMessage(MessageType& msg) {
-    return _input.popMessage(msg);
-  }
-
-private:
-  InputPortType _input;
-  OutputPortType _output;
-};
-
 TEST(Node, PassthroughNode) {
-  PassthroughNode node;
+  using NodeType = PassthroughNode<float, float>;
+  NodeType node(16, 4);
   ASSERT_EQ(node.getNumInputs(), 1);
   ASSERT_EQ(node.getNumOutputs(), 1);
 
-  PassthroughNode::MessageType msgIn;
+  NodeType::MessageType msgIn;
   msgIn.data = 123.43f;
   msgIn.time = 8787.9f;
   ASSERT_EQ(node.pushMessage(msgIn), Status::Ok);
-  PassthroughNode::MessageType msgOut;
+  NodeType::MessageType msgOut;
   ASSERT_EQ(node.popMessage(msgOut), Status::Ok);
   ASSERT_FLOAT_EQ(msgOut.time, msgIn.time);
   ASSERT_FLOAT_EQ(msgOut.data, msgOut.data);
   ASSERT_EQ(node.popMessage(msgOut), Status::Empty);
 
-  PassthroughNode node2;
+  NodeType node2(16, 4);
   ASSERT_EQ(node2.connectInput(node, 0, 0), Status::Ok);
   msgIn.data = 52452.23432f;
   msgIn.time = 1452234.12f;
@@ -66,4 +29,25 @@ TEST(Node, PassthroughNode) {
   ASSERT_EQ(node2.popMessage(msgOut), Status::Ok);
   ASSERT_FLOAT_EQ(msgOut.time, msgIn.time);
   ASSERT_FLOAT_EQ(msgOut.data, msgOut.data);
+}
+
+TEST(Node, ConnectDisconnect) {
+  using NodeType = PassthroughNode<double, size_t>;
+  NodeType node1(32, 2);
+  NodeType node2(32, 2);
+
+  // valid connect
+  ASSERT_EQ(node2.connectInput(node1, 0, 0), Status::Ok);
+
+  // valid disconnect
+  ASSERT_EQ(node2.disconnectInput(node1, 0, 0), Status::Ok);
+
+  // disconnect when there wasn't a connection
+  ASSERT_EQ(node2.disconnectInput(node1, 0, 0), Status::NotFound);
+
+  // connect to a port that's not there
+  ASSERT_EQ(node1.connectInput(node2, 0, 1), Status::OutOfRange);
+
+  // connect to self
+  ASSERT_EQ(node1.connectInput(node1, 0, 0), Status::InvalidArgument);
 }
