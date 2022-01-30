@@ -21,7 +21,7 @@ public:
   explicit Graph(size_t asyncQueueSize, size_t capacity) :
   capacity(capacity),
   _asyncQ(asyncQueueSize),
-  _trashMan(capacity) {
+  _trashMan(capacity * 2) {
     _nodes.reserve(capacity);
     _availableNodeIds.reserve(capacity);
     for (size_t i = 0; i < capacity; ++i) {
