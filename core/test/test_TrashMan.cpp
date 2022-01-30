@@ -43,8 +43,7 @@ TEST(TrashMan, FillEmpty) {
       ASSERT_EQ(p, nullptr);
     }
     while (trashMan.size() > 0) {
-      trashMan.dump();
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      std::this_thread::yield();
     }
   }
 }

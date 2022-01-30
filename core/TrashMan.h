@@ -15,8 +15,12 @@ public:
     std::unique_lock<std::mutex> lock(_mutex);
 
     while (_run.load()) {
-      // wait for a signal
-      _dump.wait(lock);
+      // there's a possibility we'll lose some notifications when a bunch come in at once.
+      // This should make it so the loop retries until the trash is really empty.
+      if (_trashCan.size() == 0) {
+        // wait for a signal
+        _dump.wait(lock);
+      }
 
       // dump the trash
       std::cout << "Dumping " << _trashCan.size() << " items...\n";
@@ -62,14 +66,10 @@ public:
     if (status != Status::Ok) {
       return status;
     }
+
     thing = nullptr;
     _dump.notify_one();
     return Status::Ok;
-  }
-
-  /// Force a dump of the trash. This is really just here for tests.
-  void dump() {
-    _dump.notify_one();
   }
 
 private:
