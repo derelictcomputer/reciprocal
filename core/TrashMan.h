@@ -26,7 +26,7 @@ public:
         return Status::Ok;
       }) == Status::Ok) {}
 
-      std::cout << "Done dumping\n";
+      std::cout << "Done dumping. " << _trashCan.size() << " items in can after dumping.\n";
     }
   }) {}
 
