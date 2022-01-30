@@ -31,13 +31,13 @@ jobs:
 
       - name: Run Benchmarks
         working-directory: ${{github.workspace}}/build/${{matrix.subdir}}/
-        run: ./${{matrix.subdir}}_benchmarks --benchmark_format=json | tee benchmark_result.json
+        run: ./${{matrix.subdir}}_benchmarks --benchmark_format=json --benchmark_output=benchmark_result.json
 
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: ${{matrix.subdir}} benchmark
           tool: 'googlecpp'
-          output-file-path: ${{matrix.subdir}}/benchmark_result.json
+          output-file-path: ${{github.workspace}}/build/${{matrix.subdir}}/benchmark_result.json
           alert-threshold: '200%'
           fail-on-alert: true
