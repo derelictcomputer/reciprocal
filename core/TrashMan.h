@@ -1,50 +1,35 @@
 #pragma once
 
-#include <condition_variable>
-#include <iostream>
 #include <thread>
-#include "SPSCQ.h"
+#include "../third_party/rigtorp/MPMCQueue.h"
+#include "Status.h"
 
 namespace dc {
-/// Use this to offload deleting things from a single realtime thread. Kill Em All 1989.
+/// Use this to offload deleting things to a dedicated thread. Kill Em All 1989.
 /// @tparam T The type of the thing you want deleted on the cleanup thread.
 template<class T>
 class TrashMan {
 public:
-  explicit TrashMan(size_t capacity) : _trashCan(capacity), _trashThread([this]() {
-    std::unique_lock<std::mutex> lock(_mutex);
-
+  explicit TrashMan(size_t capacity) : capacity(capacity), _trashCan(capacity), _trashThread([this]() {
     while (_run.load()) {
-      // there's a possibility we'll lose some notifications when a bunch come in at once.
-      // This should make it so the loop retries until the trash is really empty.
-      if (_trashCan.size() == 0) {
-        // wait for a signal
-        _dump.wait(lock);
+      // dump the trash until all notifications have been handled
+      while (_notificationsRemaining > 0) {
+        dump();
+        _notificationsRemaining.fetch_sub(1);
       }
 
-      // dump the trash
-      std::cout << "Dumping " << _trashCan.size() << " items...\n";
-      while (_trashCan.pop([](T*& trash) {
-        delete trash;
-        trash = nullptr;
-        return Status::Ok;
-      }) == Status::Ok) {}
-
-      std::cout << "Done dumping. " << _trashCan.size() << " items in can after dumping.\n";
+      std::this_thread::yield();
     }
   }) {}
 
   ~TrashMan() {
     // tell the trash thread to dump and then stop running. Order is important here.
     _run = false;
-    _dump.notify_one();
     _trashThread.join();
+    dump();
   }
 
-  /// @returns The size of the trash can.
-  [[nodiscard]] size_t capacity() const {
-    return _trashCan.capacity;
-  }
+  const size_t capacity;
 
   /// @returns The number of things in the trash can. TBH, this isn't very useful except for tests.
   [[nodiscard]] size_t size() const {
@@ -59,24 +44,30 @@ public:
       return Status::InvalidArgument;
     }
 
-    const auto status = _trashCan.push([thing](T*& item) {
-      item = thing;
-      return Status::Ok;
-    });
-    if (status != Status::Ok) {
-      return status;
+    if (!_trashCan.try_push(thing)) {
+      return Status::Full;
     }
 
     thing = nullptr;
-    _dump.notify_one();
+    _notificationsRemaining.fetch_add(1);
     return Status::Ok;
   }
 
 private:
-  SPSCQ<T*> _trashCan;
+  void dump() {
+    T* ptr{nullptr};
+    while (!_trashCan.empty()) {
+      if (_trashCan.try_pop(ptr)) {
+        assert(ptr != nullptr);
+        delete ptr;
+        ptr = nullptr;
+      }
+    }
+  }
+
+  rigtorp::MPMCQueue<T*> _trashCan;
   std::atomic<bool> _run{true};
-  std::condition_variable _dump;
-  std::mutex _mutex;
+  std::atomic<size_t> _notificationsRemaining{0};
   std::thread _trashThread;
 };
 }

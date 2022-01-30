@@ -15,7 +15,7 @@ TEST(TrashMan, Simple) {
   const size_t capacity = 1024;
   TrashMan<TestThing> trashMan(capacity);
 
-  ASSERT_EQ(trashMan.capacity(), capacity);
+  ASSERT_EQ(trashMan.capacity, capacity);
   ASSERT_EQ(trashMan.size(), 0);
 
   for (size_t i = 0; i < capacity; ++i) {

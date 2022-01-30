@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <unordered_map>
 #include "../core/TrashMan.h"
 #include "../third_party/rigtorp/MPMCQueue.h"
