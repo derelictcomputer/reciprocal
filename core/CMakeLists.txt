@@ -14,3 +14,8 @@ file(GLOB test_src test/*.cpp)
 add_executable(core_tests ${test_src})
 target_link_libraries(core_tests gtest_main core)
 add_test(NAME core_test COMMAND core_tests)
+
+# benchmarks
+file(GLOB benchmark_src benchmark/*.cpp)
+add_executable(core_benchmarks ${benchmark_src})
+target_link_libraries(core_benchmarks benchmark::benchmark core)
