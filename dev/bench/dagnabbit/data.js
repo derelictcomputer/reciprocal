@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643584422266,
+  "lastUpdate": 1643587129974,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -210,6 +210,42 @@ window.BENCHMARK_DATA = {
             "value": 359.3102239415113,
             "unit": "ns/iter",
             "extra": "iterations: 1938274\ncpu: 359.27717133903656 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4d1005289cda1c3e0cc482c91c500bd4f00a4b09",
+          "message": "Fresh graph for each iteration. This will make the iteration time longer because it waits for the trash to be emptied (#29)",
+          "timestamp": "2022-01-30T18:57:52-05:00",
+          "tree_id": "2819ad691b0b292852974feb08309149305b787f",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/4d1005289cda1c3e0cc482c91c500bd4f00a4b09"
+        },
+        "date": 1643587128883,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemoveAll<int32_t, 64>",
+            "value": 118549.08518518381,
+            "unit": "ns/iter",
+            "extra": "iterations: 6750\ncpu: 105233.11111111112 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double, 16>",
+            "value": 403.50185371484105,
+            "unit": "ns/iter",
+            "extra": "iterations: 1746493\ncpu: 400.72241915656116 ns\nthreads: 1"
           }
         ]
       }
