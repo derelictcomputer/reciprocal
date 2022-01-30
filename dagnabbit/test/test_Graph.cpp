@@ -104,6 +104,29 @@ TEST(Graph, AddRemove) {
     ASSERT_EQ(graph.process(), Status::Ok);
     ASSERT_EQ(graph.size(), 0);
   }
+
+  // try to remove nodes that are not there
+  {
+    // Special fast path for the invalid node id.
+    ASSERT_EQ(graph.removeNode(InvalidNodeId, [](Status, NodeId) {}), Status::InvalidArgument);
+
+    // Regular path for a node id that's valid, but not in the graph.
+    std::atomic<bool> gotCb{false};
+    const NodeId id = 1;
+    ASSERT_EQ(graph.removeNode(id, [id, &gotCb](Status status, NodeId nodeId) {
+      gotCb = true;
+      ASSERT_EQ(status, Status::NotFound);
+      ASSERT_EQ(nodeId, id);
+    }), Status::Ok);
+
+    ASSERT_FALSE(gotCb);
+    ASSERT_EQ(graph.size(), 0);
+
+    ASSERT_EQ(graph.process(), Status::Ok);
+
+    ASSERT_TRUE(gotCb);
+    ASSERT_EQ(graph.size(), 0);
+  }
 }
 
 TEST(Graph, AddRemoveMT) {

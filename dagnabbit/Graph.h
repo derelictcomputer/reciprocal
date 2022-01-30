@@ -110,6 +110,10 @@ public:
   /// @param removeNodeCb A callback to let you know if the removal was successful.
   /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
   Status removeNode(NodeId nodeId, const RemoveNodeCb& removeNodeCb) {
+    if (nodeId == InvalidNodeId) {
+      return Status::InvalidArgument;
+    }
+
     const auto async = [this, nodeId, removeNodeCb]() {
       // NB: we can just call erase here because we store a shared pointer
       // with a deleter that offloads the actual deletion of the node to a cleanup thread.
