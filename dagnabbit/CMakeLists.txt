@@ -18,3 +18,8 @@ file(GLOB test_src test/*.cpp)
 add_executable(dagnabbit_tests ${test_src})
 target_link_libraries(dagnabbit_tests gtest_main dagnabbit)
 add_test(NAME dagnabbit_test COMMAND dagnabbit_tests)
+
+# benchmarks
+file(GLOB benchmark_src benchmark/*.cpp)
+add_executable(dagnabbit_benchmarks ${benchmark_src})
+target_link_libraries(dagnabbit_benchmarks benchmark::benchmark_main dagnabbit)
