@@ -6,11 +6,13 @@ set(CMAKE_CXX_STANDARD 20)
 # use sanitizers if appropriate
 include(cmake/sanitizers.cmake)
 
-# get gtest
 include(FetchContent)
+
+# get gtest
 FetchContent_Declare(
         gtest
-        URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.tar.gz
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        release-1.11.0
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
@@ -24,7 +26,8 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/google/benchmark.git
         GIT_TAG v1.6.1
 )
-set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gbenchmark)
 
 add_subdirectory(core)
