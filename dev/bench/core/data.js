@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643563235238,
+  "lastUpdate": 1643565751524,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -84,6 +84,48 @@ window.BENCHMARK_DATA = {
             "value": 24609.35851580677,
             "unit": "ns/iter",
             "extra": "iterations: 28406\ncpu: 24609.22692388932 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "distinct": true,
+          "id": "70ba8de90a1e2bfcf7165eef5b05fee3b4aa976a",
+          "message": "add dagnabbit benchmarks to workflow",
+          "timestamp": "2022-01-30T13:01:25-05:00",
+          "tree_id": "522a6e45aed5dfa726748cf39b67f795b52d813f",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/70ba8de90a1e2bfcf7165eef5b05fee3b4aa976a"
+        },
+        "date": 1643565750351,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 128933.70657318151,
+            "unit": "ns/iter",
+            "extra": "iterations: 5705\ncpu: 128860.61349693254 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 17536.437087373084,
+            "unit": "ns/iter",
+            "extra": "iterations: 36201\ncpu: 17535.192398000054 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 26710.669479340075,
+            "unit": "ns/iter",
+            "extra": "iterations: 26428\ncpu: 26708.87316482517 ns\nthreads: 1"
           }
         ]
       }
