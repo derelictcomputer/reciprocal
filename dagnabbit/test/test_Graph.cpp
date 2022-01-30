@@ -193,5 +193,8 @@ TEST(Graph, FillEmpty) {
     // process
     ASSERT_EQ(graph.process(), Status::Ok);
     ASSERT_EQ(graph.size(), 0);
+
+    // let the garbage collector run
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
