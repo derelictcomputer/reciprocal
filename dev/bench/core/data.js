@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643578872571,
+  "lastUpdate": 1643581102847,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -168,6 +168,54 @@ window.BENCHMARK_DATA = {
             "value": 24608.425824175996,
             "unit": "ns/iter",
             "extra": "iterations: 28392\ncpu: 24607.093547478155 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0049fbaa0702c777eab587c55ab9ba12677c8b5",
+          "message": "add benchmark for TrashMan (#26)",
+          "timestamp": "2022-01-30T17:17:26-05:00",
+          "tree_id": "214057743b13e07464e559202addf9d10b7c97be",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/e0049fbaa0702c777eab587c55ab9ba12677c8b5"
+        },
+        "date": 1643581101737,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 111774.18299620661,
+            "unit": "ns/iter",
+            "extra": "iterations: 6328\ncpu: 111732.15865992417 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 16236.146414989134,
+            "unit": "ns/iter",
+            "extra": "iterations: 43124\ncpu: 16234.795009739357 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24637.092310399126,
+            "unit": "ns/iter",
+            "extra": "iterations: 28415\ncpu: 24635.618511349636 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 179514.1026597061,
+            "unit": "ns/iter",
+            "extra": "iterations: 4023\ncpu: 172958.09097688293 ns\nthreads: 1"
           }
         ]
       }
