@@ -31,3 +31,18 @@ TEST(TrashMan, TrashNothing) {
   TestThing* nothing = nullptr;
   ASSERT_EQ(trashMan.trash(nothing), Status::InvalidArgument);
 }
+
+TEST(TrashMan, FillEmpty) {
+  const size_t capacity = 512;
+  TrashMan<int> trashMan(capacity);
+
+  for (size_t i = 0; i < 10; ++i) {
+    for (size_t j = 0; j < capacity; ++j) {
+      int* p = new int(43);
+      ASSERT_EQ(trashMan.trash(p), Status::Ok);
+    }
+    while (trashMan.size() > 0) {
+      std::this_thread::yield();
+    }
+  }
+}
