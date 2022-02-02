@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - chron: '0 11 * * *' # run at 6AM EST every day
+    - cron: '0 11 * * *' # run at 6AM EST every day
 
 permissions:
   contents: write
