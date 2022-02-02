@@ -50,7 +50,7 @@ public:
   using AddNodeCb = std::function<void(Status, NodeId)>;
 
   /// Request to add a node to the graph.
-  /// @param node A pointer to a node to add to the graph
+  /// @param createNodeFn A function that will return a pointer to a configured node of the desired type.
   /// @param addNodeCb A callback, which will let you know the node's id if the add was successful.
   /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
   Status addNode(const CreateNodeFn& createNodeFn, const AddNodeCb& addNodeCb) {
