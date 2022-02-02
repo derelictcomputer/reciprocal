@@ -198,3 +198,48 @@ TEST(Graph, FillEmpty) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
+
+TEST(Graph, ConnectDisconnect) {
+  using TimeType = int8_t;
+  const size_t asyncQueueSize = 16;
+  const size_t maxNodes = 8;
+
+  Graph<TimeType> graph(asyncQueueSize, maxNodes);
+
+  // add two nodes
+  const auto createFn = []() {
+    return new PassthroughNode<float, TimeType>(1, 1);
+  };
+  NodeId nodeId1{InvalidNodeId};
+  ASSERT_EQ(graph.addNode(createFn, [&nodeId1](Status status, NodeId nodeId) {
+    ASSERT_EQ(status, Status::Ok);
+    ASSERT_NE(nodeId, InvalidNodeId);
+    nodeId1 = nodeId;
+  }), Status::Ok);
+  NodeId nodeId2{InvalidNodeId};
+  ASSERT_EQ(graph.addNode(createFn, [&nodeId2](Status status, NodeId nodeId) {
+    ASSERT_EQ(status, Status::Ok);
+    ASSERT_NE(nodeId, InvalidNodeId);
+    nodeId2 = nodeId;
+  }), Status::Ok);
+
+  // process to actually add them
+  ASSERT_EQ(graph.process(), Status::Ok);
+  ASSERT_NE(nodeId1, InvalidNodeId);
+  ASSERT_NE(nodeId2, InvalidNodeId);
+
+  // connect them
+  ASSERT_EQ(
+      graph.connectNodes(nodeId1, 0, nodeId2, 0,
+                         [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                           ASSERT_EQ(status, Status::Ok);
+                           ASSERT_EQ(from, nodeId1);
+                           ASSERT_EQ(fromIdx, 0);
+                           ASSERT_EQ(to, nodeId2);
+                           ASSERT_EQ(toIdx, 0);
+                         }),
+      Status::Ok);
+
+  // process to actually connect them
+  ASSERT_EQ(graph.process(), Status::Ok);
+}

@@ -113,7 +113,7 @@ public:
   /// Request to remove a node from the graph
   /// @param nodeId The id of the node to remove
   /// @param removeNodeCb A callback to let you know if the removal was successful.
-  /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
+  /// @returns Status::Ok if the request was enqueued, or appropriate error
   Status removeNode(NodeId nodeId, const RemoveNodeCb& removeNodeCb) {
     if (nodeId == InvalidNodeId) {
       return Status::InvalidArgument;
@@ -128,6 +128,37 @@ public:
         _size = _nodes.size();
       }
       removeNodeCb(erased == 1 ? Status::Ok : Status::NotFound, nodeId);
+    };
+
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+  }
+
+  using ConnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
+
+  /// Request to connect two nodes in the graph
+  /// @param from The NodeId of the node whose output will be connected
+  /// @param fromIdx The output port index
+  /// @param to The NodeId of the node whose input will be connected
+  /// @param toIdx The input port index
+  /// @param cb A callback to let you know if the connection was successful
+  /// @returns Status::Ok if the request was enqueued, or appropriate error
+  Status connectNodes(NodeId from, size_t fromIdx, NodeId to, size_t toIdx, const ConnectNodesCb& cb) {
+    if (from == InvalidNodeId || to == InvalidNodeId) {
+      return Status::InvalidArgument;
+    }
+
+    const auto async = [this, from, fromIdx, to, toIdx, cb]() {
+      auto fromIt = _nodes.find(from);
+      auto toIt = _nodes.find(to);
+      if (fromIt == _nodes.end()
+          || fromIdx >= fromIt->second->getNumOutputs()
+          || toIt == _nodes.end()
+          || toIdx >= toIt->second->getNumInputs()) {
+        cb(Status::NotFound, from, fromIdx, to, toIdx);
+        return;
+      }
+      const auto status = toIt->second->connectInput(*(fromIt->second), fromIdx, toIdx);
+      cb(status, from, fromIdx, to, toIdx);
     };
 
     return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
