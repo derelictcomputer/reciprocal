@@ -82,3 +82,106 @@ static void Graph_AddRemoveAll(benchmark::State& state) {
 }
 
 BENCHMARK(Graph_AddRemoveAll<int32_t, 64>);
+
+template<class DataType, class TimeType, size_t MaxOutputConnections>
+static void Graph_ConnectDisconnect(benchmark::State& state) {
+  const auto createFn = []() { return new PassthroughNode<DataType, TimeType>(1, MaxOutputConnections); };
+
+  std::vector<NodeId> nodeIds;
+  nodeIds.reserve(MaxOutputConnections);
+
+  for (auto _: state) {
+    Graph<TimeType> graph(MaxOutputConnections + 1, MaxOutputConnections + 1);
+    nodeIds.clear();
+
+    // create a source node
+    std::atomic<bool> cbError{false};
+    NodeId sourceNode{InvalidNodeId};
+    auto status = graph.addNode(createFn, [&cbError, &sourceNode](Status status, NodeId nodeId) {
+      if (status != Status::Ok) {
+        cbError = true;
+      }
+      sourceNode = nodeId;
+    });
+    if (status != Status::Ok) {
+      state.SkipWithError("Failed to create source node.");
+      return;
+    }
+
+    // create a bunch of nodes to connect to the source
+    for (size_t i = 0; i < MaxOutputConnections; ++i) {
+      status = graph.addNode(createFn, [&cbError, &nodeIds](Status status, NodeId nodeId) {
+        if (status != Status::Ok) {
+          cbError = true;
+        }
+        nodeIds.push_back(nodeId);
+      });
+      if (status != Status::Ok) {
+        state.SkipWithError("Failed to create destination node.");
+        return;
+      }
+    }
+
+    // process and make sure everything got created
+    status = graph.process();
+
+    if (status != Status::Ok || cbError || sourceNode == InvalidNodeId || nodeIds.size() != MaxOutputConnections) {
+      state.SkipWithError("Error processing after adding nodes");
+      return;
+    }
+
+    // connect all the destination nodes
+    for (auto dest: nodeIds) {
+      status = graph.connectNodes(sourceNode, 0, dest, 0, [&cbError](
+          Status status,
+          NodeId,
+          size_t,
+          NodeId,
+          size_t) {
+        if (status != Status::Ok) {
+          cbError = true;
+        }
+      });
+      if (status != Status::Ok) {
+        state.SkipWithError("Failed to connect a node.");
+        return;
+      }
+    }
+
+    // process
+    status = graph.process();
+
+    if (status != Status::Ok || cbError) {
+      state.SkipWithError("Error processing after connecting nodes");
+      return;
+    }
+
+    // disconnect all the destination nodes
+    for (auto dest: nodeIds) {
+      status = graph.disconnectNodes(sourceNode, 0, dest, 0, [&cbError](
+          Status status,
+          NodeId,
+          size_t,
+          NodeId,
+          size_t) {
+        if (status != Status::Ok) {
+          cbError = true;
+        }
+      });
+      if (status != Status::Ok) {
+        state.SkipWithError("Failed to connect a node.");
+        return;
+      }
+    }
+
+    // process
+    status = graph.process();
+
+    if (status != Status::Ok || cbError) {
+      state.SkipWithError("Error processing after disconnecting nodes");
+      return;
+    }
+  }
+}
+
+BENCHMARK(Graph_ConnectDisconnect<double, double, 16>);
