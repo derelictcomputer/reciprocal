@@ -150,14 +150,39 @@ public:
     const auto async = [this, from, fromIdx, to, toIdx, cb]() {
       auto fromIt = _nodes.find(from);
       auto toIt = _nodes.find(to);
-      if (fromIt == _nodes.end()
-          || fromIdx >= fromIt->second->getNumOutputs()
-          || toIt == _nodes.end()
-          || toIdx >= toIt->second->getNumInputs()) {
+      if (fromIt == _nodes.end() || toIt == _nodes.end()) {
         cb(Status::NotFound, from, fromIdx, to, toIdx);
         return;
       }
       const auto status = toIt->second->connectInput(*(fromIt->second), fromIdx, toIdx);
+      cb(status, from, fromIdx, to, toIdx);
+    };
+
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+  }
+
+  using DisconnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
+
+  /// Request to disconnect two nodes in the graph
+  /// @param from The NodeId of the node whose output will be disconnected
+  /// @param fromIdx The output port index
+  /// @param to The NodeId of the node whose input will be disconnected
+  /// @param toIdx The input port index
+  /// @param cb A callback to let you know if the disconnection was successful
+  /// @returns Status::Ok if the request was enqueued, or appropriate error
+  Status disconnectNodes(NodeId from, size_t fromIdx, NodeId to, size_t toIdx, const DisconnectNodesCb & cb) {
+    if (from == InvalidNodeId || to == InvalidNodeId) {
+      return Status::InvalidArgument;
+    }
+
+    const auto async = [this, from, fromIdx, to, toIdx, cb]() {
+      auto fromIt = _nodes.find(from);
+      auto toIt = _nodes.find(to);
+      if (fromIt == _nodes.end() || toIt == _nodes.end()) {
+        cb(Status::NotFound, from, fromIdx, to, toIdx);
+        return;
+      }
+      const auto status = toIt->second->disconnectInput(*(fromIt->second), fromIdx, toIdx);
       cb(status, from, fromIdx, to, toIdx);
     };
 

@@ -242,4 +242,86 @@ TEST(Graph, ConnectDisconnect) {
 
   // process to actually connect them
   ASSERT_EQ(graph.process(), Status::Ok);
+
+  // disconnect them
+  ASSERT_EQ(
+      graph.disconnectNodes(nodeId1, 0, nodeId2, 0,
+                            [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                              ASSERT_EQ(status, Status::Ok);
+                              ASSERT_EQ(from, nodeId1);
+                              ASSERT_EQ(fromIdx, 0);
+                              ASSERT_EQ(to, nodeId2);
+                              ASSERT_EQ(toIdx, 0);
+                            }),
+      Status::Ok);
+
+  // process to actually disconnect them
+  ASSERT_EQ(graph.process(), Status::Ok);
+
+  // try to do some invalid connections
+  ASSERT_EQ(
+      graph.connectNodes(nodeId1, 1, nodeId2, 0,
+                         [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                           ASSERT_EQ(status, Status::OutOfRange);
+                           ASSERT_EQ(from, nodeId1);
+                           ASSERT_EQ(fromIdx, 1);
+                           ASSERT_EQ(to, nodeId2);
+                           ASSERT_EQ(toIdx, 0);
+                         }),
+      Status::Ok);
+  ASSERT_EQ(
+      graph.connectNodes(nodeId1, 0, nodeId2, 1,
+                         [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                           ASSERT_EQ(status, Status::OutOfRange);
+                           ASSERT_EQ(from, nodeId1);
+                           ASSERT_EQ(fromIdx, 0);
+                           ASSERT_EQ(to, nodeId2);
+                           ASSERT_EQ(toIdx, 1);
+                         }),
+      Status::Ok);
+  ASSERT_EQ(
+      graph.connectNodes(nodeId1, 0, maxNodes + 1, 0,
+                         [nodeId1](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                           ASSERT_EQ(status, Status::NotFound);
+                           ASSERT_EQ(from, nodeId1);
+                           ASSERT_EQ(fromIdx, 0);
+                           ASSERT_EQ(to, maxNodes + 1);
+                           ASSERT_EQ(toIdx, 0);
+                         }),
+      Status::Ok);
+  ASSERT_EQ(
+      graph.connectNodes(InvalidNodeId, 0, nodeId2, 0,
+                         [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                           ASSERT_EQ(status, Status::Ok);
+                           ASSERT_EQ(from, nodeId1);
+                           ASSERT_EQ(fromIdx, 0);
+                           ASSERT_EQ(to, nodeId2);
+                           ASSERT_EQ(toIdx, 0);
+                         }),
+      Status::InvalidArgument);
+
+  // try to do some invalid disconnections
+  ASSERT_EQ(
+      graph.disconnectNodes(nodeId1, 0, nodeId2, 0,
+                            [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                              ASSERT_EQ(status, Status::NotFound);
+                              ASSERT_EQ(from, nodeId1);
+                              ASSERT_EQ(fromIdx, 0);
+                              ASSERT_EQ(to, nodeId2);
+                              ASSERT_EQ(toIdx, 0);
+                            }),
+      Status::Ok);
+  ASSERT_EQ(
+      graph.connectNodes(InvalidNodeId, 0, nodeId2, 0,
+                         [nodeId1, nodeId2](Status status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx) {
+                           ASSERT_EQ(status, Status::Ok);
+                           ASSERT_EQ(from, nodeId1);
+                           ASSERT_EQ(fromIdx, 0);
+                           ASSERT_EQ(to, nodeId2);
+                           ASSERT_EQ(toIdx, 0);
+                         }),
+      Status::InvalidArgument);
+
+  // process so the async calls go through
+  ASSERT_EQ(graph.process(), Status::Ok);
 }
