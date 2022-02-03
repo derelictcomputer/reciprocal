@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643799893801,
+  "lastUpdate": 1643886305232,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -502,6 +502,52 @@ window.BENCHMARK_DATA = {
             "value": 165969.89046973776,
             "unit": "ns/iter",
             "extra": "iterations: 4428\ncpu: 159456.36856368568 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Charlie Huguenard",
+            "username": "charliehuge",
+            "email": "charlie.huguenard@gmail.com"
+          },
+          "committer": {
+            "name": "Charlie Huguenard",
+            "username": "charliehuge",
+            "email": "charlie.huguenard@gmail.com"
+          },
+          "id": "8bf745c0beb32e3419987569dfa02b0fce45b5b7",
+          "message": "chron -> cron",
+          "timestamp": "2022-02-02T02:49:31Z",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/8bf745c0beb32e3419987569dfa02b0fce45b5b7"
+        },
+        "date": 1643886303426,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 111889.62608284585,
+            "unit": "ns/iter",
+            "extra": "iterations: 6349\ncpu: 111648.71633328083 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 16198.335893224601,
+            "unit": "ns/iter",
+            "extra": "iterations: 43231\ncpu: 16197.945918438158 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24676.66834577961,
+            "unit": "ns/iter",
+            "extra": "iterations: 28388\ncpu: 24671.449203888966 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 163727.4002686362,
+            "unit": "ns/iter",
+            "extra": "iterations: 4467\ncpu: 158122.9012760242 ns\nthreads: 1"
           }
         ]
       }
