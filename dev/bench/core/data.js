@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643972686016,
+  "lastUpdate": 1644010651787,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -594,6 +594,54 @@ window.BENCHMARK_DATA = {
             "value": 157423.4253253915,
             "unit": "ns/iter",
             "extra": "iterations: 4533\ncpu: 147767.39466137212 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d0044f470cc0faeb390a91ad94d9e72a50e9b586",
+          "message": "Graph Connect/Disconnect (#31)\n\n* address comment, closes #30\r\n\r\n* add Graph::connectNodes and test\r\n\r\n* add Graph::disconnectNodes and test\r\n\r\n* add benchmark for graph connect/disconnect",
+          "timestamp": "2022-02-04T16:36:18-05:00",
+          "tree_id": "2649f881334d290a06e5e3beda6b3269d9328796",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/d0044f470cc0faeb390a91ad94d9e72a50e9b586"
+        },
+        "date": 1644010650432,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 129447.41367365427,
+            "unit": "ns/iter",
+            "extra": "iterations: 5485\ncpu: 129401.8960802188 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 17691.144748590625,
+            "unit": "ns/iter",
+            "extra": "iterations: 39199\ncpu: 17688.44868491543 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 28370.004089815055,
+            "unit": "ns/iter",
+            "extra": "iterations: 24940\ncpu: 28356.066559743394 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 190826.38103943967,
+            "unit": "ns/iter",
+            "extra": "iterations: 3829\ncpu: 184375.47662575083 ns\nthreads: 1"
           }
         ]
       }
