@@ -50,7 +50,7 @@ public:
   using AddNodeCb = std::function<void(Status, NodeId)>;
 
   /// Request to add a node to the graph.
-  /// @param node A pointer to a node to add to the graph
+  /// @param createNodeFn A function that will return a pointer to a configured node of the desired type.
   /// @param addNodeCb A callback, which will let you know the node's id if the add was successful.
   /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
   Status addNode(const CreateNodeFn& createNodeFn, const AddNodeCb& addNodeCb) {
@@ -113,7 +113,7 @@ public:
   /// Request to remove a node from the graph
   /// @param nodeId The id of the node to remove
   /// @param removeNodeCb A callback to let you know if the removal was successful.
-  /// @returns Status::Ok if the request was enqueued, Status::Full if the async queue was full.
+  /// @returns Status::Ok if the request was enqueued, or appropriate error
   Status removeNode(NodeId nodeId, const RemoveNodeCb& removeNodeCb) {
     if (nodeId == InvalidNodeId) {
       return Status::InvalidArgument;
@@ -128,6 +128,62 @@ public:
         _size = _nodes.size();
       }
       removeNodeCb(erased == 1 ? Status::Ok : Status::NotFound, nodeId);
+    };
+
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+  }
+
+  using ConnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
+
+  /// Request to connect two nodes in the graph
+  /// @param from The NodeId of the node whose output will be connected
+  /// @param fromIdx The output port index
+  /// @param to The NodeId of the node whose input will be connected
+  /// @param toIdx The input port index
+  /// @param cb A callback to let you know if the connection was successful
+  /// @returns Status::Ok if the request was enqueued, or appropriate error
+  Status connectNodes(NodeId from, size_t fromIdx, NodeId to, size_t toIdx, const ConnectNodesCb& cb) {
+    if (from == InvalidNodeId || to == InvalidNodeId) {
+      return Status::InvalidArgument;
+    }
+
+    const auto async = [this, from, fromIdx, to, toIdx, cb]() {
+      auto fromIt = _nodes.find(from);
+      auto toIt = _nodes.find(to);
+      if (fromIt == _nodes.end() || toIt == _nodes.end()) {
+        cb(Status::NotFound, from, fromIdx, to, toIdx);
+        return;
+      }
+      const auto status = toIt->second->connectInput(*(fromIt->second), fromIdx, toIdx);
+      cb(status, from, fromIdx, to, toIdx);
+    };
+
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+  }
+
+  using DisconnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
+
+  /// Request to disconnect two nodes in the graph
+  /// @param from The NodeId of the node whose output will be disconnected
+  /// @param fromIdx The output port index
+  /// @param to The NodeId of the node whose input will be disconnected
+  /// @param toIdx The input port index
+  /// @param cb A callback to let you know if the disconnection was successful
+  /// @returns Status::Ok if the request was enqueued, or appropriate error
+  Status disconnectNodes(NodeId from, size_t fromIdx, NodeId to, size_t toIdx, const DisconnectNodesCb & cb) {
+    if (from == InvalidNodeId || to == InvalidNodeId) {
+      return Status::InvalidArgument;
+    }
+
+    const auto async = [this, from, fromIdx, to, toIdx, cb]() {
+      auto fromIt = _nodes.find(from);
+      auto toIt = _nodes.find(to);
+      if (fromIt == _nodes.end() || toIt == _nodes.end()) {
+        cb(Status::NotFound, from, fromIdx, to, toIdx);
+        return;
+      }
+      const auto status = toIt->second->disconnectInput(*(fromIt->second), fromIdx, toIdx);
+      cb(status, from, fromIdx, to, toIdx);
     };
 
     return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
