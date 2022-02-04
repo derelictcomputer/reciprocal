@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643886305232,
+  "lastUpdate": 1643972686016,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -548,6 +548,52 @@ window.BENCHMARK_DATA = {
             "value": 163727.4002686362,
             "unit": "ns/iter",
             "extra": "iterations: 4467\ncpu: 158122.9012760242 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Charlie Huguenard",
+            "username": "charliehuge",
+            "email": "charlie.huguenard@gmail.com"
+          },
+          "committer": {
+            "name": "Charlie Huguenard",
+            "username": "charliehuge",
+            "email": "charlie.huguenard@gmail.com"
+          },
+          "id": "8bf745c0beb32e3419987569dfa02b0fce45b5b7",
+          "message": "chron -> cron",
+          "timestamp": "2022-02-02T02:49:31Z",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/8bf745c0beb32e3419987569dfa02b0fce45b5b7"
+        },
+        "date": 1643972684788,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 111906.04535363097,
+            "unit": "ns/iter",
+            "extra": "iterations: 6306\ncpu: 111889.08975578814 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 16089.270570929477,
+            "unit": "ns/iter",
+            "extra": "iterations: 43508\ncpu: 16087.763169991731 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 25600.687138781585,
+            "unit": "ns/iter",
+            "extra": "iterations: 27338\ncpu: 25600.859609334995 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 157423.4253253915,
+            "unit": "ns/iter",
+            "extra": "iterations: 4533\ncpu: 147767.39466137212 ns\nthreads: 1"
           }
         ]
       }
