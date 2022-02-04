@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643972688837,
+  "lastUpdate": 1644010641610,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -384,6 +384,48 @@ window.BENCHMARK_DATA = {
             "value": 350.609917557328,
             "unit": "ns/iter",
             "extra": "iterations: 1997024\ncpu: 350.588024981172 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d0044f470cc0faeb390a91ad94d9e72a50e9b586",
+          "message": "Graph Connect/Disconnect (#31)\n\n* address comment, closes #30\r\n\r\n* add Graph::connectNodes and test\r\n\r\n* add Graph::disconnectNodes and test\r\n\r\n* add benchmark for graph connect/disconnect",
+          "timestamp": "2022-02-04T16:36:18-05:00",
+          "tree_id": "2649f881334d290a06e5e3beda6b3269d9328796",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/d0044f470cc0faeb390a91ad94d9e72a50e9b586"
+        },
+        "date": 1644010640245,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemoveAll<int32_t, 64>",
+            "value": 122948.78697293827,
+            "unit": "ns/iter",
+            "extra": "iterations: 6356\ncpu: 109639.14411579612 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double, 16>",
+            "value": 55856.22284419635,
+            "unit": "ns/iter",
+            "extra": "iterations: 15006\ncpu: 46256.137544982004 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double, 16>",
+            "value": 404.6109785801283,
+            "unit": "ns/iter",
+            "extra": "iterations: 1755145\ncpu: 404.5764879824743 ns\nthreads: 1"
           }
         ]
       }
