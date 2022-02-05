@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644010641610,
+  "lastUpdate": 1644059108208,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -426,6 +426,46 @@ window.BENCHMARK_DATA = {
             "value": 404.6109785801283,
             "unit": "ns/iter",
             "extra": "iterations: 1755145\ncpu: 404.5764879824743 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Charlie Huguenard",
+            "username": "charliehuge",
+            "email": "charliehuge@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "d0044f470cc0faeb390a91ad94d9e72a50e9b586",
+          "message": "Graph Connect/Disconnect (#31)\n\n* address comment, closes #30\r\n\r\n* add Graph::connectNodes and test\r\n\r\n* add Graph::disconnectNodes and test\r\n\r\n* add benchmark for graph connect/disconnect",
+          "timestamp": "2022-02-04T21:36:18Z",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/d0044f470cc0faeb390a91ad94d9e72a50e9b586"
+        },
+        "date": 1644059107029,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemoveAll<int32_t, 64>",
+            "value": 123340.39560103981,
+            "unit": "ns/iter",
+            "extra": "iterations: 6547\ncpu: 107861.3716205896 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double, 16>",
+            "value": 54182.599120065854,
+            "unit": "ns/iter",
+            "extra": "iterations: 15683\ncpu: 45059.6760823822 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double, 16>",
+            "value": 403.2030926959915,
+            "unit": "ns/iter",
+            "extra": "iterations: 1755297\ncpu: 403.1562749779667 ns\nthreads: 1"
           }
         ]
       }
