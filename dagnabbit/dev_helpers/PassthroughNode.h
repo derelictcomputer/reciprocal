@@ -20,8 +20,6 @@ public:
     this->_outputs.push_back(&_output);
   }
 
-  virtual ~PassthroughNode() = default;
-
   Status process(const TimeType&, const TimeType&) override {
     MessageType msg;
     while (popMessage(msg) == Status::Ok) {
