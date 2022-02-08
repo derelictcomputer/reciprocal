@@ -1,3 +1,4 @@
+#include <thread>
 #include <gtest/gtest.h>
 #include "../TrashMan.h"
 
@@ -23,6 +24,8 @@ TEST(TrashMan, Simple) {
     ASSERT_EQ(trashMan.trash(thing), Status::Ok);
     ASSERT_EQ(thing, nullptr);
   }
+
+  trashMan.dump();
 }
 
 TEST(TrashMan, TrashNothing) {
@@ -36,6 +39,15 @@ TEST(TrashMan, FillEmpty) {
   const size_t capacity = 512;
   TrashMan<int> trashMan(capacity);
 
+  std::atomic<bool> run{true};
+  std::thread trashThread([&trashMan, &run]() {
+    while (run.load()) {
+      if (trashMan.size() > 0) {
+        trashMan.dump();
+      }
+    }
+  });
+
   for (size_t i = 0; i < 10; ++i) {
     for (size_t j = 0; j < capacity; ++j) {
       int* p = new int(43);
@@ -46,4 +58,7 @@ TEST(TrashMan, FillEmpty) {
       std::this_thread::yield();
     }
   }
+
+  run = false;
+  trashThread.join();
 }

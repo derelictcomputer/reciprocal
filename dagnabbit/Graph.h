@@ -22,7 +22,7 @@ public:
   explicit Graph(size_t asyncQueueSize, size_t capacity) :
   capacity(capacity),
   _asyncQ(asyncQueueSize),
-  _trashMan(capacity) {
+  _trashMan(capacity * 2) {
     _nodes.reserve(capacity);
     _availableNodeIds.reserve(capacity);
     for (size_t i = 0; i < capacity; ++i) {
@@ -33,6 +33,7 @@ public:
   ~Graph() {
     // TODO: use Graph::clear() when there is one.
     _nodes.clear();
+    _trashMan.dump();
   }
 
   /// The maximum number of nodes this graph can hold.
@@ -105,7 +106,7 @@ public:
       }
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   using RemoveNodeCb = std::function<void(Status, NodeId)>;
@@ -130,7 +131,7 @@ public:
       removeNodeCb(erased == 1 ? Status::Ok : Status::NotFound, nodeId);
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   using ConnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
@@ -158,7 +159,7 @@ public:
       cb(status, from, fromIdx, to, toIdx);
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   using DisconnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
@@ -186,7 +187,7 @@ public:
       cb(status, from, fromIdx, to, toIdx);
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   /// Update the graph's state and process its nodes
@@ -227,6 +228,14 @@ private:
       return;
     }
     _availableNodeIds.push_back(id);
+  }
+
+  Status pushAsync(std::function<void()>&& async) {
+    // dump the trash if needed
+    if (_trashMan.size() > 0) {
+      _trashMan.dump();
+    }
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
   }
 };
 }

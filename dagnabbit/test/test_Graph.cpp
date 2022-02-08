@@ -193,9 +193,6 @@ TEST(Graph, FillEmpty) {
     // process
     ASSERT_EQ(graph.process(), Status::Ok);
     ASSERT_EQ(graph.size(), 0);
-
-    // let the garbage collector run
-    while (graph.size() > 0);
   }
 }
 
