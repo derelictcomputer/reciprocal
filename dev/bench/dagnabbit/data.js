@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644231895495,
+  "lastUpdate": 1644318309426,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -546,6 +546,46 @@ window.BENCHMARK_DATA = {
             "value": 340.83668479653545,
             "unit": "ns/iter",
             "extra": "iterations: 2049105\ncpu: 340.82406709270646 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Charlie Huguenard",
+            "username": "charliehuge",
+            "email": "charliehuge@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "d0044f470cc0faeb390a91ad94d9e72a50e9b586",
+          "message": "Graph Connect/Disconnect (#31)\n\n* address comment, closes #30\r\n\r\n* add Graph::connectNodes and test\r\n\r\n* add Graph::disconnectNodes and test\r\n\r\n* add benchmark for graph connect/disconnect",
+          "timestamp": "2022-02-04T21:36:18Z",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/d0044f470cc0faeb390a91ad94d9e72a50e9b586"
+        },
+        "date": 1644318308131,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemoveAll<int32_t, 64>",
+            "value": 123840.35929923384,
+            "unit": "ns/iter",
+            "extra": "iterations: 6393\ncpu: 108861.31706554045 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double, 16>",
+            "value": 55837.31506576324,
+            "unit": "ns/iter",
+            "extra": "iterations: 15054\ncpu: 46529.779460608486 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double, 16>",
+            "value": 399.77490502610516,
+            "unit": "ns/iter",
+            "extra": "iterations: 1756272\ncpu: 399.75818096513524 ns\nthreads: 1"
           }
         ]
       }
