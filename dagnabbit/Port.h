@@ -7,12 +7,12 @@
 namespace dc {
 /// The mechanism by which messages travel between nodes.
 /// NOTE: Operations are not thread-safe.
-class IPort {
+class PortBase {
 public:
-  explicit IPort(std::string prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId);
+  explicit PortBase(std::string prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId);
 
   // This is just here to make it so no one can instantiate this interface
-  virtual ~IPort() = 0;
+  virtual ~PortBase() = 0;
 
   /// Unique id for this port's type.
   const size_t typeId;
@@ -32,24 +32,24 @@ public:
 
   /// Check whether this port is connected to the given port.
   /// @returns true if connected, otherwise false
-  bool isConnectedTo(IPort* other);
+  bool isConnectedTo(PortBase* other);
 
   /// Try to connect this port to another port.
   /// @param other The other port
   /// @returns Status::Ok or appropriate error.
-  Status connect(IPort* other);
+  Status connect(PortBase* other);
 
   /// Try to disconnect this port from another port.
   /// @param other The other port
   /// @returns Status::Ok on successful disconnect. Status::NotFound if not connected.
-  Status disconnect(IPort* other);
+  Status disconnect(PortBase* other);
 
   /// Disconnect all the connected ports.
   /// @returns Status::Ok or appropriate error
   Status disconnectAll();
 
 protected:
-  std::vector<IPort*> _connections;
+  std::vector<PortBase*> _connections;
 };
 
 template<class MessageType>
@@ -58,15 +58,15 @@ class OutputPort;
 /// An input into a node. Restricted to 1 connection and has a queue to manage messages.
 /// NOTE: Operations are not thread-safe.
 template<class MessageType>
-class InputPort : public IPort {
+class InputPort : public PortBase {
 public:
   using QueueType = SPSCQ<MessageType>;
 
   explicit InputPort(const std::string& prettyName, size_t queueSize) :
-      IPort(prettyName,
-            1,
-            typeid(InputPort<MessageType>).hash_code(),
-            typeid(OutputPort<MessageType>).hash_code()),
+      PortBase(prettyName,
+               1,
+               typeid(InputPort<MessageType>).hash_code(),
+               typeid(OutputPort<MessageType>).hash_code()),
       _q(queueSize) {}
 
   /// Add a message to the queue.
@@ -96,13 +96,13 @@ private:
 /// An output from a node. Can have more than one connection if desired.
 /// NOTE: Operations are not thread-safe.
 template<class MessageType>
-class OutputPort : public IPort {
+class OutputPort : public PortBase {
 public:
   explicit OutputPort(const std::string& prettyName, size_t maxConnections) :
-      IPort(prettyName,
-            maxConnections,
-            typeid(OutputPort<MessageType>).hash_code(),
-            typeid(InputPort<MessageType>).hash_code()) {
+      PortBase(prettyName,
+               maxConnections,
+               typeid(OutputPort<MessageType>).hash_code(),
+               typeid(InputPort<MessageType>).hash_code()) {
   }
 
   /// Add a message to the queue for all input nodes connected to this one.

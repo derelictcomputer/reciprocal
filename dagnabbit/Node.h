@@ -35,8 +35,8 @@ public:
 protected:
   // IMPORTANT: Initialize ports in your Node's constructor and don't reconfigure after that.
   // The base class does not clean up ports, in case it makes things simpler for you, so they're your responsibility.
-  std::vector<IPort*> _inputs;
-  std::vector<IPort*> _outputs;
+  std::vector<PortBase*> _inputs;
+  std::vector<PortBase*> _outputs;
 };
 
 template<class TimeType>
