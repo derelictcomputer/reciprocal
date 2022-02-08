@@ -18,6 +18,14 @@ size_t PortBase::getNumConnections() const {
   return _connections.size();
 }
 
+Status PortBase::getConnection(size_t index, PortBase*& connection) {
+  if (index >= _connections.size()) {
+    return Status::NotFound;
+  }
+  connection = _connections[index];
+  return Status::Ok;
+}
+
 bool PortBase::isConnectedTo(PortBase* other) {
   if (other == nullptr) {
     return false;

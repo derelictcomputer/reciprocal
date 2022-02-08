@@ -30,6 +30,12 @@ public:
   /// @returns The number of connected ports.
   [[nodiscard]] size_t getNumConnections() const;
 
+  /// Get the connection at the given index
+  /// @param index The index of the connection you want
+  /// @param connection The connection, if found
+  /// @returns Status::Ok or appropriate error
+  Status getConnection(size_t index, PortBase*& connection);
+
   /// Check whether this port is connected to the given port.
   /// @returns true if connected, otherwise false
   bool isConnectedTo(PortBase* other);

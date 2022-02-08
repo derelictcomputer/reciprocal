@@ -61,6 +61,37 @@ TEST(Port, Basic) {
   }
 }
 
+TEST(Port, GetConnection) {
+  using MessageType = Message<size_t, double>;
+  const std::string prettyName = "Hiiiiii";
+  const size_t maxConnections = 8;
+  OutputPort<MessageType> port(prettyName, maxConnections);
+
+  std::vector<std::unique_ptr<InputPort<MessageType>>> otherPorts;
+  // connect a bunch of ports
+  for (size_t i = 0; i < maxConnections; ++i) {
+    otherPorts.push_back(std::make_unique<InputPort<MessageType>>("asdf", 16));
+    const auto status = otherPorts[i]->connect(&port);
+    ASSERT_EQ(status, Status::Ok);
+  }
+  ASSERT_EQ(port.getNumConnections(), maxConnections);
+
+  // check that the port connections are all there
+  for (int i = maxConnections; --i >= 0;) {
+    PortBase* inPort{nullptr};
+    ASSERT_EQ(port.getConnection(i, inPort), Status::Ok);
+    bool found = false;
+    for (auto it = otherPorts.begin(); it != otherPorts.end(); ++it) {
+      if ((*it).get() == inPort) {
+        otherPorts.erase(it);
+        found = true;
+        break;
+      }
+    }
+    ASSERT_TRUE(found);
+  }
+}
+
 TEST(Port, MessageQueueBasic) {
   using MessageType = Message<float, float>;
 

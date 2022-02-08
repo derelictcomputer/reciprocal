@@ -33,8 +33,6 @@ public:
   Status disconnectInput(NodeBase& outputNode, size_t outputIndex, size_t inputIndex);
 
 protected:
-  // IMPORTANT: Initialize ports in your Node's constructor and don't reconfigure after that.
-  // The base class does not clean up ports, in case it makes things simpler for you, so they're your responsibility.
   std::vector<PortBase*> _inputs;
   std::vector<PortBase*> _outputs;
 };
