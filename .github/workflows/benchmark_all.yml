@@ -3,8 +3,6 @@ name: benchmark_all
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: '0 11 * * *' # run at 6AM EST every day
 
 permissions:
   contents: write
