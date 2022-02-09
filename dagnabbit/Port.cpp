@@ -4,21 +4,34 @@
 
 using namespace dc;
 
-IPort::IPort(std::string  prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId) :
-typeId(typeId),
-canConnectToTypeId(canConnectToTypeId),
-prettyName(std::move(prettyName)),
-maxConnections(maxConnections) {
+PortBase::PortBase(NodeBase* parent,
+                   std::string&&  prettyName,
+                   size_t maxConnections,
+                   size_t typeId,
+                   size_t canConnectToTypeId) :
+                   parent(parent),
+                   typeId(typeId),
+                   canConnectToTypeId(canConnectToTypeId),
+                   prettyName(std::move(prettyName)),
+                   maxConnections(maxConnections) {
   _connections.reserve(maxConnections);
 }
 
-IPort::~IPort() {} // NOLINT(modernize-use-equals-default)
+PortBase::~PortBase() {} // NOLINT(modernize-use-equals-default)
 
-size_t IPort::getNumConnections() const {
+size_t PortBase::getNumConnections() const {
   return _connections.size();
 }
 
-bool IPort::isConnectedTo(IPort* other) {
+Status PortBase::getConnection(size_t index, PortBase*& connection) {
+  if (index >= _connections.size()) {
+    return Status::NotFound;
+  }
+  connection = _connections[index];
+  return Status::Ok;
+}
+
+bool PortBase::isConnectedTo(PortBase* other) {
   if (other == nullptr) {
     return false;
   }
@@ -32,7 +45,7 @@ bool IPort::isConnectedTo(IPort* other) {
   return false;
 }
 
-Status IPort::connect(IPort* other) {
+Status PortBase::connect(PortBase* other) {
   if (other == nullptr) {
     return Status::InvalidArgument;
   }
@@ -57,7 +70,7 @@ Status IPort::connect(IPort* other) {
   return Status::Ok;
 }
 
-Status IPort::disconnect(IPort* other) {
+Status PortBase::disconnect(PortBase* other) {
   for (auto it = _connections.begin(); it != _connections.end(); ++it) {
     if (*it == other) {
       _connections.erase(it);
@@ -77,7 +90,7 @@ Status IPort::disconnect(IPort* other) {
   return Status::NotFound;
 }
 
-Status IPort::disconnectAll() {
+Status PortBase::disconnectAll() {
   for (auto c : _connections) {
     assert(c != nullptr);
     bool foundMe = false;

@@ -11,22 +11,22 @@ TEST(Port, Basic) {
   using MessageType = Message<size_t, double>;
   const std::string prettyName = "Hiiiiii";
   const size_t maxConnections = 8;
-  OutputPort<MessageType> port(prettyName, maxConnections);
+  OutputPort<MessageType> port(nullptr, std::string(prettyName), maxConnections);
   ASSERT_EQ(port.prettyName, prettyName);
   ASSERT_EQ(port.maxConnections, maxConnections);
 
   // Try to connect a port of the wrong type
   {
-    InputPort<Message<char, double>> wrongPort("wrooonnnng", 2);
+    InputPort<Message<char, double>> wrongPort(nullptr, "wrooonnnng", 2);
     ASSERT_EQ(port.connect(&wrongPort), Status::TypeMismatch);
-    OutputPort<MessageType> anotherOutput("also wrong", 8);
+    OutputPort<MessageType> anotherOutput(nullptr, "also wrong", 8);
     ASSERT_EQ(port.connect(&anotherOutput), Status::TypeMismatch);
   }
 
   std::vector<std::unique_ptr<InputPort<MessageType>>> otherPorts;
   // connect a bunch of ports
   for (size_t i = 0; i < maxConnections; ++i) {
-    otherPorts.push_back(std::make_unique<InputPort<MessageType>>("asdf", 16));
+    otherPorts.push_back(std::make_unique<InputPort<MessageType>>(nullptr, "asdf", 16));
     const auto status = otherPorts[i]->connect(&port);
     ASSERT_EQ(status, Status::Ok);
   }
@@ -44,7 +44,7 @@ TEST(Port, Basic) {
     ASSERT_EQ(status, Status::NotFound);
 
     // try to disconnect a port that was never connected
-    InputPort<MessageType> notConnectedPort("asdffadsfasd", 12);
+    InputPort<MessageType> notConnectedPort(nullptr, "asdffadsfasd", 12);
     status = notConnectedPort.disconnect(&port);
     ASSERT_EQ(status, Status::NotFound);
   }
@@ -61,10 +61,40 @@ TEST(Port, Basic) {
   }
 }
 
+TEST(Port, GetConnection) {
+  using MessageType = Message<size_t, double>;
+  const size_t maxConnections = 8;
+  OutputPort<MessageType> port(nullptr, "ouuuuutttt", maxConnections);
+
+  std::vector<std::unique_ptr<InputPort<MessageType>>> otherPorts;
+  // connect a bunch of ports
+  for (size_t i = 0; i < maxConnections; ++i) {
+    otherPorts.push_back(std::make_unique<InputPort<MessageType>>(nullptr, "asdf", 16));
+    const auto status = otherPorts[i]->connect(&port);
+    ASSERT_EQ(status, Status::Ok);
+  }
+  ASSERT_EQ(port.getNumConnections(), maxConnections);
+
+  // check that the port connections are all there
+  for (int i = maxConnections; --i >= 0;) {
+    PortBase* inPort{nullptr};
+    ASSERT_EQ(port.getConnection(i, inPort), Status::Ok);
+    bool found = false;
+    for (auto it = otherPorts.begin(); it != otherPorts.end(); ++it) {
+      if ((*it).get() == inPort) {
+        otherPorts.erase(it);
+        found = true;
+        break;
+      }
+    }
+    ASSERT_TRUE(found);
+  }
+}
+
 TEST(Port, MessageQueueBasic) {
   using MessageType = Message<float, float>;
 
-  InputPort<MessageType> port("qwerqwer", 32);
+  InputPort<MessageType> port(nullptr, "qwerqwer", 32);
 
   MessageType msgIn;
   msgIn.data = 123.4f;
@@ -81,12 +111,12 @@ TEST(Port, PushToConnections) {
   using MessageType = Message<int, size_t>;
 
   const size_t numInputPorts = 16;
-  OutputPort<MessageType> outPort("Out", numInputPorts);
+  OutputPort<MessageType> outPort(nullptr, "Out", numInputPorts);
   // connect a bunch of input ports
   const size_t queueSize = 8;
   std::vector<std::unique_ptr<InputPort<MessageType>>> inputPorts;
   for (size_t i = 0; i < numInputPorts; ++i) {
-    inputPorts.emplace_back(std::make_unique<InputPort<MessageType>>("in", queueSize));
+    inputPorts.emplace_back(std::make_unique<InputPort<MessageType>>(nullptr, "in", queueSize));
     ASSERT_EQ(inputPorts[i]->connect(&outPort), Status::Ok);
   }
 

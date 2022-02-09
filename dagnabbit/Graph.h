@@ -8,10 +8,6 @@
 #include "Node.h"
 
 namespace dc {
-/// A locally-unique id for a node in a graph.
-using NodeId = size_t;
-const NodeId InvalidNodeId = 0;
-
 /// A collection of nodes to be processed.
 /// @tparam TimeType The type used to represent time in the graph.
 template<class TimeType>
@@ -28,11 +24,13 @@ public:
     for (size_t i = 0; i < capacity; ++i) {
       _availableNodeIds.push_back(i + 1);
     }
+    _sortedNodeIds.reserve(capacity);
   }
 
   ~Graph() {
     // TODO: use Graph::clear() when there is one.
     _nodes.clear();
+    _trashMan.dump();
   }
 
   /// The maximum number of nodes this graph can hold.
@@ -84,28 +82,29 @@ public:
       }
 
       // get a node id for the new node
-      const auto nodeId = getAvailableNodeId();
-      if (nodeId == InvalidNodeId) {
+      node->_id = getAvailableNodeId();
+      if (node->_id == InvalidNodeId) {
         addNodeCb(Status::Fail, InvalidNodeId);
         return;
       }
 
       // When we move/emplace here it should avoid another copy
-      const auto success = _nodes.emplace(nodeId, std::move(node)).second;
+      const auto success = _nodes.emplace(node->_id, std::move(node)).second;
 
       if (success) {
         // we store the size separately so it can be accessed from any thread
         // it'll only update once process is called
         _size = _nodes.size();
-        addNodeCb(Status::Ok, nodeId);
+        addNodeCb(Status::Ok, node->_id);
+        _topologyChanged = true;
       }
       else {
-        returnNodeId(nodeId);
+        returnNodeId(node->_id);
         addNodeCb(Status::Fail, InvalidNodeId);
       }
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   using RemoveNodeCb = std::function<void(Status, NodeId)>;
@@ -126,11 +125,12 @@ public:
       if (erased) {
         returnNodeId(nodeId);
         _size = _nodes.size();
+        _topologyChanged = true;
       }
       removeNodeCb(erased == 1 ? Status::Ok : Status::NotFound, nodeId);
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   using ConnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
@@ -154,11 +154,15 @@ public:
         cb(Status::NotFound, from, fromIdx, to, toIdx);
         return;
       }
-      const auto status = toIt->second->connectInput(*(fromIt->second), fromIdx, toIdx);
+      auto status = toIt->second->connectInput(*(fromIt->second), fromIdx, toIdx);
+      // if connection was successful, sort the graph
+      if (status == Status::Ok) {
+        _topologyChanged = true;
+      }
       cb(status, from, fromIdx, to, toIdx);
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   using DisconnectNodesCb = std::function<void(Status, NodeId from, size_t fromIdx, NodeId to, size_t toIdx)>;
@@ -183,14 +187,17 @@ public:
         return;
       }
       const auto status = toIt->second->disconnectInput(*(fromIt->second), fromIdx, toIdx);
+      if (status == Status::Ok) {
+        _topologyChanged = true;
+      }
       cb(status, from, fromIdx, to, toIdx);
     };
 
-    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+    return pushAsync(std::move(async));
   }
 
   /// Update the graph's state and process its nodes
-  Status process() {
+  Status process(const TimeType& deltaTime = TimeType(0)) {
     // perform the async operations
     {
       std::function<void()> asyncFn;
@@ -199,7 +206,16 @@ public:
       }
     }
 
-    // TODO: process the nodes
+    if (_topologyChanged) {
+      sortNodes();
+      _topologyChanged = false;
+    }
+
+    // nodes are sorted in reverse order
+    for (auto it = _sortedNodeIds.rbegin(); it != _sortedNodeIds.rend(); ++it) {
+      _nodes[*it]->process(_now, deltaTime);
+    }
+    _now += deltaTime;
 
     return Status::Ok;
   }
@@ -228,5 +244,62 @@ private:
     }
     _availableNodeIds.push_back(id);
   }
+
+  Status pushAsync(std::function<void()>&& async) {
+    // dump the trash if needed
+    if (_trashMan.size() > 0) {
+      _trashMan.dump();
+    }
+    return _asyncQ.try_push<std::function<void()>>(std::move(async)) ? Status::Ok : Status::Full;
+  }
+
+  bool _topologyChanged{false};
+  std::vector<NodeId> _sortedNodeIds;
+
+  Status addBranch(NodeBase* node) {
+    if (node->_visited) {
+      return Status::Ok;
+    }
+
+    node->_visited = true;
+
+    for (auto output : node->_outputs) {
+      for (size_t i = 0; i < output->getNumConnections(); ++i) {
+        PortBase* connection;
+        auto status = output->getConnection(i, connection);
+        if (status != Status::Ok) {
+          return status;
+        }
+        if (!connection->parent->_visited) {
+          addBranch(connection->parent);
+        }
+      }
+    }
+
+    // add the node to the list
+    _sortedNodeIds.push_back(node->_id);
+    return Status::Ok;
+  }
+
+  Status sortNodes() {
+    _sortedNodeIds.clear();
+
+    for (auto& [_, node] : _nodes) {
+      node->_visited = false;
+    }
+
+    for (auto& [_, node] : _nodes) {
+      if (!node->_visited) {
+        const auto status = addBranch(node.get());
+        if (status != Status::Ok) {
+          return status;
+        }
+      }
+    }
+
+    return Status::Ok;
+  }
+
+  TimeType _now{0};
 };
 }

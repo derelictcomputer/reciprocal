@@ -15,7 +15,7 @@ static void TrashMan_FillEmpty(benchmark::State& state) {
         return;
       }
     }
-    // The destructor will block until empty
+    trashMan.dump();
   }
 }
 

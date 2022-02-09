@@ -193,9 +193,6 @@ TEST(Graph, FillEmpty) {
     // process
     ASSERT_EQ(graph.process(), Status::Ok);
     ASSERT_EQ(graph.size(), 0);
-
-    // let the garbage collector run
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
@@ -324,4 +321,55 @@ TEST(Graph, ConnectDisconnect) {
 
   // process so the async calls go through
   ASSERT_EQ(graph.process(), Status::Ok);
+}
+
+TEST(Graph, ProcessSimpleChain) {
+  using TimeType = float;
+  const size_t numNodes = 4;
+  Graph<TimeType> graph(numNodes * 4, numNodes);
+
+  using DataType = char;
+  using NodeType = PassthroughNode<DataType , TimeType>;
+  NodeType* firstNode{nullptr};
+  NodeType* lastNode{nullptr};
+  std::vector<NodeId> nodeIds;
+
+  // make the nodes
+  for (size_t i = 0; i < numNodes; ++i) {
+    ASSERT_EQ(graph.addNode(
+        [&firstNode, &lastNode]() {
+          auto node = new NodeType(1, 1);
+          if (firstNode == nullptr) {
+            firstNode = node;
+          }
+          lastNode = node;
+          return node;
+        },
+        [&nodeIds](Status status, NodeId nodeId) {
+          ASSERT_EQ(status, Status::Ok);
+          nodeIds.push_back(nodeId);
+        }), Status::Ok);
+  }
+
+  ASSERT_EQ(graph.process(), Status::Ok);
+
+  // connect the nodes
+  for (size_t i = 1; i < numNodes; ++i) {
+    ASSERT_EQ(graph.connectNodes(nodeIds[i - 1], 0, nodeIds[i], 0,
+                                 [](Status status, NodeId, size_t, NodeId, size_t) {
+                                   ASSERT_EQ(status, Status::Ok);
+                                 }), Status::Ok);
+  }
+
+  // push some data to the first node and process
+  using MessageType = Message<DataType, TimeType>;
+  MessageType msg;
+  msg.data = '!';
+  msg.time = 123.45f;
+  ASSERT_EQ(firstNode->pushMessage(msg), Status::Ok);
+  ASSERT_EQ(graph.process(), Status::Ok);
+  MessageType msgOut;
+  ASSERT_EQ(lastNode->popMessage(msgOut), Status::Ok);
+  ASSERT_EQ(msgOut.data, msg.data);
+  ASSERT_FLOAT_EQ(msgOut.time, msg.time);
 }
