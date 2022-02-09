@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644404695830,
+  "lastUpdate": 1644440084734,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -872,6 +872,54 @@ window.BENCHMARK_DATA = {
             "value": 161522.49598572412,
             "unit": "ns/iter",
             "extra": "iterations: 4484\ncpu: 155482.0472792149 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "75df708feb48b45f330e70de71a41635a81e7168",
+          "message": "Graph process logic (#32)\n\n* Add NodeBase and move connection logic in there\r\n\r\n* spin instead of sleep while waiting for gc thread\r\n\r\n* IPort->PortBase, because it is not an interface\r\n\r\n* just one connect/disconnect in benchmark, the framework handles running it multiple times\r\n\r\n* dump trash before every async call, update tests and benchmarks\r\n\r\n* remove periodic benchmarks\r\n\r\n* PortBase::getConnection()\r\n\r\n* graph sort and process\r\n\r\n* unset topo changed flag so we dont run that every frame",
+          "timestamp": "2022-02-09T15:53:45-05:00",
+          "tree_id": "8a3c30bfc0c69a8a37d4965cc76bce38db3749a0",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/75df708feb48b45f330e70de71a41635a81e7168"
+        },
+        "date": 1644440083366,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 112408.24949003966,
+            "unit": "ns/iter",
+            "extra": "iterations: 6373\ncpu: 112168.17825200062 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 15665.433290836627,
+            "unit": "ns/iter",
+            "extra": "iterations: 44709\ncpu: 15663.099152295963 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24653.614471413308,
+            "unit": "ns/iter",
+            "extra": "iterations: 28387\ncpu: 24651.93926797477 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 40919.7292032293,
+            "unit": "ns/iter",
+            "extra": "iterations: 17094\ncpu: 40918.088218088225 ns\nthreads: 1"
           }
         ]
       }
