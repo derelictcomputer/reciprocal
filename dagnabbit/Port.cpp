@@ -4,11 +4,16 @@
 
 using namespace dc;
 
-PortBase::PortBase(std::string  prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId) :
-typeId(typeId),
-canConnectToTypeId(canConnectToTypeId),
-prettyName(std::move(prettyName)),
-maxConnections(maxConnections) {
+PortBase::PortBase(NodeBase* parent,
+                   std::string&&  prettyName,
+                   size_t maxConnections,
+                   size_t typeId,
+                   size_t canConnectToTypeId) :
+                   parent(parent),
+                   typeId(typeId),
+                   canConnectToTypeId(canConnectToTypeId),
+                   prettyName(std::move(prettyName)),
+                   maxConnections(maxConnections) {
   _connections.reserve(maxConnections);
 }
 

@@ -4,6 +4,10 @@
 #include "Port.h"
 
 namespace dc {
+/// A locally-unique id for a node in a graph.
+using NodeId = size_t;
+const NodeId InvalidNodeId = 0;
+
 class NodeBase {
 public:
   /// Get the number of input ports on this node.
@@ -35,6 +39,15 @@ public:
 protected:
   std::vector<PortBase*> _inputs;
   std::vector<PortBase*> _outputs;
+
+private:
+  // Let the owning graph look at ports/connections
+  // so we don't have to write a complicated API for topological sorting.
+  template<class TimeType> friend class Graph;
+
+  // Used by the Graph to sort nodes
+  bool _visited;
+  NodeId _id{InvalidNodeId};
 };
 
 template<class TimeType>

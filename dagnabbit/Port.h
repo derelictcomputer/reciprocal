@@ -5,14 +5,23 @@
 #include "../core/SPSCQ.h"
 
 namespace dc {
+class NodeBase;
+
 /// The mechanism by which messages travel between nodes.
 /// NOTE: Operations are not thread-safe.
 class PortBase {
 public:
-  explicit PortBase(std::string prettyName, size_t maxConnections, size_t typeId, size_t canConnectToTypeId);
+  explicit PortBase(NodeBase* parent,
+                    std::string&& prettyName,
+                    size_t maxConnections,
+                    size_t typeId,
+                    size_t canConnectToTypeId);
 
   // This is just here to make it so no one can instantiate this interface
   virtual ~PortBase() = 0;
+
+  /// A pointer to the port's node
+  NodeBase* parent;
 
   /// Unique id for this port's type.
   const size_t typeId;
@@ -68,8 +77,9 @@ class InputPort : public PortBase {
 public:
   using QueueType = SPSCQ<MessageType>;
 
-  explicit InputPort(const std::string& prettyName, size_t queueSize) :
-      PortBase(prettyName,
+  explicit InputPort(NodeBase* parent, std::string&& prettyName, size_t queueSize) :
+      PortBase(parent,
+               std::move(prettyName),
                1,
                typeid(InputPort<MessageType>).hash_code(),
                typeid(OutputPort<MessageType>).hash_code()),
@@ -104,8 +114,9 @@ private:
 template<class MessageType>
 class OutputPort : public PortBase {
 public:
-  explicit OutputPort(const std::string& prettyName, size_t maxConnections) :
-      PortBase(prettyName,
+  explicit OutputPort(NodeBase* parent, std::string&& prettyName, size_t maxConnections) :
+      PortBase(parent,
+               std::move(prettyName),
                maxConnections,
                typeid(OutputPort<MessageType>).hash_code(),
                typeid(InputPort<MessageType>).hash_code()) {

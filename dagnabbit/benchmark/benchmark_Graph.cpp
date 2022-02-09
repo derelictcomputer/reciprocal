@@ -158,3 +158,96 @@ static void Graph_ConnectDisconnect(benchmark::State& state) {
 }
 
 BENCHMARK(Graph_ConnectDisconnect<double, double>);
+
+template<class DataType, class TimeType, size_t NumNodes>
+static void Graph_Process_PassthroughChain(benchmark::State& state) {
+  Graph<TimeType> graph(NumNodes * 4, NumNodes);
+  using NodeType = PassthroughNode<DataType, TimeType>;
+  NodeType* firstNode{nullptr};
+  NodeType* lastNode{nullptr};
+
+  // make the nodes
+  std::vector<NodeId> nodeIds;
+  {
+    bool cbError{false};
+    for (size_t i = 0; i < NumNodes; ++i) {
+      const auto status = graph.addNode(
+          [&firstNode, &lastNode]() {
+            auto node = new NodeType(1, 1);
+            if (firstNode == nullptr) {
+              firstNode = node;
+            }
+            lastNode = node;
+            return node;
+          },
+          [&cbError, &nodeIds](Status status, NodeId nodeId) {
+            if (status != Status::Ok) {
+              cbError = true;
+            }
+            nodeIds.push_back(nodeId);
+          });
+      if (status != Status::Ok) {
+        state.SkipWithError("Failed to create node");
+        return;
+      }
+    }
+
+    // process and make sure everything got created
+    {
+      const auto status = graph.process();
+
+      if (status != Status::Ok || cbError || graph.size() < NumNodes || firstNode == nullptr || lastNode == nullptr) {
+        state.SkipWithError("Error processing after adding nodes");
+        return;
+      }
+    }
+  }
+
+
+  // connect the nodes
+  for (size_t i = 1; i < NumNodes; ++i) {
+    bool cbError{false};
+    graph.connectNodes(nodeIds[i - 1], 0, nodeIds[i], 0,
+                       [&cbError](Status status, NodeId, size_t, NodeId, size_t) {
+                         if (status != Status::Ok) {
+                           cbError = true;
+                         }
+                       });
+    // process and make sure everything got connected
+    {
+      const auto status = graph.process();
+
+      if (status != Status::Ok || cbError) {
+        state.SkipWithError("Error processing after connecting nodes");
+        return;
+      }
+    }
+
+  }
+
+  for (auto _: state) {
+    // push some data to the first node and process
+    using MessageType = Message<DataType, TimeType>;
+    MessageType msg;
+    msg.data = '!';
+    msg.time = 123.45f;
+    auto status = firstNode->pushMessage(msg);
+    if (status != Status::Ok) {
+      state.SkipWithError("Failed to push message");
+      return;
+    }
+    status = graph.process();
+    if (status != Status::Ok) {
+      state.SkipWithError("Process failed after pushing message");
+      return;
+    }
+    MessageType msgOut;
+    status = lastNode->popMessage(msgOut);
+    if (status != Status::Ok) {
+      state.SkipWithError("Failed to pop message");
+      return;
+    }
+  }
+}
+
+BENCHMARK(Graph_Process_PassthroughChain<double, double, 64>);
