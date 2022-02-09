@@ -208,6 +208,7 @@ public:
 
     if (_topologyChanged) {
       sortNodes();
+      _topologyChanged = false;
     }
 
     // nodes are sorted in reverse order
