@@ -1,12 +1,12 @@
 # lib
-file(GLOB src *.h *.cpp)
-add_library(core SHARED ${src})
+add_library(core INTERFACE)
 set_target_properties(core PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (MSVC)
-    target_compile_options(core PUBLIC /W4 /WX)
+    target_compile_options(core INTERFACE /W4 /WX)
 else()
-    target_compile_options(core PUBLIC -Wall -Wextra -pedantic -Werror)
+    target_compile_options(core INTERFACE -Wall -Wextra -pedantic -Werror)
 endif()
 
 # tests
