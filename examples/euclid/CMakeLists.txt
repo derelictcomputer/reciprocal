@@ -15,3 +15,8 @@ file(GLOB test_src test/*.cpp)
 add_executable(${target}_tests ${test_src})
 target_link_libraries(${target}_tests gtest_main ${target})
 add_test(NAME ${target}_test COMMAND ${target}_tests)
+
+#vst3 plugin
+if (DC_EUCLID_VST3)
+    add_subdirectory(vst3)
+endif()
