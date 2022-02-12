@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644440084734,
+  "lastUpdate": 1644679805083,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -920,6 +920,54 @@ window.BENCHMARK_DATA = {
             "value": 40919.7292032293,
             "unit": "ns/iter",
             "extra": "iterations: 17094\ncpu: 40918.088218088225 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "88d58119e906a5c23572cb9a40ce9f73ba483b25",
+          "message": "* shared -> static for libs (#34)\n\n* core is header-only, so set it up as an interface library",
+          "timestamp": "2022-02-12T10:29:07-05:00",
+          "tree_id": "db1417d1fe247e095a4431c30119e40befdfb0da",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/88d58119e906a5c23572cb9a40ce9f73ba483b25"
+        },
+        "date": 1644679803652,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 112579.72248957318,
+            "unit": "ns/iter",
+            "extra": "iterations: 6234\ncpu: 112558.50176451716 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 16096.974392011434,
+            "unit": "ns/iter",
+            "extra": "iterations: 43463\ncpu: 16096.035708533693 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 25613.099048664662,
+            "unit": "ns/iter",
+            "extra": "iterations: 27330\ncpu: 25611.25869008416 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 32197.611504832512,
+            "unit": "ns/iter",
+            "extra": "iterations: 21730\ncpu: 32196.971928209852 ns\nthreads: 1"
           }
         ]
       }
