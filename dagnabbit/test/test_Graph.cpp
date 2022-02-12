@@ -1,7 +1,7 @@
 #include <chrono>
 #include <gtest/gtest.h>
 #include "../Graph.h"
-#include "../dev_helpers/PassthroughNode.h"
+#include "dagnabbit/PassthroughNode.h"
 
 using namespace dc;
 

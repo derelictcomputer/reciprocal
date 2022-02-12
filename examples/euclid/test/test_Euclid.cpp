@@ -1,9 +1,37 @@
 #include <gtest/gtest.h>
-#include "dagnabbit/dev_helpers/PassthroughNode.h"
+#include "dagnabbit/PassthroughNode.h"
 #include "../Euclid.h"
 
 using namespace dc;
 using namespace dc::euclid;
+
+TEST(Euclid, Output) {
+  using TimeType = double;
+  const TimeType rateMin = 1.0 / 16.0;
+  const TimeType rateMax = 4.0;
+  const TimeType rateDef = 1.0;
+  const TimeType rateStep = 0;
+  const uint8_t pulseDef = 4;
+  const uint8_t stepDef = 16;
+  Euclid<TimeType> euclid(rateMin, rateMax, rateDef, rateStep, stepDef, pulseDef);
+  ASSERT_EQ(euclid.setEnabled(true), Status::Ok);
+
+  TimeType now{0};
+  for (size_t i = 0; i < stepDef * 2; ++i) {
+    ASSERT_EQ(euclid.process(rateDef), Status::Ok);
+    Message<Euclid<TimeType>::DataType, TimeType> msg;
+    auto status = euclid.popOutputMessage(msg);
+    if (i % 4 != 0) {
+      ASSERT_EQ(status, Status::Empty);
+    }
+    else {
+      ASSERT_EQ(status, Status::Ok);
+      ASSERT_DOUBLE_EQ(now, msg.time);
+      ASSERT_TRUE(msg.data);
+    }
+    now += rateDef;
+  }
+}
 
 TEST(EuclidNode, Throughput) {
   using TimeType = double;
