@@ -1,10 +1,114 @@
 #include <gtest/gtest.h>
-#include "dagnabbit/Graph.h"
 #include "dagnabbit/dev_helpers/PassthroughNode.h"
-#include "../PulseNode.h"
+#include "../Euclid.h"
 
 using namespace dc;
 using namespace dc::euclid;
+
+TEST(EuclidNode, Throughput) {
+  using TimeType = double;
+  using DataType = bool;
+
+  Graph<TimeType> graph(16, 3);
+
+  PassthroughNode<DataType, TimeType>* inputNode{nullptr};
+  NodeId inputNodeId{InvalidNodeId};
+  {
+    const auto status = graph.addNode(
+        [&inputNode]() {
+          inputNode = new PassthroughNode<DataType, TimeType>(16, 1);
+          return inputNode;
+        },
+        [&inputNodeId](Status status, NodeId id) {
+          ASSERT_EQ(status, Status::Ok);
+          ASSERT_NE(id, dc::InvalidNodeId);
+          inputNodeId = id;
+        });
+    ASSERT_EQ(status, Status::Ok);
+  }
+
+  EuclidNode<TimeType, DataType>* euclidNode{nullptr};
+  NodeId euclidNodeId{InvalidNodeId};
+  {
+    const auto status = graph.addNode(
+        [&euclidNode]() {
+          euclidNode = new EuclidNode<TimeType, DataType>(8, 16, 16, 1);
+          return euclidNode;
+        },
+        [&euclidNodeId](Status status, NodeId id) {
+          ASSERT_EQ(status, Status::Ok);
+          ASSERT_NE(id, dc::InvalidNodeId);
+          euclidNodeId = id;
+        });
+    ASSERT_EQ(status, Status::Ok);
+  }
+
+  PassthroughNode<DataType, TimeType>* outputNode{nullptr};
+  NodeId outputNodeId{InvalidNodeId};
+  {
+    const auto status = graph.addNode(
+        [&outputNode]() {
+          outputNode = new PassthroughNode<DataType, TimeType>(16, 0);
+          return outputNode;
+        },
+        [&outputNodeId](Status status, NodeId id) {
+          ASSERT_EQ(status, Status::Ok);
+          ASSERT_NE(id, dc::InvalidNodeId);
+          outputNodeId = id;
+        });
+    ASSERT_EQ(status, Status::Ok);
+  }
+
+  // process so we get our node ids
+  {
+    const auto status = graph.process();
+    ASSERT_EQ(status, Status::Ok);
+  }
+
+  // connect the chain
+  {
+    const auto status = graph.connectNodes(inputNodeId, 0, euclidNodeId, 0,
+                                           [](Status status, NodeId, size_t, NodeId, size_t) {
+                                             ASSERT_EQ(status, Status::Ok);
+                                           });
+    ASSERT_EQ(status, Status::Ok);
+  }
+  {
+    const auto status = graph.connectNodes(euclidNodeId, 0, outputNodeId, 0,
+                                           [](Status status, NodeId, size_t, NodeId, size_t) {
+                                             ASSERT_EQ(status, Status::Ok);
+                                           });
+    ASSERT_EQ(status, Status::Ok);
+  }
+
+  // process so the connections go through
+  {
+    const auto status = graph.process();
+    ASSERT_EQ(status, Status::Ok);
+  }
+
+  // push some pulses to the euclid node, expect to get the filtered output
+  const uint8_t numPulses = 4;
+  const uint8_t numSteps = 8;
+  ASSERT_EQ(euclidNode->setPulses(numPulses), Status::Ok);
+  ASSERT_EQ(euclidNode->setSteps(numSteps), Status::Ok);
+  TimeType now{0};
+  const TimeType interval{2};
+  for (size_t i = 0; i < numSteps * 2; ++i) {
+    Message<DataType, TimeType> msg;
+    msg.time = now;
+    msg.data = true;
+    ASSERT_EQ(inputNode->pushMessage(msg), Status::Ok);
+    ASSERT_EQ(graph.process(interval), Status::Ok);
+    if (i % 2 == 0) {
+      Message<DataType, TimeType> msgOut;
+      ASSERT_EQ(outputNode->popMessage(msgOut), Status::Ok);
+      ASSERT_EQ(msgOut.time, msg.time);
+      ASSERT_EQ(msgOut.data, msg.data);
+    }
+    now += interval;
+  }
+}
 
 TEST(PulseNode, Output) {
   using TimeType = double;

@@ -19,7 +19,7 @@ public:
                      size_t maxOutputConnections = 16) :
                      _rate(rateMin, rateMax, rateDefault, rateStep),
                      _pulseData(pulseData),
-                     _out(this, "out", maxOutputConnections){
+                     _out(this, "out", maxOutputConnections) {
     this->_outputs.push_back(&_out);
   }
 
