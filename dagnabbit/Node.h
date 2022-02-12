@@ -19,7 +19,7 @@ public:
   /// Get the number of output ports on this node.
   /// @returns The number of outputs.
   [[nodiscard]] size_t getNumOutputs() const {
-    return _inputs.size();
+    return _outputs.size();
   }
 
   /// Connect the output of another node to an input of this one.
