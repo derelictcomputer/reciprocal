@@ -20,6 +20,10 @@ public:
     this->_outputs.push_back(&_out);
   }
 
+  Status getSteps(uint8_t& steps) const {
+    return _steps.get(steps);
+  }
+
   Status setSteps(uint8_t steps) {
     uint8_t pulses;
     auto status = _pulses.get(pulses);
@@ -33,6 +37,10 @@ public:
       }
     }
     return _steps.set(steps);
+  }
+
+  Status getPulses(uint8_t& pulses) const {
+    return _pulses.get(pulses);
   }
 
   Status setPulses(uint8_t pulses) {

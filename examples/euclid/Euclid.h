@@ -20,7 +20,7 @@ public:
          uint8_t defaultPulses) : Graph<TimeType>(32, 3) {
     // make the nodes and connect them
     NodeId pulseNodeId, euclidNodeId, outputNodeId;
-    auto status = this->addNode(
+    [[maybe_unused]] auto status = this->addNode(
         [rateMin, rateMax, rateDefault, rateStep, this]() {
           this->_pulseNode = new PulseNode<TimeType, DataType>(rateMin, rateMax, rateDefault, rateStep, true, 1);
           return this->_pulseNode;
@@ -74,12 +74,62 @@ public:
     assert(internalStatus == Status::Ok);
   }
 
+  Status getEnabled(bool& enabled) const {
+    if (_pulseNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    enabled = _pulseNode->getEnabled();
+    return Status::Ok;
+  }
+
   Status setEnabled(bool enabled) {
     if (_pulseNode == nullptr) {
       return Status::NotInitialized;
     }
     _pulseNode->setEnabled(enabled);
     return Status::Ok;
+  }
+
+  Status getRate(TimeType& rate) const {
+    if (_pulseNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    return _pulseNode->getRate(rate);
+  }
+
+  Status setRate(const TimeType& rate) {
+    if (_pulseNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    return _pulseNode->setRate(rate);
+  }
+
+  Status getPulses(uint8_t& pulses) const {
+    if (_euclidNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    return _euclidNode->getPulses(pulses);
+  }
+
+  Status setPulses(uint8_t pulses) {
+    if (_euclidNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    return _euclidNode->setPulses(pulses);
+  }
+
+  Status getSteps(uint8_t& steps) const {
+    if (_euclidNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    return _euclidNode->getSteps(steps);
+  }
+
+  Status setSteps(uint8_t steps) {
+    if (_euclidNode == nullptr) {
+      return Status::NotInitialized;
+    }
+    return _euclidNode->setSteps(steps);
   }
 
   Status popOutputMessage(Message<DataType, TimeType>& msg) {

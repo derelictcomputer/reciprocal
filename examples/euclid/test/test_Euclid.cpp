@@ -33,6 +33,49 @@ TEST(Euclid, Output) {
   }
 }
 
+TEST(Euclid, Params) {
+  using TimeType = double;
+  const TimeType rateMin = 1.0 / 16.0;
+  const TimeType rateMax = 4.0;
+  const TimeType rateDef = 1.0;
+  const TimeType rateStep = 0;
+  const uint8_t pulseDef = 4;
+  const uint8_t stepDef = 16;
+  Euclid<TimeType> euclid(rateMin, rateMax, rateDef, rateStep, stepDef, pulseDef);
+  {
+    ASSERT_EQ(euclid.setEnabled(true), Status::Ok);
+    bool actualEnabled{false};
+    ASSERT_EQ(euclid.getEnabled(actualEnabled), Status::Ok);
+    ASSERT_TRUE(actualEnabled);
+  }
+  {
+    TimeType actualRate{0};
+    ASSERT_EQ(euclid.getRate(actualRate), Status::Ok);
+    ASSERT_DOUBLE_EQ(actualRate, rateDef);
+    ASSERT_EQ(euclid.setRate(rateMax), Status::Ok);
+    ASSERT_EQ(euclid.getRate(actualRate), Status::Ok);
+    ASSERT_DOUBLE_EQ(actualRate, rateMax);
+  }
+  {
+    uint8_t actualPulses{0};
+    ASSERT_EQ(euclid.getPulses(actualPulses), Status::Ok);
+    ASSERT_EQ(actualPulses, pulseDef);
+    const uint8_t newPulses = 8;
+    ASSERT_EQ(euclid.setPulses(newPulses), Status::Ok);
+    ASSERT_EQ(euclid.getPulses(actualPulses), Status::Ok);
+    ASSERT_EQ(actualPulses, newPulses);
+  }
+  {
+    uint8_t actualSteps{0};
+    ASSERT_EQ(euclid.getSteps(actualSteps), Status::Ok);
+    ASSERT_EQ(actualSteps, stepDef);
+    const uint8_t newSteps = 15;
+    ASSERT_EQ(euclid.setSteps(newSteps), Status::Ok);
+    ASSERT_EQ(euclid.getSteps(actualSteps), Status::Ok);
+    ASSERT_EQ(actualSteps, newSteps);
+  }
+}
+
 TEST(EuclidNode, Throughput) {
   using TimeType = double;
   using DataType = bool;

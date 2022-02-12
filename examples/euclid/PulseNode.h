@@ -23,8 +23,16 @@ public:
     this->_outputs.push_back(&_out);
   }
 
+  bool getEnabled() const {
+    return _enabled;
+  }
+
   void setEnabled(bool enabled) {
     _enabled = enabled;
+  }
+
+  Status getRate(TimeType& rate) const {
+    return _rate.get(rate);
   }
 
   Status setRate(TimeType rate) {
