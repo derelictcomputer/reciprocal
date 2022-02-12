@@ -21,14 +21,16 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DUSE_SANITIZER=${{matrix.sanitizer}}
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DUSE_SANITIZER=${{matrix.sanitizer}}
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --target core_tests dagnabbit_tests
+    - name: Build
+      env:
+        targets: 'core_tests dagnabbit_tests euclid_tests'
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --target $targets
 
-      - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C ${{matrix.build_type}} --output-on-failure --verbose
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{matrix.build_type}} --output-on-failure --verbose
