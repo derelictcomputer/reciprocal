@@ -12,12 +12,12 @@ enum class ParamId {
   COUNT
 };
 
-const double rateMin = 1.0 / 8.0; // 1/8th of a 1/4 note is a 32nd note
-const double rateMax = 4.0; // whole note (4 * 1/4 note)
-const double rateDef = 1.0 / 4.0; // 1/4th of a 1/4 note is a 16th note
-const double rateStep = 1.0 / 8.0;
-const uint8_t stepsDef = 16;
-const uint8_t pulsesDef = 4;
-const uint8_t stepsMin = 1;
-const uint8_t stepsMax = 16;
+constexpr double rateMin = 1.0 / 8.0; // 1/8th of a 1/4 note is a 32nd note
+constexpr double rateMax = 4.0; // whole note (4 * 1/4 note)
+constexpr double rateDef = 1.0 / 4.0; // 1/4th of a 1/4 note is a 16th note
+constexpr double rateStep = 1.0 / 8.0;
+constexpr uint8_t stepsDef = 16;
+constexpr uint8_t pulsesDef = 4;
+constexpr uint8_t stepsMin = 1;
+constexpr uint8_t stepsMax = 16;
 }

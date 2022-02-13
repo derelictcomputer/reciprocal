@@ -121,6 +121,7 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
           _wasPlaying = isPlaying;
         }
         const auto status = _euclid.process(posQuarterNotes - _lastTimeQuarters);
+        _lastTimeQuarters = posQuarterNotes;
         if (status != Status::Ok) {
           return kResultFalse;
         }

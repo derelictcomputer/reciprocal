@@ -24,7 +24,7 @@ tresult PLUGIN_API PlugController::initialize (FUnknown* context) {
                                                     rateMin,
                                                     rateMax,
                                                     rateDef,
-                                                    (int32) ((rateMax - rateMin) / rateStep),
+                                                    0,
                                                     Vst::ParameterInfo::kCanAutomate,
                                                     0,
                                                     nullptr));
@@ -34,7 +34,7 @@ tresult PLUGIN_API PlugController::initialize (FUnknown* context) {
                                                     stepsMin,
                                                     stepsMax,
                                                     pulsesDef,
-                                                    (int32) (stepsMax - stepsDef),
+                                                    (int32) (stepsMax - stepsMin),
                                                     Vst::ParameterInfo::kCanAutomate,
                                                     0,
                                                     nullptr));
@@ -44,12 +44,12 @@ tresult PLUGIN_API PlugController::initialize (FUnknown* context) {
                                                     stepsMin,
                                                     stepsMax,
                                                     stepsDef,
-                                                    (int32) (stepsMax - stepsDef),
+                                                    (int32) (stepsMax - stepsMin),
                                                     Vst::ParameterInfo::kCanAutomate,
                                                     0,
                                                     nullptr));
   }
-  return kResultTrue;
+  return result;
 }
 
 tresult PLUGIN_API PlugController::setComponentState (IBStream* state)
@@ -67,17 +67,20 @@ tresult PLUGIN_API PlugController::setComponentState (IBStream* state)
   if (!streamer.readDouble(rate)) {
     return kResultFalse;
   }
-  setParamNormalized((Vst::ParamID)ParamId::Rate, rate);
+  auto norm = (rate - rateMin) / (rateMax - rateMin);
+  setParamNormalized((Vst::ParamID)ParamId::Rate, norm);
   uint8_t pulses;
   if (!streamer.readUChar8(pulses)) {
     return kResultFalse;
   }
-  setParamNormalized((Vst::ParamID)ParamId::Pulses, pulses);
+  norm = (double)(pulses - stepsMin) / (stepsMax - stepsMin);
+  setParamNormalized((Vst::ParamID)ParamId::Pulses, norm);
   uint8_t steps;
   if (!streamer.readUChar8(steps)) {
     return kResultFalse;
   }
-  setParamNormalized((Vst::ParamID)ParamId::Steps, steps);
+  norm = (double)(steps - stepsMin) / (stepsMax - stepsMin);
+  setParamNormalized((Vst::ParamID)ParamId::Steps, norm);
 
 	return kResultOk;
 }
