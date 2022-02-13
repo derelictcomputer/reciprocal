@@ -118,7 +118,6 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
         const auto posQuarterNotes = data.processContext->projectTimeMusic;
         if (!_wasPlaying) {
           _lastTimeQuarters = posQuarterNotes;
-          _wasPlaying = isPlaying;
         }
         const auto status = _euclid.process(posQuarterNotes - _lastTimeQuarters);
         _lastTimeQuarters = posQuarterNotes;
@@ -161,6 +160,7 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
         }
       }
     }
+    _wasPlaying = isPlaying;
   }
 
   // Pass through audio
