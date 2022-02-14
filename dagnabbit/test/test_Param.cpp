@@ -8,11 +8,13 @@ TEST(Param, SetGetBool) {
   BoolParam p{false};
   ASSERT_EQ(p.min, false);
   ASSERT_EQ(p.max, true);
-  ASSERT_EQ(p.step, true);
+  ASSERT_EQ(p.step, false);
   ASSERT_EQ(p.def, false);
   ASSERT_EQ(p.get(), false);
   p.set(true);
   ASSERT_EQ(p.get(), true);
+  p.set(false);
+  ASSERT_EQ(p.get(), false);
 }
 
 using TestTypes = ::testing::Types<uint8_t, float, double, int64_t>;

@@ -69,6 +69,6 @@ private:
 /// Just here to make toggle parameters easier to wield
 class BoolParam : public Param<bool> {
 public:
-  explicit BoolParam(bool def) : Param<bool>(false, true, def, true) {}
+  explicit BoolParam(bool def) : Param<bool>(false, true, def, false) {}
 };
 }

@@ -110,57 +110,61 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
 
   // process
   if (data.processContext != nullptr) {
-    const bool isPlaying = (data.processContext->state & Steinberg::Vst::ProcessContext::kPlaying) != 0;
-    if (isPlaying) {
-      const bool musicTimeValid =
-          (data.processContext->state & Steinberg::Vst::ProcessContext::kProjectTimeMusicValid) != 0;
-      if (musicTimeValid) {
-        const auto posQuarterNotes = data.processContext->projectTimeMusic;
-        if (!_wasPlaying) {
-          _lastTimeQuarters = posQuarterNotes;
+    const bool isPlaying = (data.processContext->state & Vst::ProcessContext::kPlaying) != 0;
+    const bool musicTimeValid = (data.processContext->state & Vst::ProcessContext::kProjectTimeMusicValid) != 0;
+    const auto posQuarters = musicTimeValid ? data.processContext->projectTimeMusic : 0;
+    const bool tempoValid = (data.processContext->state & Vst::ProcessContext::kTempoValid) != 0;
+
+    if (!_wasPlaying && isPlaying) {
+      _euclid.reset();
+    }
+    _wasPlaying = isPlaying;
+
+    if (isPlaying && musicTimeValid && tempoValid) {
+      const auto tempo = data.processContext->tempo;
+      const auto sampleRate = processSetup.sampleRate;
+      const auto beatsPerSample = tempo / (sampleRate * 60);
+      const auto deltaQuarters = beatsPerSample * data.numSamples;
+
+      const auto status = _euclid.process(posQuarters, deltaQuarters);
+      if (status != Status::Ok) {
+        return kResultFalse;
+      }
+      Vst::IEventList* outputEvents = data.outputEvents;
+      assert(outputEvents != nullptr);
+      Message<Euclid<double>::DataType, double> msg;
+      while (_euclid.popOutputMessage(msg) == Status::Ok) {
+        {
+          Vst::Event e{};
+          e.busIndex = 0;
+          e.sampleOffset = 0;
+          e.ppqPosition = msg.time;
+          e.flags = 0;
+          e.type = Vst::Event::EventTypes::kNoteOnEvent;
+          e.noteOn.channel = 0;
+          e.noteOn.pitch = 60;
+          e.noteOn.noteId = 60;
+          e.noteOn.tuning = 0;
+          e.noteOn.velocity = 1.0;
+          e.noteOn.length = 0;
+          outputEvents->addEvent(e);
         }
-        const auto status = _euclid.process(posQuarterNotes - _lastTimeQuarters);
-        _lastTimeQuarters = posQuarterNotes;
-        if (status != Status::Ok) {
-          return kResultFalse;
-        }
-        Vst::IEventList* outputEvents = data.outputEvents;
-        assert(outputEvents != nullptr);
-        Message<Euclid<double>::DataType, double> msg;
-        while (_euclid.popOutputMessage(msg) == Status::Ok) {
-          {
-            Vst::Event e{};
-            e.busIndex = 0;
-            e.sampleOffset = 0;
-            e.ppqPosition = msg.time;
-            e.flags = 0;
-            e.type = Vst::Event::EventTypes::kNoteOnEvent;
-            e.noteOn.channel = 0;
-            e.noteOn.pitch = 60;
-            e.noteOn.noteId = 60;
-            e.noteOn.tuning = 0;
-            e.noteOn.velocity = 1.0;
-            e.noteOn.length = 0;
-            outputEvents->addEvent(e);
-          }
-          {
-            Vst::Event e{};
-            e.busIndex = 0;
-            e.sampleOffset = 1;
-            e.ppqPosition = msg.time;
-            e.flags = 0;
-            e.type = Vst::Event::EventTypes::kNoteOffEvent;
-            e.noteOff.channel = 0;
-            e.noteOff.pitch = 60;
-            e.noteOff.noteId = 60;
-            e.noteOff.tuning = 0;
-            e.noteOff.velocity = 1.0;
-            outputEvents->addEvent(e);
-          }
+        {
+          Vst::Event e{};
+          e.busIndex = 0;
+          e.sampleOffset = 1;
+          e.ppqPosition = msg.time;
+          e.flags = 0;
+          e.type = Vst::Event::EventTypes::kNoteOffEvent;
+          e.noteOff.channel = 0;
+          e.noteOff.pitch = 60;
+          e.noteOff.noteId = 60;
+          e.noteOff.tuning = 0;
+          e.noteOff.velocity = 1.0;
+          outputEvents->addEvent(e);
         }
       }
     }
-    _wasPlaying = isPlaying;
   }
 
   // Pass through audio
@@ -269,6 +273,7 @@ tresult PLUGIN_API PlugProcessor::getState (IBStream* state)
 uint32 PlugProcessor::getProcessContextRequirements() {
   processContextRequirements.needProjectTimeMusic();
   processContextRequirements.needTransportState();
+  processContextRequirements.needTempo();
   return AudioEffect::getProcessContextRequirements();
 }
 }

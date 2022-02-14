@@ -23,6 +23,10 @@ public:
     this->_outputs.push_back(&_out);
   }
 
+  void reset() {
+    _currentStep = 0;
+  }
+
   [[nodiscard]] uint8_t getSteps() const {
     return _steps.get();
   }

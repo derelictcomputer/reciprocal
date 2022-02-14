@@ -47,35 +47,30 @@ public:
       return Status::Ok;
     }
 
+    const auto rate = _rate.get();
+    auto nextPulseTime = rate * std::floor(now / rate);
+    if (nextPulseTime < now) {
+      nextPulseTime += rate;
+    }
     const auto endTime = now + deltaTime;
-    while (_nextPulse < endTime) {
-      const auto status = doPulse();
+    MessageType msg;
+    msg.data = _outputData;
+    while (nextPulseTime < endTime) {
+      msg.time = nextPulseTime;
+      const auto status = _out.pushToConnections(msg);
       if (status != Status::Ok) {
         return status;
       }
+      nextPulseTime += rate;
     }
 
     return Status::Ok;
   }
 
 private:
-  Status doPulse() {
-    MessageType msg;
-    msg.time = _nextPulse;
-    msg.data = _outputData;
-    auto status = _out.pushToConnections(msg);
-    if (status != Status::Ok) {
-      return status;
-    }
-    TimeType rate = _rate.get();
-    _nextPulse += rate;
-    return Status::Ok;
-  }
-
   BoolParam _enabled{false};
   Param<TimeType> _rate;
   DataType _outputData{};
-  TimeType _nextPulse{0};
   OutputType _out;
 };
 }

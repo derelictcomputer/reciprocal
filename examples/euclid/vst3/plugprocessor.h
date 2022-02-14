@@ -32,6 +32,5 @@ public:
 private:
   Euclid<double> _euclid;
   bool _wasPlaying{false};
-  Steinberg::Vst::TQuarterNotes _lastTimeQuarters{0};
 };
 }

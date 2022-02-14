@@ -259,10 +259,11 @@ TEST(PulseNode, Output) {
   pulseNode->setEnabled(true);
   pulseNode->setRate(rate);
   for (size_t i = 0; i < 16; ++i) {
-    ASSERT_EQ(graph.process(rate), Status::Ok);
+    ASSERT_EQ(graph.process(now, rate), Status::Ok);
     for (auto& info: passthroughNodes) {
       Message<DataType, TimeType> msg;
-      ASSERT_EQ(info.node->popMessage(msg), Status::Ok);
+      const auto status = info.node->popMessage(msg);
+      ASSERT_EQ(status, Status::Ok);
       ASSERT_DOUBLE_EQ(msg.time, now);
     }
     now += rate;
