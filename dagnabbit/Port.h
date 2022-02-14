@@ -89,20 +89,14 @@ public:
   /// @param msg The message
   /// @returns Status::Ok on success, Status::Full if the queue was full
   Status pushMessage(const MessageType& msg) {
-    return _q.push([&msg](MessageType& m) {
-      m = msg;
-      return Status::Ok;
-    });
+    return _q.push(msg);
   }
 
   /// Get a message from the queue.
   /// @param msg The message, if there was one in the queue.
   /// @returns Status::Ok on success, Status::Empty if the queue was empty
   Status popMessage(MessageType& msg) {
-    return _q.pop([&msg](MessageType& m) {
-      msg = m;
-      return Status::Ok;
-    });
+    return _q.pop(msg);
   }
 
 private:

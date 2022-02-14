@@ -1,7 +1,6 @@
 #pragma once
 
 #include <atomic>
-#include <functional>
 #include <memory>
 #include "MathHelpers.h"
 #include "Status.h"
@@ -25,51 +24,31 @@ public:
     return _size.load();
   }
 
-  using Writer = std::function<Status(T&)>;
-
   /// Add an item to the queue.
-  /// @param writer The function to write the item in the queue.
+  /// @param item The thing to push
   /// @returns Status::Ok on success, Status::Full if full, or appropriate error.
-  Status push(const Writer& writer) {
+  Status push(const T& item) {
     // we're full
     if (_size.load(std::memory_order::acquire) >= capacity) {
       return Status::Full;
     }
-
-    // write the data
-    const auto status = writer(_data[_tail]);
-    if (status != Status::Ok) {
-      return status;
-    }
-
-    // advance the write pointer and update the size
+    _data[_tail] = item;
     _tail = mod(++_tail);
     _size.fetch_add(1, std::memory_order::release);
-
     return Status::Ok;
   }
 
-  using Reader = std::function<Status(T&)>;
-
   /// Remove an item from the queue.
-  /// @param reader The function to read the item in the queue.
+  /// @param item The thing to pop
   /// @returns Status::Ok on success, Status::Empty if empty, or appropriate error.
-  Status pop(const Reader& reader) {
+  Status pop(T& item) {
     // we're empty
     if (_size.load(std::memory_order::acquire) == 0) {
       return Status::Empty;
     }
-
-    // read the data
-    const auto status = reader(_data[_head]);
-    if (status != Status::Ok) {
-      return status;
-    }
-
-    // advance the read ponter and update the size
+    item = _data[_head];
     _head = mod(++_head);
     _size.fetch_sub(1, std::memory_order::release);
-
     return Status::Ok;
   }
 
