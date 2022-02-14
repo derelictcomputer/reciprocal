@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644872116277,
+  "lastUpdate": 1644881535650,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -192,6 +192,54 @@ window.BENCHMARK_DATA = {
             "value": 10.762432345125971,
             "unit": "ns/iter",
             "extra": "iterations: 64652585\ncpu: 10.761527941999539 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9a8926694d3dda37ccbc37208cb1a224e04d790f",
+          "message": "Optimize SPSCQ (#40)\n\n* add nextPowerOfTwo helper\r\n\r\n* round capacity to next power of two, ~15% improvement\r\n\r\n* const ref instead of rvalue ref for flexibility, no speed improvement\r\n\r\n* explicit memory ordering\r\n\r\n* concepts for GNU compiler\r\n\r\n* copypaste fix\r\n\r\n* push/pop ref to item instead of std::function\r\n\r\n* fix benchmark name",
+          "timestamp": "2022-02-14T18:31:14-05:00",
+          "tree_id": "37e3fdb2cd5790a89d655d96db5b4565dc360eb5",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/9a8926694d3dda37ccbc37208cb1a224e04d790f"
+        },
+        "date": 1644881533983,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemove<double>",
+            "value": 345.3371771825985,
+            "unit": "ns/iter",
+            "extra": "iterations: 2039969\ncpu: 345.2940706451912 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double>",
+            "value": 105.56903064337985,
+            "unit": "ns/iter",
+            "extra": "iterations: 6647048\ncpu: 105.55765506733215 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_Process_PassthroughChain<double, double, 64>",
+            "value": 1986.712678178756,
+            "unit": "ns/iter",
+            "extra": "iterations: 327831\ncpu: 1986.5357455518235 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double>",
+            "value": 11.259991389788533,
+            "unit": "ns/iter",
+            "extra": "iterations: 62620993\ncpu: 11.25922420297615 ns\nthreads: 1"
           }
         ]
       }
