@@ -73,3 +73,37 @@ TYPED_TEST(ParamTest, SetGetStepped) {
     current += 1;
   }
 }
+
+TYPED_TEST(ParamTest, SetGetNormalized) {
+  const TypeParam min = 3;
+  const TypeParam max = 42;
+  const auto def = 4;
+  const auto step = 0;
+
+  // check initialization
+  Param<TypeParam> p{min, max, def, step};
+  ASSERT_EQ(p.min, min);
+  ASSERT_EQ(p.max, max);
+  ASSERT_EQ(p.def, def);
+  ASSERT_EQ(p.step, step);
+  ASSERT_EQ(p.get(), def);
+
+  // set zero and expect min
+  p.setNormalized(0.0);
+  ASSERT_EQ(p.get(), min);
+  ASSERT_EQ(p.getNormalized(), 0.0);
+
+  // set 1.0 and expect max
+  p.setNormalized(1.0);
+  ASSERT_EQ(p.get(), max);
+  ASSERT_EQ(p.getNormalized(), 1.0);
+
+  // set somewhere in between and expect to get that value back
+  const double norm = 0.5;
+  p.setNormalized(norm);
+  const auto expected = static_cast<TypeParam>(min + norm * (max - min));
+  ASSERT_EQ(p.get(), expected);
+  // some types/step sizes will cause the normalized value to snap
+  const auto expectedNorm = static_cast<double>(expected - min) / (max - min);
+  ASSERT_EQ(p.getNormalized(), expectedNorm);
+}
