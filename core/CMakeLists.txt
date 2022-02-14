@@ -9,6 +9,10 @@ else()
     target_compile_options(core INTERFACE -Wall -Wextra -pedantic -Werror)
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(core INTERFACE -fconcepts)
+endif()
+
 # tests
 file(GLOB test_src test/*.cpp)
 add_executable(core_tests ${test_src})

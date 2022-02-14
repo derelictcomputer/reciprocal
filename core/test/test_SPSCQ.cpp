@@ -4,6 +4,12 @@
 
 using namespace dc;
 
+TEST(SPSCQ, Capacity) {
+  ASSERT_EQ(SPSCQ<int>(512).capacity, 512);
+  ASSERT_EQ(SPSCQ<int>(511).capacity, 512);
+  ASSERT_EQ(SPSCQ<int>(513).capacity, 1024);
+}
+
 TEST(SPSCQ, PushPopCount) {
   struct Thing {
     size_t val1{0};
@@ -23,31 +29,26 @@ TEST(SPSCQ, PushPopCount) {
     Status status;
     do {
       std::this_thread::yield();
-      status = q.push([&expectedThing](Thing& item) {
-        item = expectedThing;
-        return Status::Ok;
-      });
+      status = q.push(expectedThing);
     } while (status == Status::Ok && numPushed.fetch_add(1) < capacity);
   });
 
   // wait until we've pushed all we're going to push
   while (numPushed < capacity) {
-    const auto status = q.pop([&expectedThing](const Thing& item) {
-      if (item.val1 == expectedThing.val1 && item.val2 == expectedThing.val2) {
-        return Status::Ok;
-      }
-      return Status::Fail;
-    });
+    Thing actualThing{};
+    const auto status = q.pop(actualThing);
     ASSERT_TRUE(status == Status::Ok || status == Status::Empty);
+    if (status == Status::Ok) {
+      ASSERT_EQ(expectedThing.val1, actualThing.val1);
+      ASSERT_FLOAT_EQ(expectedThing.val2, actualThing.val2);
+    }
     std::this_thread::yield();
   }
   pushThread.join();
 
   // now push until full and expect to hit Status::Full
   while (true) {
-    const auto status = q.push([](Thing&) {
-      return Status::Ok;
-    });
+    const auto status = q.push(expectedThing);
     if (status == Status::Full) {
       break;
     }
@@ -57,9 +58,8 @@ TEST(SPSCQ, PushPopCount) {
 
   // now pop until empty and expect to hit Status::Empty
   while (true) {
-    const auto status = q.pop([](const Thing&) {
-      return Status::Ok;
-    });
+    Thing actualThing{};
+    const auto status = q.pop(actualThing);
     if (status == Status::Empty) {
       break;
     }

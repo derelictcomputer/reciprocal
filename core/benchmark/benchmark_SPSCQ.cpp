@@ -7,10 +7,11 @@ using namespace dc;
 template<class T, size_t capacity>
 static void SPSCQ_FillDrain(benchmark::State& state) {
   SPSCQ<T> q(capacity);
+  T item{};
 
   for (auto _: state) {
-    while (q.push([](T&) { return Status::Ok; }) == Status::Ok);
-    while (q.pop([](T&) { return Status::Ok; }) == Status::Ok);
+    while (q.push(item) == Status::Ok);
+    while (q.pop(item) == Status::Ok);
   }
 }
 
