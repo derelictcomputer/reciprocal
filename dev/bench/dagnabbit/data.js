@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644679807475,
+  "lastUpdate": 1644872116277,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -144,6 +144,54 @@ window.BENCHMARK_DATA = {
             "value": 10.955166419586211,
             "unit": "ns/iter",
             "extra": "iterations: 64134338\ncpu: 10.955270170559805 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "79a85a77f3ccb0acf2dc9f0a897e6bbb164fe993",
+          "message": "euclidean sequencer (#35)\n\n* add pulse node to drive euclidean sequencer\r\n\r\n* add euclid tests to test runs\r\n\r\n* implement euclid node\r\n\r\n* * move PassthroughNode into core lib, it is useful for non-dev things\r\n* implement main Euclid module/graph\r\n\r\n* wire up params\r\n\r\n* wrap euclid for VST3 (does not quite work yet)\r\n\r\n* got rhythm/params working, still issues when stopping and starting transport\r\n\r\n* start/stop working, still gets out of phase with transport\r\n\r\n* make params a little simpler to work with\r\n\r\n* get/set normalized for params\r\n\r\n* add normalized param interface\r\n\r\n* phase lock pulse, fix some bugs\r\n\r\n* build euclid VST3 on PR review and main merge\r\n\r\n* sample accurate note scheduling",
+          "timestamp": "2022-02-14T15:54:15-05:00",
+          "tree_id": "45fd70034703b674a3e840b670524c69787874f0",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/79a85a77f3ccb0acf2dc9f0a897e6bbb164fe993"
+        },
+        "date": 1644872114456,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemove<double>",
+            "value": 353.92488271938777,
+            "unit": "ns/iter",
+            "extra": "iterations: 1976030\ncpu: 353.8998395773344 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double>",
+            "value": 106.8536854311836,
+            "unit": "ns/iter",
+            "extra": "iterations: 6479676\ncpu: 106.84293473932958 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_Process_PassthroughChain<double, double, 64>",
+            "value": 2444.2106498403223,
+            "unit": "ns/iter",
+            "extra": "iterations: 285901\ncpu: 2444.0442670714697 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double>",
+            "value": 10.762432345125971,
+            "unit": "ns/iter",
+            "extra": "iterations: 64652585\ncpu: 10.761527941999539 ns\nthreads: 1"
           }
         ]
       }
