@@ -16,9 +16,9 @@ public:
   using NodeType = Node<TimeType>;
 
   explicit Graph(size_t asyncQueueSize, size_t capacity) :
-  capacity(capacity),
-  _asyncQ(asyncQueueSize),
-  _trashMan(capacity) {
+      capacity(capacity),
+      _asyncQ(asyncQueueSize),
+      _trashMan(capacity) {
     _nodes.reserve(capacity);
     _availableNodeIds.reserve(capacity);
     for (size_t i = 0; i < capacity; ++i) {
@@ -97,8 +97,7 @@ public:
         _size = _nodes.size();
         addNodeCb(Status::Ok, node->_id);
         _topologyChanged = true;
-      }
-      else {
+      } else {
         returnNodeId(node->_id);
         addNodeCb(Status::Fail, InvalidNodeId);
       }
@@ -174,7 +173,7 @@ public:
   /// @param toIdx The input port index
   /// @param cb A callback to let you know if the disconnection was successful
   /// @returns Status::Ok if the request was enqueued, or appropriate error
-  Status disconnectNodes(NodeId from, size_t fromIdx, NodeId to, size_t toIdx, const DisconnectNodesCb & cb) {
+  Status disconnectNodes(NodeId from, size_t fromIdx, NodeId to, size_t toIdx, const DisconnectNodesCb& cb) {
     if (from == InvalidNodeId || to == InvalidNodeId) {
       return Status::InvalidArgument;
     }
@@ -198,6 +197,12 @@ public:
 
   /// Update the graph's state and process its nodes
   Status process(const TimeType& deltaTime = TimeType(0)) {
+    const auto status = process(_now, deltaTime);
+    _now += deltaTime;
+    return status;
+  }
+
+  Status process(const TimeType& now, const TimeType& deltaTime) {
     // perform the async operations
     {
       std::function<void()> asyncFn;
@@ -213,9 +218,8 @@ public:
 
     // nodes are sorted in reverse order
     for (auto it = _sortedNodeIds.rbegin(); it != _sortedNodeIds.rend(); ++it) {
-      _nodes[*it]->process(_now, deltaTime);
+      _nodes[*it]->process(now, deltaTime);
     }
-    _now += deltaTime;
 
     return Status::Ok;
   }
@@ -263,7 +267,7 @@ private:
 
     node->_visited = true;
 
-    for (auto output : node->_outputs) {
+    for (auto output: node->_outputs) {
       for (size_t i = 0; i < output->getNumConnections(); ++i) {
         PortBase* connection;
         auto status = output->getConnection(i, connection);
@@ -284,11 +288,11 @@ private:
   Status sortNodes() {
     _sortedNodeIds.clear();
 
-    for (auto& [_, node] : _nodes) {
+    for (auto&[_, node]: _nodes) {
       node->_visited = false;
     }
 
-    for (auto& [_, node] : _nodes) {
+    for (auto&[_, node]: _nodes) {
       if (!node->_visited) {
         const auto status = addBranch(node.get());
         if (status != Status::Ok) {

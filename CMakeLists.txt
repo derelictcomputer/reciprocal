@@ -32,3 +32,5 @@ FetchContent_MakeAvailable(gbenchmark)
 
 add_subdirectory(core)
 add_subdirectory(dagnabbit)
+
+add_subdirectory(examples)

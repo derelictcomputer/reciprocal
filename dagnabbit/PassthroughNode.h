@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Message.h"
-#include "../Node.h"
+#include "Message.h"
+#include "Node.h"
 
 namespace dc {
 template<class DataType, class TimeType>

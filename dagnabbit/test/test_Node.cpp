@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "../../third_party/rigtorp/MPMCQueue.h"
-#include "../dev_helpers/PassthroughNode.h"
+#include "third_party/rigtorp/MPMCQueue.h"
+#include "dagnabbit/PassthroughNode.h"
 
 using namespace dc;
 

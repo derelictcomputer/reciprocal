@@ -13,6 +13,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(dagnabbit PUBLIC -fconcepts)
 endif()
 
+target_include_directories(dagnabbit PUBLIC ${CMAKE_SOURCE_DIR})
+
 # tests
 file(GLOB test_src test/*.cpp)
 add_executable(dagnabbit_tests ${test_src})

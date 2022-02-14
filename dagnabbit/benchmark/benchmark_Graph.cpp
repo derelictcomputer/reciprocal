@@ -1,7 +1,7 @@
 #include <thread>
 #include <benchmark/benchmark.h>
 #include "../Graph.h"
-#include "../dev_helpers/PassthroughNode.h"
+#include "dagnabbit/PassthroughNode.h"
 
 using namespace dc;
 
