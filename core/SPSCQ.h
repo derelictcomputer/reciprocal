@@ -32,7 +32,7 @@ public:
   /// @returns Status::Ok on success, Status::Full if full, or appropriate error.
   Status push(const Writer& writer) {
     // we're full
-    if (_size >= capacity) {
+    if (_size.load(std::memory_order::acquire) >= capacity) {
       return Status::Full;
     }
 
@@ -44,7 +44,7 @@ public:
 
     // advance the write pointer and update the size
     _tail = mod(++_tail);
-    _size.fetch_add(1);
+    _size.fetch_add(1, std::memory_order::release);
 
     return Status::Ok;
   }
@@ -56,7 +56,7 @@ public:
   /// @returns Status::Ok on success, Status::Empty if empty, or appropriate error.
   Status pop(const Reader& reader) {
     // we're empty
-    if (_size == 0) {
+    if (_size.load(std::memory_order::acquire) == 0) {
       return Status::Empty;
     }
 
@@ -68,7 +68,7 @@ public:
 
     // advance the read ponter and update the size
     _head = mod(++_head);
-    _size.fetch_sub(1);
+    _size.fetch_sub(1, std::memory_order::release);
 
     return Status::Ok;
   }
