@@ -112,7 +112,6 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
   if (data.processContext != nullptr) {
     const bool isPlaying = (data.processContext->state & Vst::ProcessContext::kPlaying) != 0;
     const bool musicTimeValid = (data.processContext->state & Vst::ProcessContext::kProjectTimeMusicValid) != 0;
-    const auto posQuarters = musicTimeValid ? data.processContext->projectTimeMusic : 0;
     const bool tempoValid = (data.processContext->state & Vst::ProcessContext::kTempoValid) != 0;
 
     if (!_wasPlaying && isPlaying) {
@@ -121,6 +120,7 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
     _wasPlaying = isPlaying;
 
     if (isPlaying && musicTimeValid && tempoValid) {
+      const auto posQuarters = data.processContext->projectTimeMusic;
       const auto tempo = data.processContext->tempo;
       const auto sampleRate = processSetup.sampleRate;
       const auto beatsPerSample = tempo / (sampleRate * 60);
@@ -130,14 +130,20 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
       if (status != Status::Ok) {
         return kResultFalse;
       }
+
       Vst::IEventList* outputEvents = data.outputEvents;
       assert(outputEvents != nullptr);
+
+      const auto blockStartSamples = data.processContext->projectTimeSamples;
+
       Message<Euclid<double>::DataType, double> msg;
       while (_euclid.popOutputMessage(msg) == Status::Ok) {
+        const auto noteTimeSamples = static_cast<Vst::TSamples>(msg.time / beatsPerSample);
+        const auto offsetSamples = noteTimeSamples - blockStartSamples;
         {
           Vst::Event e{};
           e.busIndex = 0;
-          e.sampleOffset = 0;
+          e.sampleOffset = static_cast<int32>(offsetSamples);
           e.ppqPosition = msg.time;
           e.flags = 0;
           e.type = Vst::Event::EventTypes::kNoteOnEvent;
@@ -152,8 +158,8 @@ tresult PLUGIN_API PlugProcessor::process(Vst::ProcessData& data) {
         {
           Vst::Event e{};
           e.busIndex = 0;
-          e.sampleOffset = 1;
-          e.ppqPosition = msg.time;
+          e.sampleOffset = static_cast<int32>(offsetSamples + 1);
+          e.ppqPosition = msg.time + 0.25;
           e.flags = 0;
           e.type = Vst::Event::EventTypes::kNoteOffEvent;
           e.noteOff.channel = 0;
