@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644872113955,
+  "lastUpdate": 1644881539864,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -1016,6 +1016,78 @@ window.BENCHMARK_DATA = {
             "value": 32160.164322486162,
             "unit": "ns/iter",
             "extra": "iterations: 21756\ncpu: 32159.468652325802 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9a8926694d3dda37ccbc37208cb1a224e04d790f",
+          "message": "Optimize SPSCQ (#40)\n\n* add nextPowerOfTwo helper\r\n\r\n* round capacity to next power of two, ~15% improvement\r\n\r\n* const ref instead of rvalue ref for flexibility, no speed improvement\r\n\r\n* explicit memory ordering\r\n\r\n* concepts for GNU compiler\r\n\r\n* copypaste fix\r\n\r\n* push/pop ref to item instead of std::function\r\n\r\n* fix benchmark name",
+          "timestamp": "2022-02-14T18:31:14-05:00",
+          "tree_id": "37e3fdb2cd5790a89d655d96db5b4565dc360eb5",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/9a8926694d3dda37ccbc37208cb1a224e04d790f"
+        },
+        "date": 1644881538295,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 111981.4589587978,
+            "unit": "ns/iter",
+            "extra": "iterations: 6262\ncpu: 111964.2925582881 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint8_t>",
+            "value": 73.88746766764592,
+            "unit": "ns/iter",
+            "extra": "iterations: 9468070\ncpu: 73.8799987748295 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint16_t>",
+            "value": 248.97507398766572,
+            "unit": "ns/iter",
+            "extra": "iterations: 2787289\ncpu: 248.9782006817377 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint32_t>",
+            "value": 106.73350499776511,
+            "unit": "ns/iter",
+            "extra": "iterations: 6558532\ncpu: 106.73034758388005 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint64_t>",
+            "value": 124.86280523358114,
+            "unit": "ns/iter",
+            "extra": "iterations: 5608246\ncpu: 124.86203351279529 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 15282.876137083125,
+            "unit": "ns/iter",
+            "extra": "iterations: 45841\ncpu: 15278.983879060237 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 25612.263356264193,
+            "unit": "ns/iter",
+            "extra": "iterations: 27328\ncpu: 25611.29244730681 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 32231.299990836702,
+            "unit": "ns/iter",
+            "extra": "iterations: 21824\ncpu: 32227.611803519074 ns\nthreads: 1"
           }
         ]
       }
