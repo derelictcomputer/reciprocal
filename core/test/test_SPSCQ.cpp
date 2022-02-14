@@ -4,6 +4,12 @@
 
 using namespace dc;
 
+TEST(SPSCQ, Capacity) {
+  ASSERT_EQ(SPSCQ<int>(512).capacity, 512);
+  ASSERT_EQ(SPSCQ<int>(511).capacity, 512);
+  ASSERT_EQ(SPSCQ<int>(513).capacity, 1024);
+}
+
 TEST(SPSCQ, PushPopCount) {
   struct Thing {
     size_t val1{0};

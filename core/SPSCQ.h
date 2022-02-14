@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include "MathHelpers.h"
 #include "Status.h"
 
 namespace dc {
@@ -10,7 +11,11 @@ namespace dc {
 template<class T>
 class SPSCQ {
 public:
-  explicit SPSCQ(size_t capacity) : capacity(capacity), _data(new T[capacity]) {}
+  explicit SPSCQ(size_t capacity) : capacity(nextPowerOfTwo(capacity)), _data(new T[capacity]) {}
+
+  constexpr size_t mod(size_t i) {
+    return i & (capacity - 1);
+  }
 
   /// The max size of the queue.
   const size_t capacity;
@@ -38,7 +43,7 @@ public:
     }
 
     // advance the write pointer and update the size
-    _tail = (_tail + 1) % capacity;
+    _tail = mod(++_tail);
     _size.fetch_add(1);
 
     return Status::Ok;
@@ -62,7 +67,7 @@ public:
     }
 
     // advance the read ponter and update the size
-    _head = (_head + 1) % capacity;
+    _head = mod(++_head);
     _size.fetch_sub(1);
 
     return Status::Ok;
