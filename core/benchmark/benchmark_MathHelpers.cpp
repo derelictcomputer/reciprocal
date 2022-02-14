@@ -5,7 +5,7 @@
 using namespace dc;
 
 template<class T>
-static void MathHelpers_NextPowerOfTwoIterative(benchmark::State& state) {
+static void MathHelpers_NextPowerOfTwo(benchmark::State& state) {
   const T numValues = 64;
   const T step = std::numeric_limits<T>::max() / numValues;
   for (auto _ : state) {
@@ -15,7 +15,7 @@ static void MathHelpers_NextPowerOfTwoIterative(benchmark::State& state) {
   }
 }
 
-BENCHMARK(MathHelpers_NextPowerOfTwoIterative<uint8_t>);
-BENCHMARK(MathHelpers_NextPowerOfTwoIterative<uint16_t>);
-BENCHMARK(MathHelpers_NextPowerOfTwoIterative<uint32_t>);
-BENCHMARK(MathHelpers_NextPowerOfTwoIterative<uint64_t>);
+BENCHMARK(MathHelpers_NextPowerOfTwo<uint8_t>);
+BENCHMARK(MathHelpers_NextPowerOfTwo<uint16_t>);
+BENCHMARK(MathHelpers_NextPowerOfTwo<uint32_t>);
+BENCHMARK(MathHelpers_NextPowerOfTwo<uint64_t>);
