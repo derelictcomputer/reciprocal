@@ -30,7 +30,7 @@ public:
   /// Add an item to the queue.
   /// @param writer The function to write the item in the queue.
   /// @returns Status::Ok on success, Status::Full if full, or appropriate error.
-  Status push(Writer&& writer) {
+  Status push(const Writer& writer) {
     // we're full
     if (_size >= capacity) {
       return Status::Full;
@@ -54,7 +54,7 @@ public:
   /// Remove an item from the queue.
   /// @param reader The function to read the item in the queue.
   /// @returns Status::Ok on success, Status::Empty if empty, or appropriate error.
-  Status pop(Reader&& reader) {
+  Status pop(const Reader& reader) {
     // we're empty
     if (_size == 0) {
       return Status::Empty;
