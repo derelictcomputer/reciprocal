@@ -1,86 +1,75 @@
-#include <chrono>
-#include <thread>
-#include <vector>
+#include <limits>
 #include <gtest/gtest.h>
-#include "../Param.h"
+#include "dagnabbit/Param.h"
 
 using namespace dc;
 
-TEST(Param, Basics) {
-  const float min = 1.1f;
-  const float max = 3.5f;
-  const float def = 2.9f;
-  const float step = 0.4f;
-
-  Param p(min, max, def, step);
-
-  // check init values
-  ASSERT_FLOAT_EQ(p.min, min);
-  ASSERT_FLOAT_EQ(p.max, max);
-  ASSERT_FLOAT_EQ(p.def, def);
-  ASSERT_FLOAT_EQ(p.step, step);
-
-  // check in-range param set/get
-  for (float val = min; val <= max; val += step) {
-    ASSERT_EQ(p.set(val), Status::Ok);
-    float v;
-    ASSERT_EQ(p.get(v), Status::Ok);
-    EXPECT_FLOAT_EQ(v, val);
-  }
-
-  // check out-of-range param set/get
-  {
-    ASSERT_EQ(p.set(min - 1), Status::Ok);
-    float v;
-    ASSERT_EQ(p.get(v), Status::Ok);
-    EXPECT_FLOAT_EQ(v, min);
-    ASSERT_EQ(p.set(max + 1), Status::Ok);
-    ASSERT_EQ(p.get(v), Status::Ok);
-    EXPECT_FLOAT_EQ(v, max);
-  }
-
-  // check step quantize
-  {
-    ASSERT_EQ(p.set(min + step * 0.4f), Status::Ok);
-    float v;
-    ASSERT_EQ(p.get(v), Status::Ok);
-    EXPECT_FLOAT_EQ(v, min);
-    ASSERT_EQ(p.set(min + step * 0.6f), Status::Ok);
-    ASSERT_EQ(p.get(v), Status::Ok);
-    EXPECT_FLOAT_EQ(v, min + step);
-  }
+TEST(Param, SetGetBool) {
+  BoolParam p{false};
+  ASSERT_EQ(p.min, false);
+  ASSERT_EQ(p.max, true);
+  ASSERT_EQ(p.step, true);
+  ASSERT_EQ(p.def, false);
+  ASSERT_EQ(p.get(), false);
+  p.set(true);
+  ASSERT_EQ(p.get(), true);
 }
 
-// Just here for tsan to yell if we do something bad.
-TEST(Param, Multithread) {
-  const double min = 1.1f;
-  const double max = 3.5f;
-  const double def = 2.9f;
-  const double step = 0.4f;
+using TestTypes = ::testing::Types<uint8_t, float, double, int64_t>;
 
-  Param p(min, max, def, step);
+template <class T>
+class ParamTest : public ::testing::Test {};
 
-  // run a bunch of threads that set and get the value
-  std::vector<std::thread> threads;
-  const size_t numThreads = 12;
-  std::atomic<bool> go{true};
-  for (size_t i = 0; i < numThreads; ++i) {
-    threads.emplace_back([i, &p, &go]() {
-      while (go.load()) {
-        ASSERT_EQ(p.set(static_cast<double>(i)), Status::Ok);
-        double val;
-        ASSERT_EQ(p.get(val), Status::Ok);
-        std::this_thread::yield();
-      }
-    });
-  }
+TYPED_TEST_SUITE(ParamTest, TestTypes, );
 
-  // let the threads process for a little bit
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+TYPED_TEST(ParamTest, SetGetContinuous) {
+  const auto min = std::numeric_limits<TypeParam>::lowest() + 1;
+  const auto max = std::numeric_limits<TypeParam>::max() - 1;
+  const auto def = min + 1;
+  const TypeParam step = 0;
 
-  // shut 'er down
-  go = false;
-  for (auto& t : threads) {
-    t.join();
+  // check initialization
+  Param<TypeParam> p{min, max, def, step};
+  ASSERT_EQ(p.min, min);
+  ASSERT_EQ(p.max, max);
+  ASSERT_EQ(p.def, def);
+  ASSERT_EQ(p.step, step);
+  ASSERT_EQ(p.get(), def);
+
+  // set in range
+  const auto inRange = max / 2;
+  p.set(inRange);
+  ASSERT_EQ(p.get(), inRange);
+
+  // set below the range, expect min
+  p.set(min - 1);
+  ASSERT_EQ(p.get(), min);
+
+  // set above the range, expect max
+  p.set(max + 1);
+  ASSERT_EQ(p.get(), max);
+}
+
+TYPED_TEST(ParamTest, SetGetStepped) {
+  const TypeParam min = 2;
+  const TypeParam max = 123;
+  const auto def = min + 2;
+  const TypeParam step = 3;
+
+  // check initialization
+  Param<TypeParam> p{min, max, def, step};
+  ASSERT_EQ(p.min, min);
+  ASSERT_EQ(p.max, max);
+  ASSERT_EQ(p.def, def);
+  ASSERT_EQ(p.step, step);
+  ASSERT_EQ(p.get(), def);
+
+  // go from min to max and expect the value to snap to step
+  auto current = min;
+  while (current < max) {
+    p.set(current);
+    const auto expected = min + step * std::floor((current - min) / step + TypeParam(0.5));
+    ASSERT_EQ(p.get(), expected);
+    current += 1;
   }
 }
