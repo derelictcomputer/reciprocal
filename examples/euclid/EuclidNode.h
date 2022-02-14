@@ -11,70 +11,74 @@ public:
   using InputType = InputPort<MessageType>;
   using OutputType = OutputPort<MessageType>;
 
-  explicit EuclidNode(uint8_t defaultSteps, uint8_t defaultPulses, size_t queueSize, size_t maxOutputConnections) :
-      _steps(1, 16, defaultSteps, 1),
-      _pulses(1, 16, defaultPulses <= defaultSteps ? defaultPulses : defaultSteps, 1),
+  explicit EuclidNode(const Param<uint8_t>& pulsesParam,
+                      const Param<uint8_t>& stepsParam,
+                      size_t queueSize,
+                      size_t maxOutputConnections) :
+      _pulses(pulsesParam),
+      _steps(stepsParam),
       _in(this, "in", queueSize),
       _out(this, "out", maxOutputConnections) {
     this->_inputs.push_back(&_in);
     this->_outputs.push_back(&_out);
   }
 
-  Status getSteps(uint8_t& steps) const {
-    return _steps.get(steps);
+  [[nodiscard]] uint8_t getSteps() const {
+    return _steps.get();
   }
 
-  Status setSteps(uint8_t steps) {
-    uint8_t pulses;
-    auto status = _pulses.get(pulses);
-    if (status != Status::Ok) {
-      return status;
-    }
-    if (pulses > steps) {
-      status = _pulses.set(steps);
-      if (status != Status::Ok) {
-        return status;
-      }
-    }
-    return _steps.set(steps);
+  [[nodiscard]] double getStepsNormalized() const {
+    return _steps.getNormalized();
   }
 
-  Status getPulses(uint8_t& pulses) const {
-    return _pulses.get(pulses);
+  void setSteps(uint8_t steps) {
+    if (_pulses.get() > steps) {
+      _pulses.set(steps);
+    }
+    _steps.set(steps);
   }
 
-  Status setPulses(uint8_t pulses) {
-    uint8_t steps;
-    auto status = _steps.get(steps);
-    if (status != Status::Ok) {
-      return status;
+  void setStepsNormalized(double normalized) {
+    if (_pulses.getNormalized() > normalized) {
+      _pulses.setNormalized(normalized);
     }
-    if (pulses > steps) {
-      return Status::InvalidArgument;
+    _steps.setNormalized(normalized);
+  }
+
+  [[nodiscard]] uint8_t getPulses() const {
+    return _pulses.get();
+  }
+
+  [[nodiscard]] double getPulsesNormalized() const {
+    return _pulses.getNormalized();
+  }
+
+  void setPulses(uint8_t pulses) {
+    if (pulses > _steps.get()) {
+      return;
     }
-    return _pulses.set(pulses);
+    _pulses.set(pulses);
+  }
+
+  void setPulsesNormlized(double normalized) {
+    if (normalized > _steps.getNormalized()) {
+      return;
+    }
+    _pulses.setNormalized(normalized);
   }
 
   Status process(const TimeType&, const TimeType&) override {
-    uint8_t numSteps, numPulses;
-    auto status = _steps.get(numSteps);
-    if (status != Status::Ok) {
-      return status;
-    }
-    status = _pulses.get(numPulses);
-    if (status != Status::Ok) {
-      return status;
-    }
-
+    const auto steps = _steps.get();
+    const auto pulses = _pulses.get();
     MessageType msg;
     while (_in.popMessage(msg) == Status::Ok) {
-      if (stepIsOn(_currentStep, numSteps, numPulses)) {
-        status = _out.pushToConnections(msg);
+      if (stepIsOn(_currentStep % steps, steps, pulses)) {
+        const auto status = _out.pushToConnections(msg);
         if (status != Status::Ok) {
           return status;
         }
       }
-      _currentStep = (_currentStep + 1) % numSteps;
+      ++_currentStep;
     }
 
     return Status::Ok;
@@ -85,10 +89,10 @@ private:
     return (step * numPulses) % numSteps < numPulses;
   }
 
-  Param<uint8_t> _steps;
   Param<uint8_t> _pulses;
+  Param<uint8_t> _steps;
   InputType _in;
   OutputType _out;
-  uint8_t _currentStep{0};
+  size_t _currentStep{0};
 };
 }

@@ -11,36 +11,39 @@ public:
   using MessageType = Message<DataType, TimeType>;
   using OutputType = OutputPort<MessageType>;
 
-  explicit PulseNode(const TimeType& rateMin,
-                     const TimeType& rateMax,
-                     const TimeType& rateDefault,
-                     const TimeType& rateStep,
-                     const DataType& pulseData,
+  explicit PulseNode(const Param<TimeType>& rateParam,
                      size_t maxOutputConnections = 16) :
-                     _rate(rateMin, rateMax, rateDefault, rateStep),
-                     _pulseData(pulseData),
-                     _out(this, "out", maxOutputConnections) {
+      _rate(rateParam),
+      _out(this, "out", maxOutputConnections) {
     this->_outputs.push_back(&_out);
   }
 
-  bool getEnabled() const {
-    return _enabled;
+  [[nodiscard]] bool getEnabled() const {
+    return _enabled.get();
   }
 
   void setEnabled(bool enabled) {
-    _enabled = enabled;
+    _enabled.set(enabled);
   }
 
-  Status getRate(TimeType& rate) const {
-    return _rate.get(rate);
+  [[nodiscard]] TimeType getRate() const {
+    return _rate.get();
   }
 
-  Status setRate(TimeType rate) {
-    return _rate.set(rate);
+  [[nodiscard]] double getRateNormalized() const {
+    return _rate.getNormalized();
+  }
+
+  void setRate(const TimeType& rate) {
+    _rate.set(rate);
+  }
+
+  void setRateNormalized(double normalized) {
+    _rate.setNormalized(normalized);
   }
 
   Status process(const TimeType& now, const TimeType& deltaTime) override {
-    if (!_enabled) {
+    if (!_enabled.get()) {
       return Status::Ok;
     }
 
@@ -59,23 +62,19 @@ private:
   Status doPulse() {
     MessageType msg;
     msg.time = _nextPulse;
-    msg.data = _pulseData;
+    msg.data = _outputData;
     auto status = _out.pushToConnections(msg);
     if (status != Status::Ok) {
       return status;
     }
-    TimeType rate;
-    status = _rate.get(rate);
-    if (status != Status::Ok) {
-      return status;
-    }
+    TimeType rate = _rate.get();
     _nextPulse += rate;
     return Status::Ok;
   }
 
-  bool _enabled{false};
+  BoolParam _enabled{false};
   Param<TimeType> _rate;
-  const DataType _pulseData;
+  DataType _outputData{};
   TimeType _nextPulse{0};
   OutputType _out;
 };

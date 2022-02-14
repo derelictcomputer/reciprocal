@@ -17,6 +17,14 @@ public:
       _val(def) {
   }
 
+  Param(const Param& other) noexcept:
+      min(other.min),
+      max(other.max),
+      def(other.def),
+      step(other.step),
+      _val(other._val.load()) {
+  }
+
   /// Set the value.
   /// @param value The value to set. Will clamp and snap based on min, max, and step.
   void set(T value) {

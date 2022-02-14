@@ -14,7 +14,7 @@ TEST(Euclid, Output) {
   const uint8_t pulseDef = 4;
   const uint8_t stepDef = 16;
   Euclid<TimeType> euclid(rateMin, rateMax, rateDef, rateStep, stepDef, pulseDef);
-  ASSERT_EQ(euclid.setEnabled(true), Status::Ok);
+  euclid.setParamNormalized(Euclid<TimeType>::ParamId::Enable, 1);
 
   TimeType now{0};
   for (size_t i = 0; i < stepDef * 2; ++i) {
@@ -27,7 +27,6 @@ TEST(Euclid, Output) {
     else {
       ASSERT_EQ(status, Status::Ok);
       ASSERT_DOUBLE_EQ(now, msg.time);
-      ASSERT_TRUE(msg.data);
     }
     now += rateDef;
   }
@@ -103,7 +102,9 @@ TEST(EuclidNode, Throughput) {
   {
     const auto status = graph.addNode(
         [&euclidNode]() {
-          euclidNode = new EuclidNode<TimeType, DataType>(8, 16, 16, 1);
+          Param<uint8_t> pulsesParam{1, 16, 8, 1};
+          Param<uint8_t> stepsParam{1, 16, 16, 1};
+          euclidNode = new EuclidNode<TimeType, DataType>(pulsesParam, stepsParam, 16, 1);
           return euclidNode;
         },
         [&euclidNodeId](Status status, NodeId id) {
@@ -161,8 +162,8 @@ TEST(EuclidNode, Throughput) {
   // push some pulses to the euclid node, expect to get the filtered output
   const uint8_t numPulses = 4;
   const uint8_t numSteps = 8;
-  ASSERT_EQ(euclidNode->setPulses(numPulses), Status::Ok);
-  ASSERT_EQ(euclidNode->setSteps(numSteps), Status::Ok);
+  euclidNode->setPulses(numPulses);
+  euclidNode->setSteps(numSteps);
   TimeType now{0};
   const TimeType interval{2};
   for (size_t i = 0; i < numSteps * 2; ++i) {
@@ -199,7 +200,8 @@ TEST(PulseNode, Output) {
   {
     const auto status = graph.addNode(
         [min, max, def, step, &pulseNode]() {
-          pulseNode = new PulseNode<TimeType, DataType>(min, max, def, step, true, maxOutputConnections);
+          Param<TimeType> rateParam{min, max, def, step};
+          pulseNode = new PulseNode<TimeType, DataType>(rateParam, maxOutputConnections);
           return pulseNode;
         },
         [&pulseNodeId](Status status, NodeId nodeId) {
@@ -255,13 +257,12 @@ TEST(PulseNode, Output) {
   // start the pulse and process, expect all the passthrough nodes to get a pulse
   auto now = TimeType(0);
   pulseNode->setEnabled(true);
-  ASSERT_EQ(pulseNode->setRate(rate), Status::Ok);
+  pulseNode->setRate(rate);
   for (size_t i = 0; i < 16; ++i) {
     ASSERT_EQ(graph.process(rate), Status::Ok);
     for (auto& info: passthroughNodes) {
       Message<DataType, TimeType> msg;
       ASSERT_EQ(info.node->popMessage(msg), Status::Ok);
-      ASSERT_TRUE(msg.data);
       ASSERT_DOUBLE_EQ(msg.time, now);
     }
     now += rate;
