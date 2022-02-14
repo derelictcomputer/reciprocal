@@ -10,7 +10,7 @@ else()
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(dagnabbit PUBLIC -fconcepts)
+    target_compile_options(core PUBLIC -fconcepts)
 endif()
 
 # tests
