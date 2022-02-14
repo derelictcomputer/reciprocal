@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644679805083,
+  "lastUpdate": 1644872113955,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -968,6 +968,54 @@ window.BENCHMARK_DATA = {
             "value": 32197.611504832512,
             "unit": "ns/iter",
             "extra": "iterations: 21730\ncpu: 32196.971928209852 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "79a85a77f3ccb0acf2dc9f0a897e6bbb164fe993",
+          "message": "euclidean sequencer (#35)\n\n* add pulse node to drive euclidean sequencer\r\n\r\n* add euclid tests to test runs\r\n\r\n* implement euclid node\r\n\r\n* * move PassthroughNode into core lib, it is useful for non-dev things\r\n* implement main Euclid module/graph\r\n\r\n* wire up params\r\n\r\n* wrap euclid for VST3 (does not quite work yet)\r\n\r\n* got rhythm/params working, still issues when stopping and starting transport\r\n\r\n* start/stop working, still gets out of phase with transport\r\n\r\n* make params a little simpler to work with\r\n\r\n* get/set normalized for params\r\n\r\n* add normalized param interface\r\n\r\n* phase lock pulse, fix some bugs\r\n\r\n* build euclid VST3 on PR review and main merge\r\n\r\n* sample accurate note scheduling",
+          "timestamp": "2022-02-14T15:54:15-05:00",
+          "tree_id": "45fd70034703b674a3e840b670524c69787874f0",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/79a85a77f3ccb0acf2dc9f0a897e6bbb164fe993"
+        },
+        "date": 1644872112349,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 112086.6305886103,
+            "unit": "ns/iter",
+            "extra": "iterations: 6218\ncpu: 112017.41717594082 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 16106.409751944258,
+            "unit": "ns/iter",
+            "extra": "iterations: 43458\ncpu: 16105.626121772752 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 25616.5391937909,
+            "unit": "ns/iter",
+            "extra": "iterations: 27313\ncpu: 25616.669717716828 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 32160.164322486162,
+            "unit": "ns/iter",
+            "extra": "iterations: 21756\ncpu: 32159.468652325802 ns\nthreads: 1"
           }
         ]
       }
