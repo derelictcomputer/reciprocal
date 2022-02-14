@@ -1,0 +1,82 @@
+name: BuildVST3
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [review_requested]
+
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+        build_type: [Release]
+        target: [euclid_vst3]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    env:
+      BUILD_DIR: ${{github.workspace}}/build/vst3/${{matrix.build_type}}
+      ARTIFACT_NAME: ${{matrix.target}}-${{matrix.os}}-${{matrix.build_type}}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install Provisioning Profile and Certificate
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{secrets.MACOS_CERT}}
+          P12_PASSWORD: ${{secrets.MACOS_CERT_PW}}
+          BUILD_PROVISION_PROFILE_BASE64: ${{secrets.MACOS_PP}}
+          KEYCHAIN_PASSWORD: ${{secrets.MACOS_TMP_KEYCHAIN_PW}}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode --output $PP_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DDC_EUCLID_VST3=ON -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --target ${{matrix.target}}
+
+      - name: Sign
+        run: /usr/bin/codesign -s "Developer ID Application" ${{env.BUILD_DIR}}/${{matrix.target}}.vst3 -v
+
+      - name: Run Validator
+        run: ${{github.workspace}}/build/bin/${{matrix.build_type}}/validator ${{env.BUILD_DIR}}/${{matrix.target}}.vst3
+
+      - name: Archive
+        run: tar -cvf ${{env.ARTIFACT_NAME}}.tar -C ${{env.BUILD_DIR}} ${{matrix.target}}.vst3
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.ARTIFACT_NAME}}
+          path: ${{env.ARTIFACT_NAME}}.tar
+          retention-days: 5
