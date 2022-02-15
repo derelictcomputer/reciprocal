@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644881539864,
+  "lastUpdate": 1644929257429,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -1088,6 +1088,78 @@ window.BENCHMARK_DATA = {
             "value": 32231.299990836702,
             "unit": "ns/iter",
             "extra": "iterations: 21824\ncpu: 32227.611803519074 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "distinct": true,
+          "id": "e9d6a697cbd572131770f78f72d9d4f9810a84eb",
+          "message": "fix issue with wrong size data alloc, detected in other repo",
+          "timestamp": "2022-02-15T07:46:26-05:00",
+          "tree_id": "164c33586ddacb3f0a41da74e2832ffb5af991bf",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/e9d6a697cbd572131770f78f72d9d4f9810a84eb"
+        },
+        "date": 1644929255725,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 112022.86422136475,
+            "unit": "ns/iter",
+            "extra": "iterations: 6216\ncpu: 112006.09716859719 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint8_t>",
+            "value": 73.88960206964626,
+            "unit": "ns/iter",
+            "extra": "iterations: 9466355\ncpu: 73.88860865665825 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint16_t>",
+            "value": 248.0975709444725,
+            "unit": "ns/iter",
+            "extra": "iterations: 2757368\ncpu: 248.0926738832104 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint32_t>",
+            "value": 106.7320190506143,
+            "unit": "ns/iter",
+            "extra": "iterations: 6557899\ncpu: 106.73276608865122 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint64_t>",
+            "value": 124.83811063150682,
+            "unit": "ns/iter",
+            "extra": "iterations: 5607842\ncpu: 124.83470468675822 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 15282.410666317248,
+            "unit": "ns/iter",
+            "extra": "iterations: 45789\ncpu: 15281.890847146697 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 25638.832662617504,
+            "unit": "ns/iter",
+            "extra": "iterations: 27334\ncpu: 25637.69298309798 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 31913.88111824439,
+            "unit": "ns/iter",
+            "extra": "iterations: 21963\ncpu: 31908.81937804487 ns\nthreads: 1"
           }
         ]
       }
