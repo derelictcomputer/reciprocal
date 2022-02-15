@@ -10,7 +10,7 @@ namespace dc {
 template<class T>
 class SPSCQ {
 public:
-  explicit SPSCQ(size_t capacity) : capacity(nextPowerOfTwo(capacity)), _data(new T[capacity]) {}
+  explicit SPSCQ(size_t capacity) : capacity(nextPowerOfTwo(capacity)), _data(new T[this->capacity]) {}
 
   constexpr size_t mod(size_t i) {
     return i & (capacity - 1);
