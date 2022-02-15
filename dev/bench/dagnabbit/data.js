@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644881535650,
+  "lastUpdate": 1644929259116,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -240,6 +240,54 @@ window.BENCHMARK_DATA = {
             "value": 11.259991389788533,
             "unit": "ns/iter",
             "extra": "iterations: 62620993\ncpu: 11.25922420297615 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "charlie.huguenard@gmail.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "distinct": true,
+          "id": "e9d6a697cbd572131770f78f72d9d4f9810a84eb",
+          "message": "fix issue with wrong size data alloc, detected in other repo",
+          "timestamp": "2022-02-15T07:46:26-05:00",
+          "tree_id": "164c33586ddacb3f0a41da74e2832ffb5af991bf",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/e9d6a697cbd572131770f78f72d9d4f9810a84eb"
+        },
+        "date": 1644929256490,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemove<double>",
+            "value": 387.51433531436055,
+            "unit": "ns/iter",
+            "extra": "iterations: 1805297\ncpu: 387.469097882509 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double>",
+            "value": 158.73022418862098,
+            "unit": "ns/iter",
+            "extra": "iterations: 4405799\ncpu: 158.71293719935935 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_Process_PassthroughChain<double, double, 64>",
+            "value": 2158.210191082807,
+            "unit": "ns/iter",
+            "extra": "iterations: 325304\ncpu: 2158.064456631336 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double>",
+            "value": 13.161195514366728,
+            "unit": "ns/iter",
+            "extra": "iterations: 53209967\ncpu: 13.159572153089291 ns\nthreads: 1"
           }
         ]
       }
