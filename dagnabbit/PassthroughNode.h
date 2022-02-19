@@ -9,25 +9,23 @@ template<class DataType, class TimeType>
 class PassthroughNode : public Node<TimeType> {
 public:
   using MessageType = Message<DataType, TimeType>;
-  using InputPortType = InputPort<MessageType>;
-  using OutputPortType = OutputPort<MessageType>;
 
-  PassthroughNode(size_t queueSize, size_t maxOutputConnections) {
-    _input = NodeBase::addInputPort<MessageType>("in", queueSize);
-    assert(_input != nullptr);
-    _output = NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
-    assert(_output != nullptr);
+  PassthroughNode(size_t queueSize, size_t maxOutputConnections) : _outputQ(queueSize) {
+    NodeBase::addInputPort<MessageType>("in", queueSize);
+    NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
   }
 
   Status process(const TimeType&, const TimeType&) override {
-    if (_output->getNumConnections() == 0) {
-      return Status::Ok;
-    }
-
     MessageType msg;
-    while (popMessage(msg) == Status::Ok) {
-      const auto status = _output->pushToConnections(msg);
-      if (status != Status::Ok) {
+    while (NodeBase::popInputMessage(0, msg) == Status::Ok) {
+      auto status = NodeBase::pushOutputMessage(0, msg);
+      if (status == Status::NoConnection) {
+        status = _outputQ.push(msg);
+        if (status != Status::Ok) {
+          return status;
+        }
+      }
+      else if (status != Status::Ok) {
         return status;
       }
     }
@@ -35,15 +33,14 @@ public:
   }
 
   Status pushMessage(const MessageType& msg) {
-    return _input->pushMessage(msg);
+    return NodeBase::pushInputMessage(0, msg);
   }
 
   Status popMessage(MessageType& msg) {
-    return _input->popMessage(msg);
+    return _outputQ.pop(msg);
   }
 
 private:
-  InputPortType* _input;
-  OutputPortType* _output;
+  SPSCQ<MessageType> _outputQ;
 };
 }

@@ -38,17 +38,55 @@ public:
 
 protected:
   template<class MessageType>
-  InputPort<MessageType>* addInputPort(std::string&& prettyName, size_t queueSize) {
-    auto port = new InputPort<MessageType>(this, std::move(prettyName), queueSize);
-    _inputs.emplace_back(port);
-    return port;
+  void addInputPort(std::string&& prettyName, size_t queueSize) {
+    _inputs.emplace_back(std::make_unique<InputPort<MessageType>>(this, std::move(prettyName), queueSize));
   }
 
   template<class MessageType>
-  OutputPort<MessageType>* addOutputPort(std::string&& prettyName, size_t maxConnections) {
-    auto port = new OutputPort<MessageType>(this, std::move(prettyName), maxConnections);
-    _outputs.emplace_back(port);
-    return port;
+  Status pushInputMessage(size_t portIndex, const MessageType& msg) {
+    if (portIndex >= _inputs.size()) {
+      return Status::OutOfRange;
+    }
+    auto p = dynamic_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
+    if (p == nullptr) {
+      return Status::InvalidArgument;
+    }
+    return p->pushMessage(msg);
+  }
+
+  template<class MessageType>
+  Status popInputMessage(size_t portIndex, MessageType& msg) {
+    if (portIndex >= _inputs.size()) {
+      return Status::OutOfRange;
+    }
+    auto p = dynamic_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
+    if (p == nullptr) {
+      return Status::InvalidArgument;
+    }
+    return p->popMessage(msg);
+  }
+
+  template<class MessageType>
+  void addOutputPort(std::string&& prettyName, size_t maxConnections) {
+    _outputs.emplace_back(std::make_unique<OutputPort<MessageType>>(this, std::move(prettyName), maxConnections));
+  }
+
+  template<class MessageType>
+  Status pushOutputMessage(size_t portIndex, const MessageType& msg) {
+    if (portIndex >= _outputs.size()) {
+      return Status::OutOfRange;
+    }
+
+    auto p = dynamic_cast<OutputPort<MessageType>*>(_outputs[portIndex].get());
+    if (p == nullptr) {
+      return Status::InvalidArgument;
+    }
+
+    if (p->getNumConnections() == 0) {
+      return Status::NoConnection;
+    }
+
+    return p->pushToConnections(msg);
   }
 
 private:
