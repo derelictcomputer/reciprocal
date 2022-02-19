@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644929257429,
+  "lastUpdate": 1645306812261,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -1160,6 +1160,78 @@ window.BENCHMARK_DATA = {
             "value": 31913.88111824439,
             "unit": "ns/iter",
             "extra": "iterations: 21963\ncpu: 31908.81937804487 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cac00d6b0584773f4d7e4af85bdcadd79a9083d7",
+          "message": "Port UX improvement (#42)\n\n* have NodeBase manage Port lifecycle\r\n\r\n* remove need for storing ports on concrete node classes\r\n\r\n* speed up passthrough chain with num connections check and static_cast instead of dynamic_cast",
+          "timestamp": "2022-02-19T16:39:10-05:00",
+          "tree_id": "ce68a98e003416a8899f5d4b62ee6842f9cc6f81",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/cac00d6b0584773f4d7e4af85bdcadd79a9083d7"
+        },
+        "date": 1645306810816,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 112201.7562094603,
+            "unit": "ns/iter",
+            "extra": "iterations: 6321\ncpu: 112050.75146337604 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint8_t>",
+            "value": 63.55537134282003,
+            "unit": "ns/iter",
+            "extra": "iterations: 11013233\ncpu: 63.54964069133921 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint16_t>",
+            "value": 207.092153995161,
+            "unit": "ns/iter",
+            "extra": "iterations: 3308104\ncpu: 207.07048508753047 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint32_t>",
+            "value": 95.17805014579315,
+            "unit": "ns/iter",
+            "extra": "iterations: 7351165\ncpu: 95.17611154150394 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint64_t>",
+            "value": 110.99289980520709,
+            "unit": "ns/iter",
+            "extra": "iterations: 6308841\ncpu: 110.98678822306663 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 11333.007674870483,
+            "unit": "ns/iter",
+            "extra": "iterations: 61760\ncpu: 11332.208549222805 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24667.70771502933,
+            "unit": "ns/iter",
+            "extra": "iterations: 28438\ncpu: 24666.087629228485 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 40861.612119798076,
+            "unit": "ns/iter",
+            "extra": "iterations: 17129\ncpu: 40855.75923871794 ns\nthreads: 1"
           }
         ]
       }
