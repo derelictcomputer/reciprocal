@@ -37,17 +37,69 @@ public:
   Status disconnectInput(NodeBase& outputNode, size_t outputIndex, size_t inputIndex);
 
 protected:
-  std::vector<PortBase*> _inputs;
-  std::vector<PortBase*> _outputs;
+  template<class MessageType>
+  void addInputPort(std::string&& prettyName, size_t queueSize) {
+    _inputs.emplace_back(std::make_unique<InputPort<MessageType>>(this, std::move(prettyName), queueSize));
+  }
+
+  template<class MessageType>
+  Status pushInputMessage(size_t portIndex, const MessageType& msg) {
+    if (portIndex >= _inputs.size()) {
+      return Status::OutOfRange;
+    }
+    auto p = static_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
+    return p->pushMessage(msg);
+  }
+
+  template<class MessageType>
+  Status popInputMessage(size_t portIndex, MessageType& msg) {
+    if (portIndex >= _inputs.size()) {
+      return Status::OutOfRange;
+    }
+    auto p = static_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
+    return p->popMessage(msg);
+  }
+
+  template<class MessageType>
+  void addOutputPort(std::string&& prettyName, size_t maxConnections) {
+    _outputs.emplace_back(std::make_unique<OutputPort<MessageType>>(this, std::move(prettyName), maxConnections));
+  }
+
+  Status getNumOutputConnections(size_t portIndex, size_t& numConnections) {
+    if (portIndex >= _outputs.size()) {
+      return Status::OutOfRange;
+    }
+    numConnections = _outputs[portIndex]->getNumConnections();
+    return Status::Ok;
+  }
+
+  template<class MessageType>
+  Status pushOutputMessage(size_t portIndex, const MessageType& msg) {
+    if (portIndex >= _outputs.size()) {
+      return Status::OutOfRange;
+    }
+
+    auto p = static_cast<OutputPort<MessageType>*>(_outputs[portIndex].get());
+
+    if (p->getNumConnections() == 0) {
+      return Status::NoConnection;
+    }
+
+    return p->pushToConnections(msg);
+  }
 
 private:
   // Let the owning graph look at ports/connections
   // so we don't have to write a complicated API for topological sorting.
-  template<class TimeType> friend class Graph;
+  template<class TimeType> friend
+  class Graph;
 
   // Used by the Graph to sort nodes
   bool _visited;
   NodeId _id{InvalidNodeId};
+
+  std::vector<std::unique_ptr<PortBase>> _inputs;
+  std::vector<std::unique_ptr<PortBase>> _outputs;
 };
 
 template<class TimeType>

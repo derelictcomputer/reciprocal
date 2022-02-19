@@ -267,7 +267,7 @@ private:
 
     node->_visited = true;
 
-    for (auto output: node->_outputs) {
+    for (auto& output: node->_outputs) {
       for (size_t i = 0; i < output->getNumConnections(); ++i) {
         PortBase* connection;
         auto status = output->getConnection(i, connection);

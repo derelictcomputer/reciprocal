@@ -11,8 +11,8 @@ Status NodeBase::connectInput(NodeBase& outputNode, size_t outputIndex, size_t i
     return Status::OutOfRange;
   }
 
-  auto outputPort = outputNode._outputs[outputIndex];
-  auto inputPort = _inputs[inputIndex];
+  auto outputPort = outputNode._outputs[outputIndex].get();
+  auto inputPort = _inputs[inputIndex].get();
 
   return outputPort->connect(inputPort);
 }
@@ -22,8 +22,8 @@ Status NodeBase::disconnectInput(NodeBase& outputNode, size_t outputIndex, size_
     return Status::OutOfRange;
   }
 
-  auto outputPort = outputNode._outputs[outputIndex];
-  auto inputPort = _inputs[inputIndex];
+  auto outputPort = outputNode._outputs[outputIndex].get();
+  auto inputPort = _inputs[inputIndex].get();
 
   return outputPort->disconnect(inputPort);
 }

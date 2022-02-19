@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include "Message.h"
 #include "Node.h"
 
@@ -8,26 +9,28 @@ template<class DataType, class TimeType>
 class PassthroughNode : public Node<TimeType> {
 public:
   using MessageType = Message<DataType, TimeType>;
-  using InputPortType = InputPort<MessageType>;
-  using OutputPortType = OutputPort<MessageType>;
 
-  PassthroughNode(size_t queueSize, size_t maxOutputConnections) :
-      _input(this, "in", queueSize),
-      _output(this, "out", maxOutputConnections) {
-    // input
-    this->_inputs.push_back(&_input);
-    // output
-    this->_outputs.push_back(&_output);
+  PassthroughNode(size_t queueSize, size_t maxOutputConnections) {
+    NodeBase::addInputPort<MessageType>("in", queueSize);
+    NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
   }
 
   Status process(const TimeType&, const TimeType&) override {
-    if (_output.getNumConnections() == 0) {
-      return Status::Ok;
+    // skip if no output connections
+    {
+      size_t numConnections;
+      const auto status = NodeBase::getNumOutputConnections(0, numConnections);
+      if (status != Status::Ok) {
+        return status;
+      }
+      if (numConnections == 0) {
+        return Status::Ok;
+      }
     }
 
     MessageType msg;
-    while (popMessage(msg) == Status::Ok) {
-      const auto status = _output.pushToConnections(msg);
+    while (NodeBase::popInputMessage(0, msg) == Status::Ok) {
+      auto status = NodeBase::pushOutputMessage(0, msg);
       if (status != Status::Ok) {
         return status;
       }
@@ -36,15 +39,11 @@ public:
   }
 
   Status pushMessage(const MessageType& msg) {
-    return _input.pushMessage(msg);
+    return NodeBase::pushInputMessage(0, msg);
   }
 
   Status popMessage(MessageType& msg) {
-    return _input.popMessage(msg);
+    return NodeBase::popInputMessage(0, msg);
   }
-
-private:
-  InputPortType _input;
-  OutputPortType _output;
 };
 }

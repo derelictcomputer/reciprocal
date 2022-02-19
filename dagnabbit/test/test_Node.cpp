@@ -14,6 +14,7 @@ TEST(Node, PassthroughNode) {
   msgIn.data = 123.43f;
   msgIn.time = 8787.9f;
   ASSERT_EQ(node.pushMessage(msgIn), Status::Ok);
+  ASSERT_EQ(node.process(0, 0), Status::Ok);
   NodeType::MessageType msgOut;
   ASSERT_EQ(node.popMessage(msgOut), Status::Ok);
   ASSERT_FLOAT_EQ(msgOut.time, msgIn.time);
@@ -26,6 +27,7 @@ TEST(Node, PassthroughNode) {
   msgIn.time = 1452234.12f;
   ASSERT_EQ(node.pushMessage(msgIn), Status::Ok);
   ASSERT_EQ(node.process(0, 0), Status::Ok);
+  ASSERT_EQ(node2.process(0, 0), Status::Ok);
   ASSERT_EQ(node2.popMessage(msgOut), Status::Ok);
   ASSERT_FLOAT_EQ(msgOut.time, msgIn.time);
   ASSERT_FLOAT_EQ(msgOut.data, msgOut.data);

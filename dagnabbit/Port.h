@@ -121,11 +121,7 @@ public:
   /// @returns Status::Ok or appropriate error.
   Status pushToConnections(const MessageType& msg) {
     for (auto c: _connections) {
-      auto inPort = dynamic_cast<InputPort<MessageType>*>(c);
-      if (inPort == nullptr) {
-        return Status::Fail;
-      }
-
+      auto inPort = static_cast<InputPort<MessageType>*>(c);
       const auto status = inPort->pushMessage(msg);
       if (status != Status::Ok) {
         return status;

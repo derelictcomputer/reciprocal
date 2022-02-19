@@ -13,7 +13,8 @@ X(NotFound)           \
 X(OutOfRange)         \
 X(NotImplemented)     \
 X(InvalidArgument)    \
-X(NotInitialized)
+X(NotInitialized)     \
+X(NoConnection)
 
 enum class Status {
 #define X(name) name,
