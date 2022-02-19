@@ -16,11 +16,11 @@ public:
                       size_t queueSize,
                       size_t maxOutputConnections) :
       _pulses(pulsesParam),
-      _steps(stepsParam),
-      _in(this, "in", queueSize),
-      _out(this, "out", maxOutputConnections) {
-    this->_inputs.push_back(&_in);
-    this->_outputs.push_back(&_out);
+      _steps(stepsParam) {
+    _in = NodeBase::addInputPort<MessageType>("in", queueSize);
+    assert(_in != nullptr);
+    _out = NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
+    assert(_out != nullptr);
   }
 
   void reset() {
@@ -75,9 +75,9 @@ public:
     const auto steps = _steps.get();
     const auto pulses = _pulses.get();
     MessageType msg;
-    while (_in.popMessage(msg) == Status::Ok) {
+    while (_in->popMessage(msg) == Status::Ok) {
       if (stepIsOn(_currentStep % steps, steps, pulses)) {
-        const auto status = _out.pushToConnections(msg);
+        const auto status = _out->pushToConnections(msg);
         if (status != Status::Ok) {
           return status;
         }
@@ -95,8 +95,8 @@ private:
 
   Param<uint8_t> _pulses;
   Param<uint8_t> _steps;
-  InputType _in;
-  OutputType _out;
+  InputType* _in;
+  OutputType* _out;
   size_t _currentStep{0};
 };
 }

@@ -37,17 +37,32 @@ public:
   Status disconnectInput(NodeBase& outputNode, size_t outputIndex, size_t inputIndex);
 
 protected:
-  std::vector<PortBase*> _inputs;
-  std::vector<PortBase*> _outputs;
+  template<class MessageType>
+  InputPort<MessageType>* addInputPort(std::string&& prettyName, size_t queueSize) {
+    auto port = new InputPort<MessageType>(this, std::move(prettyName), queueSize);
+    _inputs.emplace_back(port);
+    return port;
+  }
+
+  template<class MessageType>
+  OutputPort<MessageType>* addOutputPort(std::string&& prettyName, size_t maxConnections) {
+    auto port = new OutputPort<MessageType>(this, std::move(prettyName), maxConnections);
+    _outputs.emplace_back(port);
+    return port;
+  }
 
 private:
   // Let the owning graph look at ports/connections
   // so we don't have to write a complicated API for topological sorting.
-  template<class TimeType> friend class Graph;
+  template<class TimeType> friend
+  class Graph;
 
   // Used by the Graph to sort nodes
   bool _visited;
   NodeId _id{InvalidNodeId};
+
+  std::vector<std::unique_ptr<PortBase>> _inputs;
+  std::vector<std::unique_ptr<PortBase>> _outputs;
 };
 
 template<class TimeType>

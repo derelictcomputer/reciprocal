@@ -11,11 +11,10 @@ public:
   using MessageType = Message<DataType, TimeType>;
   using OutputType = OutputPort<MessageType>;
 
-  explicit PulseNode(const Param<TimeType>& rateParam,
-                     size_t maxOutputConnections = 16) :
-      _rate(rateParam),
-      _out(this, "out", maxOutputConnections) {
-    this->_outputs.push_back(&_out);
+  explicit PulseNode(const Param <TimeType>& rateParam, size_t maxOutputConnections = 16) :
+      _rate(rateParam) {
+    _out = NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
+    assert(_out != nullptr);
   }
 
   [[nodiscard]] bool getEnabled() const {
@@ -57,7 +56,7 @@ public:
     msg.data = _outputData;
     while (nextPulseTime < endTime) {
       msg.time = nextPulseTime;
-      const auto status = _out.pushToConnections(msg);
+      const auto status = _out->pushToConnections(msg);
       if (status != Status::Ok) {
         return status;
       }
@@ -71,6 +70,6 @@ private:
   BoolParam _enabled{false};
   Param<TimeType> _rate;
   DataType _outputData{};
-  OutputType _out;
+  OutputType* _out;
 };
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include "Message.h"
 #include "Node.h"
 
@@ -11,23 +12,21 @@ public:
   using InputPortType = InputPort<MessageType>;
   using OutputPortType = OutputPort<MessageType>;
 
-  PassthroughNode(size_t queueSize, size_t maxOutputConnections) :
-      _input(this, "in", queueSize),
-      _output(this, "out", maxOutputConnections) {
-    // input
-    this->_inputs.push_back(&_input);
-    // output
-    this->_outputs.push_back(&_output);
+  PassthroughNode(size_t queueSize, size_t maxOutputConnections) {
+    _input = NodeBase::addInputPort<MessageType>("in", queueSize);
+    assert(_input != nullptr);
+    _output = NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
+    assert(_output != nullptr);
   }
 
   Status process(const TimeType&, const TimeType&) override {
-    if (_output.getNumConnections() == 0) {
+    if (_output->getNumConnections() == 0) {
       return Status::Ok;
     }
 
     MessageType msg;
     while (popMessage(msg) == Status::Ok) {
-      const auto status = _output.pushToConnections(msg);
+      const auto status = _output->pushToConnections(msg);
       if (status != Status::Ok) {
         return status;
       }
@@ -36,15 +35,15 @@ public:
   }
 
   Status pushMessage(const MessageType& msg) {
-    return _input.pushMessage(msg);
+    return _input->pushMessage(msg);
   }
 
   Status popMessage(MessageType& msg) {
-    return _input.popMessage(msg);
+    return _input->popMessage(msg);
   }
 
 private:
-  InputPortType _input;
-  OutputPortType _output;
+  InputPortType* _input;
+  OutputPortType* _output;
 };
 }
