@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644929259116,
+  "lastUpdate": 1645306811162,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -288,6 +288,54 @@ window.BENCHMARK_DATA = {
             "value": 13.161195514366728,
             "unit": "ns/iter",
             "extra": "iterations: 53209967\ncpu: 13.159572153089291 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cac00d6b0584773f4d7e4af85bdcadd79a9083d7",
+          "message": "Port UX improvement (#42)\n\n* have NodeBase manage Port lifecycle\r\n\r\n* remove need for storing ports on concrete node classes\r\n\r\n* speed up passthrough chain with num connections check and static_cast instead of dynamic_cast",
+          "timestamp": "2022-02-19T16:39:10-05:00",
+          "tree_id": "ce68a98e003416a8899f5d4b62ee6842f9cc6f81",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/cac00d6b0584773f4d7e4af85bdcadd79a9083d7"
+        },
+        "date": 1645306809838,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemove<double>",
+            "value": 405.22855076321827,
+            "unit": "ns/iter",
+            "extra": "iterations: 1728220\ncpu: 405.17370473666546 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double>",
+            "value": 159.43441704864665,
+            "unit": "ns/iter",
+            "extra": "iterations: 4397065\ncpu: 159.22279975392672 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_Process_PassthroughChain<double, double, 64>",
+            "value": 1925.9752069888823,
+            "unit": "ns/iter",
+            "extra": "iterations: 372363\ncpu: 1925.5022652626596 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double>",
+            "value": 11.337190759087513,
+            "unit": "ns/iter",
+            "extra": "iterations: 61930680\ncpu: 11.336629922358354 ns\nthreads: 1"
           }
         ]
       }
