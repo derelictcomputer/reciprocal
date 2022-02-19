@@ -195,6 +195,13 @@ public:
     return pushAsync(std::move(async));
   }
 
+  /// Reset the nodes in the graph. What that means is up to each node.
+  void reset() {
+    for (auto& [_, node] : _nodes) {
+      node->reset();
+    }
+  }
+
   /// Update the graph's state and process its nodes
   Status process(const TimeType& deltaTime = TimeType(0)) {
     const auto status = process(_now, deltaTime);

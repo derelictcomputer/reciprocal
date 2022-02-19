@@ -36,6 +36,9 @@ public:
   /// @returns Status::Ok or appropriate error.
   Status disconnectInput(NodeBase& outputNode, size_t outputIndex, size_t inputIndex);
 
+  /// Reset the node's internal state.
+  virtual void reset() {}
+
 protected:
   template<class MessageType>
   void addInputPort(std::string&& prettyName, size_t queueSize) {

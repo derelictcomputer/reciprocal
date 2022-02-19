@@ -19,7 +19,7 @@ public:
     NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
   }
 
-  void reset() {
+  void reset() override {
     _currentStep = 0;
   }
 
