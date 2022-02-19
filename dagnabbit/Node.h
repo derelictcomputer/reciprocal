@@ -47,10 +47,7 @@ protected:
     if (portIndex >= _inputs.size()) {
       return Status::OutOfRange;
     }
-    auto p = dynamic_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
-    if (p == nullptr) {
-      return Status::InvalidArgument;
-    }
+    auto p = static_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
     return p->pushMessage(msg);
   }
 
@@ -59,10 +56,7 @@ protected:
     if (portIndex >= _inputs.size()) {
       return Status::OutOfRange;
     }
-    auto p = dynamic_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
-    if (p == nullptr) {
-      return Status::InvalidArgument;
-    }
+    auto p = static_cast<InputPort<MessageType>*>(_inputs[portIndex].get());
     return p->popMessage(msg);
   }
 
@@ -71,16 +65,21 @@ protected:
     _outputs.emplace_back(std::make_unique<OutputPort<MessageType>>(this, std::move(prettyName), maxConnections));
   }
 
+  Status getNumOutputConnections(size_t portIndex, size_t& numConnections) {
+    if (portIndex >= _outputs.size()) {
+      return Status::OutOfRange;
+    }
+    numConnections = _outputs[portIndex]->getNumConnections();
+    return Status::Ok;
+  }
+
   template<class MessageType>
   Status pushOutputMessage(size_t portIndex, const MessageType& msg) {
     if (portIndex >= _outputs.size()) {
       return Status::OutOfRange;
     }
 
-    auto p = dynamic_cast<OutputPort<MessageType>*>(_outputs[portIndex].get());
-    if (p == nullptr) {
-      return Status::InvalidArgument;
-    }
+    auto p = static_cast<OutputPort<MessageType>*>(_outputs[portIndex].get());
 
     if (p->getNumConnections() == 0) {
       return Status::NoConnection;

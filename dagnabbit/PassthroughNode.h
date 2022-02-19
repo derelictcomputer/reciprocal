@@ -10,22 +10,28 @@ class PassthroughNode : public Node<TimeType> {
 public:
   using MessageType = Message<DataType, TimeType>;
 
-  PassthroughNode(size_t queueSize, size_t maxOutputConnections) : _outputQ(queueSize) {
+  PassthroughNode(size_t queueSize, size_t maxOutputConnections) {
     NodeBase::addInputPort<MessageType>("in", queueSize);
     NodeBase::addOutputPort<MessageType>("out", maxOutputConnections);
   }
 
   Status process(const TimeType&, const TimeType&) override {
+    // skip if no output connections
+    {
+      size_t numConnections;
+      const auto status = NodeBase::getNumOutputConnections(0, numConnections);
+      if (status != Status::Ok) {
+        return status;
+      }
+      if (numConnections == 0) {
+        return Status::Ok;
+      }
+    }
+
     MessageType msg;
     while (NodeBase::popInputMessage(0, msg) == Status::Ok) {
       auto status = NodeBase::pushOutputMessage(0, msg);
-      if (status == Status::NoConnection) {
-        status = _outputQ.push(msg);
-        if (status != Status::Ok) {
-          return status;
-        }
-      }
-      else if (status != Status::Ok) {
+      if (status != Status::Ok) {
         return status;
       }
     }
@@ -37,10 +43,7 @@ public:
   }
 
   Status popMessage(MessageType& msg) {
-    return _outputQ.pop(msg);
+    return NodeBase::popInputMessage(0, msg);
   }
-
-private:
-  SPSCQ<MessageType> _outputQ;
 };
 }
