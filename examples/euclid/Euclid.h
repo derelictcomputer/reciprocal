@@ -77,12 +77,6 @@ public:
     assert(internalStatus == Status::Ok);
   }
 
-  void reset() {
-    if (_euclidNode != nullptr) {
-      _euclidNode->reset();
-    }
-  }
-
   enum class ParamId {
     Enable,
     Rate,
