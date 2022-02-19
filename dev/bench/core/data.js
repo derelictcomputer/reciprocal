@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1645306812261,
+  "lastUpdate": 1645307788579,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -1232,6 +1232,78 @@ window.BENCHMARK_DATA = {
             "value": 40861.612119798076,
             "unit": "ns/iter",
             "extra": "iterations: 17129\ncpu: 40855.75923871794 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3e48de09e460052c4dc2ef09dc34fb41d47d0052",
+          "message": "add reset interface to graph and node (#43)",
+          "timestamp": "2022-02-19T16:55:25-05:00",
+          "tree_id": "3ee864aaceed3de84667c7b85a81092a2e36aadf",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/3e48de09e460052c4dc2ef09dc34fb41d47d0052"
+        },
+        "date": 1645307787345,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "LFPool_AcquireReleaseAll",
+            "value": 113693.87794508364,
+            "unit": "ns/iter",
+            "extra": "iterations: 5645\ncpu: 113670.25686448184 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint8_t>",
+            "value": 63.596138188289366,
+            "unit": "ns/iter",
+            "extra": "iterations: 11010687\ncpu: 63.590991188833186 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint16_t>",
+            "value": 200.2036483346508,
+            "unit": "ns/iter",
+            "extra": "iterations: 3442557\ncpu: 200.1994447731729 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint32_t>",
+            "value": 95.26312649075354,
+            "unit": "ns/iter",
+            "extra": "iterations: 7344023\ncpu: 95.23456013141569 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint64_t>",
+            "value": 111.08258704241553,
+            "unit": "ns/iter",
+            "extra": "iterations: 6302502\ncpu: 111.07387193213106 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 11348.333560333416,
+            "unit": "ns/iter",
+            "extra": "iterations: 61674\ncpu: 11347.93429970491 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24681.60011969314,
+            "unit": "ns/iter",
+            "extra": "iterations: 28406\ncpu: 24679.430402027716 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 40837.74947515812,
+            "unit": "ns/iter",
+            "extra": "iterations: 17148\ncpu: 40835.899230230934 ns\nthreads: 1"
           }
         ]
       }
