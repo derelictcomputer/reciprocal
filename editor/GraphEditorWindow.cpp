@@ -39,11 +39,23 @@ Status GraphEditorWindow::draw() {
 
     ImNodes::BeginNodeEditor();
     {
-      for (const auto& node : _nodes) {
+      for (const auto& node: _nodes) {
         NodeGUI::draw(node);
+      }
+      for (const auto& connection: _connections) {
+        ImNodes::Link(connection.id, connection.sourcePortId, connection.destPortId);
       }
     }
     ImNodes::EndNodeEditor();
+
+    Connection connection;
+    if (ImNodes::IsLinkCreated(&connection.sourceNodeId,
+                               &connection.sourcePortId,
+                               &connection.destNodeId,
+                               &connection.destPortId)) {
+      _connectionIds.get(connection.id);
+      _connections.emplace_back(connection);
+    }
   }
   ImGui::End();
 
