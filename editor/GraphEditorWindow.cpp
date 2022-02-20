@@ -46,6 +46,7 @@ Status GraphEditorWindow::draw() {
         ImNodes::Link(connection.id, connection.sourcePortId, connection.destPortId);
       }
     }
+    ImNodes::MiniMap();
     ImNodes::EndNodeEditor();
 
     Connection connection;
