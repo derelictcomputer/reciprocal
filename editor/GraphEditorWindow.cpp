@@ -1,26 +1,49 @@
-#include "imgui.h"
+#include "imnodes.h"
 #include "GraphEditorWindow.h"
 
 using namespace dc;
 
+GraphEditorWindow::GraphEditorWindow() {
+  ImNodes::CreateContext();
+}
+
+GraphEditorWindow::~GraphEditorWindow() {
+  ImNodes::DestroyContext();
+}
+
 Status GraphEditorWindow::draw() {
-  static float f = 0.0f;
-  static int counter = 0;
+  ImGui::Begin("Graph Editor");
+  {
+    ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 
-  ImGui::Begin("Main Window");
+    ImNodes::BeginNodeEditor();
+    {
+      ImNodes::BeginNode(1);
+      {
+        ImNodes::BeginNodeTitleBar();
+        ImGui::TextUnformatted("Out Node");
+        ImNodes::EndNodeTitleBar();
+        ImGui::Dummy(ImVec2(80.0f, 45.0f));
+        ImNodes::BeginOutputAttribute(3);
+        ImGui::Text("out");
+        ImNodes::EndOutputAttribute();
+      }
+      ImNodes::EndNode();
 
-  ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-
-  ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-  if (ImGui::Button(
-      "Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-    counter++;
-  ImGui::SameLine();
-  ImGui::Text("counter = %d", counter);
-
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-              ImGui::GetIO().Framerate);
+      ImNodes::BeginNode(2);
+      {
+        ImNodes::BeginNodeTitleBar();
+        ImGui::TextUnformatted("In Node");
+        ImNodes::EndNodeTitleBar();
+        ImGui::Dummy(ImVec2(80.0f, 45.0f));
+        ImNodes::BeginInputAttribute(4);
+        ImGui::Text("in");
+        ImNodes::EndInputAttribute();
+      }
+      ImNodes::EndNode();
+    }
+    ImNodes::EndNodeEditor();
+  }
   ImGui::End();
 
   return Status::Ok;

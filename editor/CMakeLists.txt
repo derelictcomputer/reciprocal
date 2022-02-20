@@ -1,6 +1,8 @@
 message("<3 Adding Reciprocal Editor")
 
-# configure Dear ImGui for Mac
+# configure Dear ImGui
+# NB: we're using GLFW and OpenGL 3 for every platform for now, because it's cross-platform.
+# But we might need to switch Mac to Metal and Win to Vulkan and so on.
 message("<3 Configuring Dear ImGui for GLFW and OpenGL3")
 find_package(OpenGL REQUIRED)
 if (NOT OPENGL_FOUND)
@@ -18,7 +20,7 @@ if (NOT TARGET glad)
     FetchContent_Declare(
             glad
             GIT_REPOSITORY https://github.com/Dav1dde/glad.git
-            GIT_TAG 423a84f3f77ecf4d310a346fa10fc440b6afce15
+            GIT_TAG master
     )
     FetchContent_MakeAvailable(glad)
 endif ()
@@ -31,7 +33,7 @@ if (NOT TARGET glfw)
     FetchContent_Declare(
             glfw
             GIT_REPOSITORY https://github.com/glfw/glfw.git
-            GIT_TAG 7d5a16ce714f0b5f4efa3262de22e4d948851525
+            GIT_TAG master
     )
     FetchContent_MakeAvailable(glfw)
 endif ()
@@ -62,6 +64,23 @@ if (NOT imgui_POPULATED)
     target_link_libraries(imgui ${OPENGL_LIBRARIES} glfw glad)
 endif()
 
+# Get and configure imnodes
+FetchContent_Declare(
+        imnodes
+        GIT_REPOSITORY https://github.com/Nelarius/imnodes.git
+        GIT_TAG master
+)
+FetchContent_GetProperties(imnodes)
+if (NOT imnodes_POPULATED)
+    FetchContent_Populate(imnodes)
+    add_library(imnodes STATIC
+            ${imnodes_SOURCE_DIR}/imnodes.h
+            ${imnodes_SOURCE_DIR}/imnodes_internal.h
+            ${imnodes_SOURCE_DIR}/imnodes.cpp)
+    target_include_directories(imnodes PUBLIC ${imnodes_SOURCE_DIR})
+    target_link_libraries(imnodes PUBLIC imgui)
+endif()
+
 # editor executable
 set(target editor)
 file(GLOB src *.h *.cpp)
@@ -75,7 +94,7 @@ set_target_properties(
         MACOSX_BUNDLE_BUNDLE_VERSION "0.1"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
 )
-target_link_libraries(${target} PUBLIC dagnabbit imgui)
+target_link_libraries(${target} PUBLIC dagnabbit imnodes)
 
 if (MSVC)
     target_compile_options(${target} PUBLIC /W4 /WX)

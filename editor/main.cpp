@@ -79,7 +79,8 @@ int main(int, char**) {
   ImGui_ImplOpenGL3_Init(glsl_version);
 
   GraphEditorWindow graphEditorWindow;
-  bool show_demo_window = false;
+  bool show_demo_window = true;
+  bool show_metrics_window = true;
 
   // Main loop
   while (!glfwWindowShouldClose(window)) {
@@ -97,6 +98,9 @@ int main(int, char**) {
         if (ImGui::MenuItem("Dear ImGui Demo", nullptr, show_demo_window)) {
           show_demo_window = !show_demo_window;
         }
+        if (ImGui::MenuItem("Metrics", nullptr, show_metrics_window)) {
+          show_metrics_window = !show_metrics_window;
+        }
         ImGui::EndMenu();
       }
       ImGui::EndMainMenuBar();
@@ -108,6 +112,10 @@ int main(int, char**) {
 
     if (show_demo_window) {
       ImGui::ShowDemoWindow(&show_demo_window);
+    }
+
+    if (show_metrics_window) {
+      ImGui::ShowMetricsWindow(&show_metrics_window);
     }
 
     // Rendering

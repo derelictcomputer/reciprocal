@@ -5,6 +5,10 @@
 namespace dc {
 class GraphEditorWindow {
 public:
+  GraphEditorWindow();
+
+  ~GraphEditorWindow();
+
   Status draw();
 };
 }
