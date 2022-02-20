@@ -5,6 +5,27 @@ using namespace dc;
 
 GraphEditorWindow::GraphEditorWindow() {
   ImNodes::CreateContext();
+
+  {
+    NodeInfo i;
+    i.name = "Node with input";
+    _nodeIds.get(i.id);
+    PortInfo p;
+    p.name = "in";
+    _portIds.get(p.id);
+    i.inputPorts.emplace_back(std::move(p));
+    _nodes.emplace_back(std::move(i));
+  }
+  {
+    NodeInfo i;
+    i.name = "Node with output";
+    _nodeIds.get(i.id);
+    PortInfo p;
+    p.name = "out";
+    _portIds.get(p.id);
+    i.outputPorts.emplace_back(std::move(p));
+    _nodes.emplace_back(std::move(i));
+  }
 }
 
 GraphEditorWindow::~GraphEditorWindow() {
@@ -18,29 +39,9 @@ Status GraphEditorWindow::draw() {
 
     ImNodes::BeginNodeEditor();
     {
-      ImNodes::BeginNode(1);
-      {
-        ImNodes::BeginNodeTitleBar();
-        ImGui::TextUnformatted("Out Node");
-        ImNodes::EndNodeTitleBar();
-        ImGui::Dummy(ImVec2(80.0f, 45.0f));
-        ImNodes::BeginOutputAttribute(3);
-        ImGui::Text("out");
-        ImNodes::EndOutputAttribute();
+      for (const auto& node : _nodes) {
+        NodeGUI::draw(node);
       }
-      ImNodes::EndNode();
-
-      ImNodes::BeginNode(2);
-      {
-        ImNodes::BeginNodeTitleBar();
-        ImGui::TextUnformatted("In Node");
-        ImNodes::EndNodeTitleBar();
-        ImGui::Dummy(ImVec2(80.0f, 45.0f));
-        ImNodes::BeginInputAttribute(4);
-        ImGui::Text("in");
-        ImNodes::EndInputAttribute();
-      }
-      ImNodes::EndNode();
     }
     ImNodes::EndNodeEditor();
   }
