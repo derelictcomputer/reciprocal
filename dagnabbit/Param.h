@@ -5,9 +5,20 @@
 #include <cmath>
 
 namespace dc {
+class ParamBase {
+public:
+  /// Set the value using a 0.0-1.0 normalized value.
+  /// @param normalized A normalized value in range 0.0-1.0
+  virtual void setNormalized(double normalized) = 0;
+
+  /// Get the value normalized to range 0.0-1.0
+  /// @returns The normalized value
+  [[nodiscard]] virtual double getNormalized() const = 0;
+};
+
 /// Atomic configuration value for a thing that needs configuring.
 template<class T>
-class Param {
+class Param : public ParamBase {
 public:
   explicit Param(T min, T max, T def, T step) :
       min(std::min(min, max)),
@@ -41,7 +52,7 @@ public:
 
   /// Set the value using a 0.0-1.0 normalized value.
   /// @param normalized A normalized value in range 0.0-1.0
-  void setNormalized(double normalized) {
+  void setNormalized(double normalized) override {
     set(static_cast<T>(min + normalized * (max - min)));
   }
 
@@ -53,7 +64,7 @@ public:
 
   /// Get the value normalized to range 0.0-1.0
   /// @returns The normalized value
-  [[nodiscard]] double getNormalized() const {
+  [[nodiscard]] double getNormalized() const override {
     return static_cast<double>(_val.load() - min) / (max - min);
   }
 
