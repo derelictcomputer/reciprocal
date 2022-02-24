@@ -14,7 +14,8 @@ X(OutOfRange)         \
 X(NotImplemented)     \
 X(InvalidArgument)    \
 X(NotInitialized)     \
-X(NoConnection)
+X(NoConnection)       \
+X(Duplicate)
 
 enum class Status {
 #define X(name) name,

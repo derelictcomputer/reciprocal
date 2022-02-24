@@ -3,10 +3,10 @@ project(reciprocal)
 
 set(CMAKE_CXX_STANDARD 20)
 
+include(FetchContent)
+
 # use sanitizers if appropriate
 include(cmake/sanitizers.cmake)
-
-include(FetchContent)
 
 # get gtest
 FetchContent_Declare(
@@ -18,8 +18,6 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
-enable_testing()
-
 # get google benchmark
 FetchContent_Declare(
         gbenchmark
@@ -30,7 +28,14 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gbenchmark)
 
+enable_testing()
+
 add_subdirectory(core)
 add_subdirectory(dagnabbit)
+
+option(DC_EDITOR "Include the graph editor" OFF)
+if (DC_EDITOR)
+    add_subdirectory(editor)
+endif()
 
 add_subdirectory(examples)
