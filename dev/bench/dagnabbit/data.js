@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1645307783987,
+  "lastUpdate": 1645736686170,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "dagnabbit Benchmark": [
@@ -384,6 +384,54 @@ window.BENCHMARK_DATA = {
             "value": 10.959569524203204,
             "unit": "ns/iter",
             "extra": "iterations: 64433820\ncpu: 10.959426276449229 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c03cef3c5aa69b00ecf3d32d505642d446613865",
+          "message": "Graph Editor Prototype (#48)\n\n* stub in editor, use GLFW + OpenGL3\r\n\r\n* start messing with window docking, it is cool\r\n\r\n* menu bar, stub for graph editor window\r\n\r\n* start messing around with the node editor\r\n\r\n* add LUID\r\n\r\n* add dynamic node gui\r\n\r\n* make connections\r\n\r\n* delete LFPool, not using it, will make another if needed\r\n\r\n* add minimap\r\n\r\n* right-click to add nodes from popup menu",
+          "timestamp": "2022-02-24T16:03:12-05:00",
+          "tree_id": "4842bb9c6b4d66b108a7cc19925ce09091291402",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/c03cef3c5aa69b00ecf3d32d505642d446613865"
+        },
+        "date": 1645736684288,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "Graph_AddRemove<double>",
+            "value": 504.3724168381182,
+            "unit": "ns/iter",
+            "extra": "iterations: 1411013\ncpu: 504.31413459691726 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_ConnectDisconnect<double, double>",
+            "value": 202.92873501393046,
+            "unit": "ns/iter",
+            "extra": "iterations: 3446868\ncpu: 202.90190979172976 ns\nthreads: 1"
+          },
+          {
+            "name": "Graph_Process_PassthroughChain<double, double, 64>",
+            "value": 2262.7065580356075,
+            "unit": "ns/iter",
+            "extra": "iterations: 311145\ncpu: 2262.1996175416616 ns\nthreads: 1"
+          },
+          {
+            "name": "Node_Passthrough_ConnectDisconnect<double, double>",
+            "value": 14.318391110004024,
+            "unit": "ns/iter",
+            "extra": "iterations: 48618066\ncpu: 14.31556944284868 ns\nthreads: 1"
           }
         ]
       }
