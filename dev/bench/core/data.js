@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1645307788579,
+  "lastUpdate": 1645736659216,
   "repoUrl": "https://github.com/derelictcomputer/reciprocal",
   "entries": {
     "core Benchmark": [
@@ -1304,6 +1304,72 @@ window.BENCHMARK_DATA = {
             "value": 40837.74947515812,
             "unit": "ns/iter",
             "extra": "iterations: 17148\ncpu: 40835.899230230934 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "charliehuge@users.noreply.github.com",
+            "name": "Charlie Huguenard",
+            "username": "charliehuge"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c03cef3c5aa69b00ecf3d32d505642d446613865",
+          "message": "Graph Editor Prototype (#48)\n\n* stub in editor, use GLFW + OpenGL3\r\n\r\n* start messing with window docking, it is cool\r\n\r\n* menu bar, stub for graph editor window\r\n\r\n* start messing around with the node editor\r\n\r\n* add LUID\r\n\r\n* add dynamic node gui\r\n\r\n* make connections\r\n\r\n* delete LFPool, not using it, will make another if needed\r\n\r\n* add minimap\r\n\r\n* right-click to add nodes from popup menu",
+          "timestamp": "2022-02-24T16:03:12-05:00",
+          "tree_id": "4842bb9c6b4d66b108a7cc19925ce09091291402",
+          "url": "https://github.com/derelictcomputer/reciprocal/commit/c03cef3c5aa69b00ecf3d32d505642d446613865"
+        },
+        "date": 1645736657845,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint8_t>",
+            "value": 63.54387784191764,
+            "unit": "ns/iter",
+            "extra": "iterations: 11003971\ncpu: 63.5262124918359 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint16_t>",
+            "value": 202.80936120133464,
+            "unit": "ns/iter",
+            "extra": "iterations: 3487202\ncpu: 202.8006694192077 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint32_t>",
+            "value": 126.87185073450622,
+            "unit": "ns/iter",
+            "extra": "iterations: 5519025\ncpu: 126.86820588781531 ns\nthreads: 1"
+          },
+          {
+            "name": "MathHelpers_NextPowerOfTwo<uint64_t>",
+            "value": 110.98612804319397,
+            "unit": "ns/iter",
+            "extra": "iterations: 6302139\ncpu: 110.97278241562105 ns\nthreads: 1"
+          },
+          {
+            "name": "SPSCQ_FillDrain<double, 512>",
+            "value": 12535.315224009288,
+            "unit": "ns/iter",
+            "extra": "iterations: 55846\ncpu: 12534.711528130929 ns\nthreads: 1"
+          },
+          {
+            "name": "MPMCQ_FillDrain<double, 512>",
+            "value": 24741.501902882443,
+            "unit": "ns/iter",
+            "extra": "iterations: 28378\ncpu: 24732.433575304825 ns\nthreads: 1"
+          },
+          {
+            "name": "TrashMan_FillEmpty<int, 512>",
+            "value": 40993.94554832634,
+            "unit": "ns/iter",
+            "extra": "iterations: 17061\ncpu: 40991.448332454136 ns\nthreads: 1"
           }
         ]
       }
