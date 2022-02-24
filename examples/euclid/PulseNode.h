@@ -65,7 +65,7 @@ public:
   }
 
 private:
-  BoolParam _enabled{false};
+  BoolParam _enabled{"enabled", false};
   Param<TimeType> _rate;
   DataType _outputData{};
 };

@@ -102,8 +102,8 @@ TEST(EuclidNode, Throughput) {
   {
     const auto status = graph.addNode(
         [&euclidNode]() {
-          Param<uint8_t> pulsesParam{1, 16, 8, 1};
-          Param<uint8_t> stepsParam{1, 16, 16, 1};
+          Param<uint8_t> pulsesParam{"pulses", 1, 16, 8, 1};
+          Param<uint8_t> stepsParam{"steps", 1, 16, 16, 1};
           euclidNode = new EuclidNode<TimeType, DataType>(pulsesParam, stepsParam, 16, 1);
           return euclidNode;
         },
@@ -200,7 +200,7 @@ TEST(PulseNode, Output) {
   {
     const auto status = graph.addNode(
         [min, max, def, step, &pulseNode]() {
-          Param<TimeType> rateParam{min, max, def, step};
+          Param<TimeType> rateParam{"rate", min, max, def, step};
           pulseNode = new PulseNode<TimeType, DataType>(rateParam, maxOutputConnections);
           return pulseNode;
         },

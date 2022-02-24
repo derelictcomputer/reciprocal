@@ -5,7 +5,9 @@
 using namespace dc;
 
 TEST(Param, SetGetBool) {
-  BoolParam p{false};
+  const std::string name = "billy the boolean";
+  BoolParam p{std::string(name), false};
+  ASSERT_EQ(p.name, name);
   ASSERT_EQ(p.min, false);
   ASSERT_EQ(p.max, true);
   ASSERT_EQ(p.step, false);
@@ -31,7 +33,7 @@ TYPED_TEST(ParamTest, SetGetContinuous) {
   const TypeParam step = 0;
 
   // check initialization
-  Param<TypeParam> p{min, max, def, step};
+  Param<TypeParam> p{"", min, max, def, step};
   ASSERT_EQ(p.min, min);
   ASSERT_EQ(p.max, max);
   ASSERT_EQ(p.def, def);
@@ -59,7 +61,7 @@ TYPED_TEST(ParamTest, SetGetStepped) {
   const TypeParam step = 3;
 
   // check initialization
-  Param<TypeParam> p{min, max, def, step};
+  Param<TypeParam> p{"", min, max, def, step};
   ASSERT_EQ(p.min, min);
   ASSERT_EQ(p.max, max);
   ASSERT_EQ(p.def, def);
@@ -83,7 +85,7 @@ TYPED_TEST(ParamTest, SetGetNormalized) {
   const auto step = 0;
 
   // check initialization
-  Param<TypeParam> p{min, max, def, step};
+  Param<TypeParam> p{"", min, max, def, step};
   ASSERT_EQ(p.min, min);
   ASSERT_EQ(p.max, max);
   ASSERT_EQ(p.def, def);

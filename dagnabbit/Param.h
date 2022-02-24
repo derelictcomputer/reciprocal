@@ -3,10 +3,15 @@
 #include <algorithm>
 #include <atomic>
 #include <cmath>
+#include <string>
 
 namespace dc {
 class ParamBase {
 public:
+  explicit ParamBase(std::string&& name) : name(std::move(name)) {}
+
+  const std::string name;
+
   /// Set the value using a 0.0-1.0 normalized value.
   /// @param normalized A normalized value in range 0.0-1.0
   virtual void setNormalized(double normalized) = 0;
@@ -20,7 +25,8 @@ public:
 template<class T>
 class Param : public ParamBase {
 public:
-  explicit Param(T min, T max, T def, T step) :
+  explicit Param(std::string&& name, T min, T max, T def, T step) :
+      ParamBase(std::move(name)),
       min(std::min(min, max)),
       max(std::max(min, max)),
       def(std::clamp(def, min, max)),
@@ -29,6 +35,7 @@ public:
   }
 
   Param(const Param& other) noexcept:
+      ParamBase(std::string(other.name)),
       min(other.min),
       max(other.max),
       def(other.def),
@@ -80,6 +87,6 @@ private:
 /// Just here to make toggle parameters easier to wield
 class BoolParam : public Param<bool> {
 public:
-  explicit BoolParam(bool def) : Param<bool>(false, true, def, false) {}
+  explicit BoolParam(std::string&& name, bool def) : Param<bool>(std::move(name), false, true, def, false) {}
 };
 }

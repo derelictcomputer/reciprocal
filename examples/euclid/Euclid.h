@@ -22,7 +22,7 @@ public:
     NodeId pulseNodeId, euclidNodeId, outputNodeId;
     [[maybe_unused]] auto status = this->addNode(
         [rateMin, rateMax, rateDefault, rateStep, this]() {
-          Param<TimeType> rateParam{rateMin, rateMax, rateDefault, rateStep};
+          Param<TimeType> rateParam{"rate", rateMin, rateMax, rateDefault, rateStep};
           this->_pulseNode = new PulseNode<TimeType, DataType>(rateParam, 1);
           return this->_pulseNode;
         },
@@ -34,8 +34,8 @@ public:
     assert(status == Status::Ok);
     status = this->addNode(
         [defaultSteps, defaultPulses, this]() {
-          Param<uint8_t> pulsesParam{1, 16, defaultPulses, 1};
-          Param<uint8_t> stepsParam{1, 16, defaultSteps, 1};
+          Param<uint8_t> pulsesParam{"pulses", 1, 16, defaultPulses, 1};
+          Param<uint8_t> stepsParam{"steps", 1, 16, defaultSteps, 1};
           this->_euclidNode = new EuclidNode<TimeType, DataType>(pulsesParam, stepsParam, 16, 1);
           return this->_euclidNode;
         },
