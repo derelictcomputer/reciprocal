@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/Status.h"
+#include "Param.h"
 #include "Port.h"
 
 namespace dc {
@@ -38,6 +39,34 @@ public:
 
   /// Reset the node's internal state.
   virtual void reset() {}
+
+  [[nodiscard]] size_t getNumParams() const {
+    return _params.size();
+  }
+
+  Status getParamName(size_t index, std::string& name) {
+    if (index >= _params.size()) {
+      return Status::OutOfRange;
+    }
+    name = _params[index]->name;
+    return Status::Ok;
+  }
+
+  Status getParamNormalized(size_t index, double& normalized) {
+    if (index >= _params.size()) {
+      return Status::OutOfRange;
+    }
+    normalized = _params[index]->getNormalized();
+    return Status::Ok;
+  }
+
+  Status setParamNormalized(size_t index, double normalized) {
+    if (index >= _params.size()) {
+      return Status::OutOfRange;
+    }
+    _params[index]->setNormalized(normalized);
+    return Status::Ok;
+  }
 
 protected:
   template<class MessageType>
@@ -91,7 +120,10 @@ protected:
     return p->pushToConnections(msg);
   }
 
-
+  template<class ParamType>
+  void addParam(std::string&& name, ParamType min, ParamType max, ParamType def, ParamType step) {
+    _params.emplace_back(std::make_unique<Param<ParamType>>(std::move(name), min, max, def, step));
+  }
 
 private:
   // Let the owning graph look at ports/connections
@@ -105,6 +137,8 @@ private:
 
   std::vector<std::unique_ptr<PortBase>> _inputs;
   std::vector<std::unique_ptr<PortBase>> _outputs;
+
+  std::vector<std::unique_ptr<ParamBase>> _params;
 };
 
 template<class TimeType>
