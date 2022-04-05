@@ -28,7 +28,7 @@ jobs:
 
     - name: Build
       env:
-        targets: 'core_tests dagnabbit_tests euclid_tests'
+        targets: 'core_tests operator_tests dagnabbit_tests euclid_tests'
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --target $targets
 
     - name: Test

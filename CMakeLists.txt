@@ -31,6 +31,7 @@ FetchContent_MakeAvailable(gbenchmark)
 enable_testing()
 
 add_subdirectory(core)
+add_subdirectory(operator)
 add_subdirectory(dagnabbit)
 
 option(DC_EDITOR "Include the graph editor" OFF)
