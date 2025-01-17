@@ -6,5 +6,3 @@ Interactive music tools
 
 ## Benchmarks
 [![benchmark_all](https://github.com/derelictcomputer/reciprocal/actions/workflows/benchmark_all.yml/badge.svg)](https://github.com/derelictcomputer/reciprocal/actions/workflows/benchmark_all.yml)
-
-Benchmark graphs are [here](http://derelict.computer/reciprocal/dev/bench/)
