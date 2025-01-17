@@ -112,7 +112,7 @@ template <typename T, typename Allocator = AlignedAllocator<Slot<T>>>
 class Queue {
 private:
   static_assert(std::is_nothrow_copy_assignable<T>::value ||
-                std::is_nothrow_move_assignable<T>::value,
+                    std::is_nothrow_move_assignable<T>::value,
                 "T must be nothrow copy or move assignable");
 
   static_assert(std::is_nothrow_destructible<T>::value,
@@ -148,7 +148,7 @@ public:
                   "prevent false sharing between adjacent queues");
     static_assert(
         offsetof(Queue, tail_) - offsetof(Queue, head_) ==
-        static_cast<std::ptrdiff_t>(hardwareInterferenceSize),
+            static_cast<std::ptrdiff_t>(hardwareInterferenceSize),
         "head and tail must be a cache line apart to prevent false sharing");
   }
 
@@ -203,8 +203,8 @@ public:
   }
 
   template <typename P,
-      typename = typename std::enable_if<
-          std::is_nothrow_constructible<T, P &&>::value>::type>
+            typename = typename std::enable_if<
+                std::is_nothrow_constructible<T, P &&>::value>::type>
   void push(P &&v) noexcept {
     emplace(std::forward<P>(v));
   }
@@ -216,8 +216,8 @@ public:
   }
 
   template <typename P,
-      typename = typename std::enable_if<
-          std::is_nothrow_constructible<T, P &&>::value>::type>
+            typename = typename std::enable_if<
+                std::is_nothrow_constructible<T, P &&>::value>::type>
   bool try_push(P &&v) noexcept {
     return try_emplace(std::forward<P>(v));
   }
@@ -289,7 +289,7 @@ private:
 } // namespace mpmc
 
 template <typename T,
-    typename Allocator = mpmc::AlignedAllocator<mpmc::Slot<T>>>
+          typename Allocator = mpmc::AlignedAllocator<mpmc::Slot<T>>>
 using MPMCQueue = mpmc::Queue<T, Allocator>;
 
 } // namespace rigtorp
